@@ -1,0 +1,22 @@
+samba:
+  managed: False
+
+  workgroup: 'WORKGROUP'
+  server_string: {{ salt['grains.get']('fqdn') }}
+
+  passwords: {}
+  options: {}
+  shares: {}
+
+  share_defaults:
+    comment: 'Managed by SaltStack'
+    public: False
+    browseable: True
+    writeable: True
+
+  <os_family>:
+    Debian:
+      packages: ['samba']
+      services: ['smbd', 'nmbd']
+      config_path: '/etc/samba/smb.conf'
+      testparm_cmd: '/usr/bin/testparm -s'

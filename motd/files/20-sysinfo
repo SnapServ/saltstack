@@ -1,0 +1,31 @@
+#!/bin/sh
+# Managed by SaltStack
+
+current_date=$(date | sed 's/\s\+/ /g')
+load_average=$(awk '{print $1}' /proc/loadavg)
+hostname=$(hostname -f)
+memory_usage=$(free -m | awk '/Mem/ { printf("%3.1f%%", $3/$2*100) }')
+system_uptime=$(uptime -p | sed 's/up //' | tr -d ',' | awk '{print $1" "$2}')
+root_usage=$(df -h / | awk '/\// {print $(NF-1)}')
+kernel_version=$(uname -r)
+location={{ role.location_str|upper }}
+process_count=$(ps ax | wc -l)
+
+label_prefix="\033[00;32m"
+label_suffix=":\033[0m\t"
+label_separator="\t"
+format_string=$(cat <<EOF
+System information as of: %s
+${label_prefix}System load${label_suffix}%s${label_separator}${label_prefix}Hostname${label_suffix}%s
+${label_prefix}Memory usage${label_suffix}%s${label_separator}${label_prefix}System uptime${label_suffix}%s
+${label_prefix}Usage on /${label_suffix}%s${label_separator}${label_prefix}Kernel version${label_suffix}%s
+${label_prefix}Location${label_suffix}%s${label_separator}${label_prefix}Processes${label_suffix}%s
+EOF
+)
+
+printf "${format_string}\n\n" \
+  "${current_date}" \
+  "${load_average}" "${hostname}" \
+  "${memory_usage}" "${system_uptime}" \
+  "${root_usage}" "${kernel_version}" \
+  "${location}" "${process_count}"

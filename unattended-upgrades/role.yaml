@@ -1,0 +1,17 @@
+unattended-upgrades:
+  managed: False
+
+  origins_pattern: []
+  package_blacklist: []
+
+  mail_address: 'root'
+  mail_only_errors: True
+
+  <os_family>:
+    Debian:
+      packages: ['unattended-upgrades']
+      service: 'unattended-upgrades'
+      config_path: '/etc/apt/apt.conf.d/50unattended-upgrades'
+
+      origins_pattern:
+        - 'origin=Debian,codename=${distro_codename},label=Debian-Security'

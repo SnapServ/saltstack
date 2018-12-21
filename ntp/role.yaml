@@ -1,0 +1,17 @@
+ntp:
+  managed: False
+
+  servers:
+    - '0.pool.ntp.org'
+    - '1.pool.ntp.org'
+    - '2.pool.ntp.org'
+    - '3.pool.ntp.org'
+
+  <os_family>:
+    Debian:
+      packages: ['ntp']
+      service: 'ntp'
+
+      ntpconf_path: '/etc/ntp.conf'
+      driftfile_path: '/var/lib/ntp/ntp.drift'
+      stats_dir: '/var/log/ntpstats'

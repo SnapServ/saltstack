@@ -1,0 +1,29 @@
+{%- macro sudoers_default(_key, _value) -%}
+  {%- if _value is iterable and _value is not string -%}
+    {{ _key }} = {{ _value|join(':') }}
+  {%- elif _value == true or _value == false -%}
+    {{ _key if _value else ('!' ~ _key) }}
+  {%- else -%}
+    {{ _key }} = {{ _value }}
+  {%- endif -%}
+{%- endmacro -%}
+
+# Managed by SaltStack
+{%- for _name, _commands in role.user_aliases|dictsort %}
+User_Alias {{ _name }} = {{ _commands|join(', ') }}
+{%- endfor %}
+{%- for _name, _commands in role.runas_aliases|dictsort %}
+Runas_Alias {{ _name }} = {{ _commands|join(', ') }}
+{%- endfor %}
+{%- for _name, _commands in role.host_aliases|dictsort %}
+Host_Alias {{ _name }} = {{ _commands|join(', ') }}
+{%- endfor %}
+{%- for _name, _commands in role.command_aliases|dictsort %}
+Cmnd_Alias {{ _name }} = {{ _commands|join(', ') }}
+{%- endfor %}
+
+{%- for _key, _value in role.defaults|dictsort %}
+Defaults {{ sudoers_default(_key, _value) }}
+{%- endfor %}
+
+{{ role.rules|join('\n') }}

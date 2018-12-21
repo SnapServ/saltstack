@@ -1,0 +1,10 @@
+locale:
+  managed: False
+
+  system_locale: null
+  present_locales: []
+  absent_locales: []
+
+  <os_family>:
+    Debian:
+      packages: ['locales']

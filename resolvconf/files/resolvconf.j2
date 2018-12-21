@@ -1,0 +1,8 @@
+# Managed by SaltStack
+{%- if role.search_paths %}
+search {{ role.search_paths|join(' ') }}
+{%- endif %}
+{%- for _nameserver in role.nameservers %}
+nameserver {{ _nameserver }}
+{%- endfor %}
+options timeout:1 attempts:1 rotate

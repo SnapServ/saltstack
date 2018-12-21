@@ -1,0 +1,18 @@
+software:
+  managed: False
+
+  packages:
+    installed: []
+    latest: []
+    removed: []
+    purged: []
+
+  repositories: {}
+
+  <os_family>:
+    Debian:
+      dependencies: ['apt-transport-https']
+
+      sources_path: '/etc/apt/sources.list'
+      sources_dir: '/etc/apt/sources.list.d'
+      sources_name_tpl: '{0}.list'

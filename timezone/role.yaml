@@ -1,0 +1,9 @@
+timezone:
+  managed: False
+
+  system_timezone: 'Etc/UTC'
+  is_hwclock_utc: True
+
+  <os_family>:
+    Debian:
+      timezone_path: '/etc/timezone'

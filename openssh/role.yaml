@@ -1,0 +1,44 @@
+openssh:
+  managed: False
+
+  server:
+    port: 22
+    use_pam: True
+    use_dns: True
+    log_level: 'VERBOSE'
+
+    strict_modes: True
+    use_privilege_separation: 'sandbox'
+    authentication_methods: ['password', 'publickey']
+
+    permit_root_login: True
+    permit_agent_forwarding: False
+    permit_tcp_forwarding: False
+    permit_x11_forwarding: False
+    permit_tunneling: False
+
+    authorized_keys_command: null
+    authorized_keys_command_user: null
+
+    accept_env: []
+    allow_users: []
+    allow_groups: []
+    deny_users: []
+    deny_groups: []
+
+    custom_configs: {}
+
+  <os_family>:
+    Debian:
+      server:
+        packages: ['openssh-server']
+        service: 'ssh'
+
+        config_dir: '/etc/ssh'
+        sshd_config_path: '/etc/ssh/sshd_config'
+        sshd_config_check_cmd: '/usr/sbin/sshd -t -f'
+        sftp_subsystem_cmd: '/usr/lib/openssh/sftp-server -f AUTHPRIV -l INFO'
+
+        custom_configs:
+          disable_debian_banner: |
+            DebianBanner no
