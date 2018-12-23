@@ -12,5 +12,6 @@ base:
     - motd
 
   'I.@jdownloader.managed': [jdownloader]
+  'I.@plexmediaserver.managed': [plexmediaserver]
   'I.@samba.managed': [samba]
   'I.@syncthing.managed': [syncthing]
