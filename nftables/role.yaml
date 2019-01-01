@@ -21,6 +21,7 @@ nftables:
   <os_family>:
     Debian:
       packages: ['nftables']
+      service: 'nftables'
       
-      nft_bin: '/usr/sbin/nft'
-      ruleset_path: '/etc/nftables.ruleset'
+      ruleset_path: '/etc/nftables.conf'
+      ruleset_check_cmd: '/usr/sbin/nft -f'

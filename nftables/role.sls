@@ -6,8 +6,9 @@ nftables/packages:
 
 nftables/ruleset:
   file.managed:
-    - name: {{ role.ruleset_path }}
+    - name: {{ role.ruleset_path|yaml_dquote }}
     - source: {{ ('salt://' ~ slspath ~ '/files/salt.ruleset.j2')|yaml_dquote }}
+    - check_cmd: {{ role.ruleset_check_cmd|yaml_dquote }}
     - template: 'jinja'
     - user: 'root'
     - group: 'root'
@@ -17,8 +18,9 @@ nftables/ruleset:
     - require:
       - pkg: nftables/packages
 
-nftables/reload:
-  cmd.run:
-    - name: {{ (role.nft_bin ~ ' -f ' ~ role.ruleset_path)|yaml_dquote }}
-    - onchanges:
+nftables/service:
+  service.running:
+    - name: {{ role.service|yaml_dquote }}
+    - enable: True
+    - watch:
       - file: nftables/ruleset
