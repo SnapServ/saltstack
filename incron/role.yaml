@@ -1,0 +1,20 @@
+incron:
+  managed: False
+
+  crons: {}
+  allowed_users:
+    - 'root'
+  denied_users: []
+
+  cron_defaults:
+    enabled: True
+    user: root
+
+  <os_family>:
+    Debian:
+      packages: ['incron']
+
+      config_group: 'incron'
+      scripts_dir: '/etc/incron.scripts'
+      allowed_users_config: '/etc/incron.allow'
+      denied_users_config: '/etc/incron.deny'
