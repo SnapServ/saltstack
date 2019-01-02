@@ -42,7 +42,7 @@ prometheus/server/config:
 prometheus/server/service:
   file.managed:
     - name: '/etc/systemd/system/prometheus.service'
-    - source: {{ ('salt://' ~ slspath ~ '/files/prometheus.service.j2')|yaml_dquote }}
+    - source: {{ ('salt://' ~ slspath ~ '/files/server.service.j2')|yaml_dquote }}
     - template: 'jinja'
     - user: 'root'
     - group: 'root'
@@ -61,7 +61,17 @@ prometheus/server/service:
   service.running:
     - name: 'prometheus.service'
     - enable: True
+    - reload: True
     - require:
       - module: prometheus/server/service
     - watch:
       - file: prometheus/server/config
+
+prometheus/server/service-restart:
+  service.running:
+    - name: 'prometheus.service'
+    - watch:
+      - archive: prometheus/server/install
+      - file: prometheus/server/service
+    - require:
+      - service: prometheus/server/service

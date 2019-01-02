@@ -4,4 +4,5 @@
 include:
   - {{ sls }}.dependencies
   - {{ sls }}.server
+  - {{ sls }}.node_exporter
 {% endif %}

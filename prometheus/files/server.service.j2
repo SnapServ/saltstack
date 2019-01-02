@@ -9,6 +9,8 @@ ExecStart={{ install_path }}/prometheus \
   {{ ('--storage.tsdb.path=' ~ install_path ~ '/data')|quote }} \
   {{ ('--web.console.templates=' ~ install_path ~ '/consoles')|quote }} \
   {{ ('--web.console.libraries=' ~ install_path ~ '/console_libraries')|quote }}
+WorkingDirectory={{ install_path }}
+ExecReload=/bin/kill -HUP $MAINPID
 Restart=on-failure
 
 [Install]

@@ -19,6 +19,14 @@ prometheus:
           static_configs:
             - targets: ['localhost:9090']
 
+  node_exporter:
+    version: '0.17.0'
+    source_fmt: 'https://github.com/prometheus/node_exporter/releases/download/v{version}/node_exporter-{version}.linux-{arch}.tar.gz'
+    source_hash_fmt: 'https://github.com/prometheus/node_exporter/releases/download/v{version}/sha256sums.txt'
+
+    flags:
+      - '--web.listen-address="0.0.0.0:9100"'
+
   <cpuarch>:
     x86_64:
       arch: 'amd64'

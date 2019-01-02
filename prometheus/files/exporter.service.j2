@@ -1,0 +1,13 @@
+[Unit]
+Description=Prometheus {{ exporter_name|title }} Exporter
+After=network-online.target
+
+[Service]
+User={{ role.service_user }}
+ExecStart={{ install_path }}/{{ exporter_bin|default(exporter_name|lower ~ '_exporter') }} \
+  {{ exporter_flags|sort|join(' \n\\\t') }}
+WorkingDirectory={{ install_path }}
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
