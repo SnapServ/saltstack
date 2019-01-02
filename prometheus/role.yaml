@@ -1,0 +1,28 @@
+prometheus:
+  managed: True
+
+  service_user: 'prometheus'
+  service_group: 'prometheus'
+
+  server:
+    version: '2.6.0'
+    source_fmt: 'https://github.com/prometheus/prometheus/releases/download/v{version}/prometheus-{version}.linux-{arch}.tar.gz'
+    source_hash_fmt: 'https://github.com/prometheus/prometheus/releases/download/v{version}/sha256sums.txt'
+
+    config:
+      global:
+        scrape_interval: 60s
+        evaluation_interval: 60s
+
+      scrape_configs:
+        - job_name: 'prometheus'
+          static_configs:
+            - targets: ['localhost:9090']
+
+  <cpuarch>:
+    x86_64:
+      arch: 'amd64'
+
+  <os_family>:
+    Debian:
+      base_path: '/opt/prometheus'
