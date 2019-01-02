@@ -1,4 +1,6 @@
 jdownloader:
+  managed: False
+
   service_dir: '/opt/jdownloader'
   service_user: 'jdownloader'
   service_group: 'jdownloader'
