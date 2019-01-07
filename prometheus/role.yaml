@@ -23,9 +23,7 @@ prometheus:
     version: '0.17.0'
     source_fmt: 'https://github.com/prometheus/node_exporter/releases/download/v{version}/node_exporter-{version}.linux-{arch}.tar.gz'
     source_hash_fmt: 'https://github.com/prometheus/node_exporter/releases/download/v{version}/sha256sums.txt'
-
-    flags:
-      - '--web.listen-address="0.0.0.0:9100"'
+    flags: []
 
   <cpuarch>:
     x86_64:
