@@ -1,0 +1,24 @@
+backupninja:
+  managed: False
+
+  when: 'everyday at 01:00'
+  loglevel: 4
+  report_email: 'root'
+  report_success: True
+  report_info: False
+  report_warning: True
+  report_space: True
+
+  jobs: {}
+
+  <os_family>:
+    Debian:
+      packages:
+        - backupninja: '>=1.1.0'
+      handler_packages: ['borgbackup']
+
+      config_dir: '/etc/backup.d'
+      script_dir: '/usr/share/backupninja'
+      lib_dir: '/usr/lib/backupninja'
+      config_path: '/etc/backupninja.conf'
+      logfile_path: '/var/log/backupninja.log'

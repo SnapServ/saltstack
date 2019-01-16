@@ -1,0 +1,16 @@
+# Managed by SaltStack
+when = {{ role.when }}
+admingroup = root
+vservers = no
+usecolors = yes
+loglevel = {{ role.loglevel }}
+
+reportemail = {{ role.report_email }}
+reportsuccess = {{ 'yes' if role.report_success else 'no' }}
+reportinfo = {{ 'yes' if role.report_info else 'no' }}
+reportwarning = {{ 'yes' if role.report_warning else 'no' }}
+reportspace = {{ 'yes' if role.report_space else 'no' }}
+
+configdirectory = {{ role.config_dir }}
+scriptdirectory = {{ role.script_dir }}
+libdirectory = {{ role.lib_dir }}

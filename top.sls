@@ -11,6 +11,7 @@ base:
     - unattended-upgrades
     - motd
 
+  'I.@backupninja.managed': [backupninja]
   'I.@incron.managed': [incron]
   'I.@jdownloader.managed': [jdownloader]
   'I.@grafana.managed': [grafana]

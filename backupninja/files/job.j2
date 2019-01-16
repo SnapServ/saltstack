@@ -1,0 +1,14 @@
+{%- macro _generate_option(_option) -%}
+{%- set _key = _option.keys()[0] -%}
+{%- set _value = _option.values()[0] -%}
+{{ _key }} = {{ _value }}
+{%- endmacro -%}
+
+# Managed by SaltStack
+{%- for _section_name, _section in job|dictsort %}
+[{{ _section_name }}]
+{%- for _option in _section|sort %}
+{{ _generate_option(_option) }}
+{%- endfor %}
+{%- if not loop.last %}{{- '\n' -}}{%- endif -%}
+{%- endfor %}
