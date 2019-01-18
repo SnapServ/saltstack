@@ -5,7 +5,7 @@
 {% set _user_group = _user.group or _user_name %}
 
 $system/user/{{ _user_name }}:
-  ssx.resource: []
+  custom.resource: []
 
 account/user/{{ _user_name }}:
 {% if _user.enabled %}

@@ -16,7 +16,7 @@
 {% set _group = salt['custom.deep_merge'](role.group_defaults, _group) %}
 
 $system/group/{{ _group_name }}:
-  ssx.resource: []
+  custom.resource: []
 
 account/group/{{ _group_name }}:
 {% if _group.enabled %}

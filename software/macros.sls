@@ -4,7 +4,7 @@
 {% set _repo_file = role.sources_dir ~ '/' ~ role.sources_name_tpl.format(_name) %}
 
 $system/repository/{{ _name }}:
-  ssx.resource: []
+  custom.resource: []
 
 software/repository/{{ _name }}:
   pkgrepo.managed:
