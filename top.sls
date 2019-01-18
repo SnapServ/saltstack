@@ -3,6 +3,7 @@ base:
     - locale
     - timezone
     - resolvconf
+    - hosts
     - software
     - ntp
     - account

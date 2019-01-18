@@ -1,0 +1,13 @@
+hosts:
+  managed: False
+
+  hostname: {{ salt['grains.get']('host') }}
+  domain: {{ salt['grains.get']('domain') }}
+  primary_address4: {{ salt['custom.default_network_address']().v4 }}
+  primary_address6: {{ salt['custom.default_network_address']().v6 }}
+
+  <os_family>:
+    Debian:
+      hosts_path: '/etc/hosts'
+      hostname_path: '/etc/hostname'
+      hostname_cmd_fmt: 'hostnamectl set-hostname {:s}'

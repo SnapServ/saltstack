@@ -21,11 +21,11 @@ def role_data(name, meta=None, max_depth=25):
                 'role metadata file [{0}] must contain top-level dictionary key with role name [{1}]'
                 .format(meta_file, name))
 
-    role = deepmerge(role, meta)
+    role = deep_merge(role, meta)
 
     # Recursively merge pillar data into role dict
     pillar_data = __salt__['pillar.get'](name, {})
-    role = deepmerge(role, pillar_data)
+    role = deep_merge(role, pillar_data)
 
     # Loop through role dict to process grain filters
     iterations = 0
@@ -49,7 +49,7 @@ def role_data(name, meta=None, max_depth=25):
                 value, grain=grain_filter, merge=grain_overrides)
 
             # Merge grain data into role dict and remove grain filter
-            role = deepmerge(role, grain_data)
+            role = deep_merge(role, grain_data)
             role.pop(key, None)
             found = True
 
@@ -74,7 +74,7 @@ def service_unit_instances(service_template):
     return instances
 
 
-def network_default_address():
+def default_network_address():
     _get_route = __salt__['network.get_route']
     _ip_addrs = __salt__['network.ip_addrs']
     _ip_addrs6 = __salt__['network.ip_addrs6']
