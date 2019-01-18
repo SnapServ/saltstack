@@ -63,6 +63,16 @@ def deep_merge(obj_a, obj_b):
     return __salt__['slsutil.merge'](obj_a, obj_b, strategy='recurse')
 
 
+def dict_list_to_property_list(dict_list):
+    properties = []
+
+    for prop in dict_list:
+        for key, value in six.iteritems(prop):
+            properties.append({'key': key, 'value': value})
+
+    return properties
+
+
 def service_unit_instances(service_template):
     instances = []
     prefix = service_template + '@'

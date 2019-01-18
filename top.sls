@@ -4,6 +4,7 @@ base:
     - timezone
     - resolvconf
     - hosts
+    - interfaces
     - software
     - ntp
     - account

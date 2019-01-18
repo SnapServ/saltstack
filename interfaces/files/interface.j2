@@ -1,0 +1,18 @@
+{%- set _properties = salt['custom.dict_list_to_property_list'](interface) -%}
+{%- set _family = _properties|selectattr('key', 'equalto', 'family')|map(attribute='value')|list -%}
+{%- set _method = _properties|selectattr('key', 'equalto', 'method')|map(attribute='value')|list %}
+
+# Managed by SaltStack
+auto {{ interface_name }}
+iface {{ interface_name }} {{ _family|last|default('inet') }} {{ _method|last|default('static') }}
+{%- for _property in _properties|sort(attribute='key') %}
+{%- if _property.key not in ('family', 'method') %}
+
+{%- if _property.value is sequence and _property.value is not string %}
+  {{ _property.key }} {{ _property.value|join(' ') }}
+{%- else %}
+  {{ _property.key }} {{ _property.value }}
+{%- endif %}
+
+{%- endif %}
+{%- endfor %}

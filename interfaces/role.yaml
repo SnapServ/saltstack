@@ -1,0 +1,17 @@
+interfaces:
+  managed: True
+
+  interfaces:
+    lo:
+      - family: 'inet'
+      - method: 'loopback'
+
+  device_mappings: {}
+
+  <os_family>:
+    Debian:
+      packages: ['ifupdown2']
+
+      interfaces_path: '/etc/network/interfaces'
+      interfaces_dir: '/etc/network/interfaces.d'
+      udev_rules_path: '/etc/udev/rules.d/70-persistent-net.rules'
