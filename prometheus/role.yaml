@@ -1,5 +1,5 @@
 prometheus:
-  managed: True
+  managed: False
 
   service_user: 'prometheus'
   service_group: 'prometheus'

@@ -1,5 +1,5 @@
 interfaces:
-  managed: True
+  managed: False
 
   interfaces:
     lo:

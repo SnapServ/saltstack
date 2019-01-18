@@ -1,5 +1,5 @@
 nftables:
-  managed: True
+  managed: False
 
   families:
     inet:
