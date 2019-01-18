@@ -1,6 +1,6 @@
 {%- set _properties = salt['custom.dict_list_to_property_list'](interface) -%}
 {%- set _family = _properties|selectattr('key', 'equalto', 'family')|map(attribute='value')|list -%}
-{%- set _method = _properties|selectattr('key', 'equalto', 'method')|map(attribute='value')|list %}
+{%- set _method = _properties|selectattr('key', 'equalto', 'method')|map(attribute='value')|list -%}
 
 # Managed by SaltStack
 auto {{ interface_name }}
