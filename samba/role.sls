@@ -1,4 +1,4 @@
-{% set role = salt['ssx.role_data']('samba') %}
+{% set role = salt['custom.role_data']('samba') %}
 
 samba/packages:
   pkg.installed:

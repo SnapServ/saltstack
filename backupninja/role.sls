@@ -1,4 +1,4 @@
-{% set role = salt['ssx.role_data']('backupninja') %}
+{% set role = salt['custom.role_data']('backupninja') %}
 
 backupninja/packages:
   pkg.installed:

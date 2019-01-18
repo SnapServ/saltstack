@@ -1,23 +1,23 @@
-{% set role = salt['ssx.role_data']('syncthing') %}
+{% set role = salt['custom.role_data']('syncthing') %}
 
 {# Prepare empty dictionary of service instances #}
 {% set _instances = {} %}
 
 {# Add running service instances as disabled (to delete them if unconfigured) #}
-{% for _name in salt['ssx.get_service_instances'](role.service_template) %}
-  {% do _instances.update(salt['ssx.deepmerge'](_instances, {
+{% for _name in salt['ssx.service_unit_instances'](role.service_template) %}
+  {% do _instances.update(salt['custom.deep_merge'](_instances, {
     _name: { 'enabled': false },
   })) %}
 {% endfor %}
 
 {# Merge configured service instances #}
 {% for _instance_name, _instance in role.instances|dictsort %}
-  {% set _instance = salt['ssx.deepmerge'](role.instance_defaults, _instance) %}
+  {% set _instance = salt['custom.deep_merge'](role.instance_defaults, _instance) %}
   {% do _instance.update({
     'username': _instance.username or _instance_name,
   }) %}
   
-  {% do _instances.update(salt['ssx.deepmerge'](_instances, {
+  {% do _instances.update(salt['custom.deep_merge'](_instances, {
     _instance_name: _instance,
   })) %}
 {% endfor %}

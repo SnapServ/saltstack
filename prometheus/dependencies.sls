@@ -1,4 +1,4 @@
-{% set role = salt['ssx.role_data']('prometheus') %}
+{% set role = salt['custom.role_data']('prometheus') %}
 
 include:
   - account

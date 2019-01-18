@@ -1,4 +1,4 @@
-{% set role = salt['ssx.role_data']('syncthing') %}
+{% set role = salt['custom.role_data']('syncthing') %}
 {% from 'software/macros.sls' import repository_macro %}
 
 include:

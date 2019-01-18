@@ -1,7 +1,7 @@
-{% set role = salt['ssx.role_data']('account') %}
+{% set role = salt['custom.role_data']('account') %}
 
 {% for _user_name, _user in role.users|dictsort %}
-{% set _user = salt['ssx.deepmerge'](role.user_defaults, _user) %}
+{% set _user = salt['custom.deep_merge'](role.user_defaults, _user) %}
 {% set _user_info = salt['user.info'](_user_name) %}
 
 {% if _user.enabled and _user_info.home is defined %}

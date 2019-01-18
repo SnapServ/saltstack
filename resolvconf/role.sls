@@ -1,4 +1,4 @@
-{% set role = salt['ssx.role_data']('resolvconf') %}
+{% set role = salt['custom.role_data']('resolvconf') %}
 
 resolvconf/config:
   file.managed:

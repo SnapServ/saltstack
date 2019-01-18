@@ -1,9 +1,9 @@
-{% set role = salt['ssx.role_data']('account') %}
+{% set role = salt['custom.role_data']('account') %}
 
 {# Create dynamic groups for users without an explicit default/primary group #}
 {% set _groups = role.groups %}
 {% for _user_name, _user in role.users|dictsort %}
-  {% set _user = salt['ssx.deepmerge'](role.user_defaults, _user) %}
+  {% set _user = salt['custom.deep_merge'](role.user_defaults, _user) %}
 
   {% if not _user.group and _user_name not in _groups %}
     {% do _groups.update({_user_name: {
@@ -13,7 +13,7 @@
 {% endfor %}
 
 {% for _group_name, _group in role.groups|dictsort %}
-{% set _group = salt['ssx.deepmerge'](role.group_defaults, _group) %}
+{% set _group = salt['custom.deep_merge'](role.group_defaults, _group) %}
 
 $system/group/{{ _group_name }}:
   ssx.resource: []

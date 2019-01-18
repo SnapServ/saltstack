@@ -1,4 +1,4 @@
-{% set role = salt['ssx.role_data']('account') %}
+{% set role = salt['custom.role_data']('account') %}
 
 {% if role.managed %}
 include:

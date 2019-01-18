@@ -1,4 +1,4 @@
-{% set role = salt['ssx.role_data']('sudo') %}
+{% set role = salt['custom.role_data']('sudo') %}
 
 sudo/packages:
   pkg.installed:

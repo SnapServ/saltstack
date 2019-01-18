@@ -23,7 +23,7 @@
 {%- endfor %}
 
 {%- for _share_name, _share in role.shares|dictsort %}
-{%- set _share = salt['ssx.deepmerge'](role.share_defaults, _share) %}
+{%- set _share = salt['custom.deep_merge'](role.share_defaults, _share) %}
 
 [{{ _share_name }}]
 {%- for _key, _value in _share|dictsort %}

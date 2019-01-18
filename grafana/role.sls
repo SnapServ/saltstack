@@ -1,4 +1,4 @@
-{% set role = salt['ssx.role_data']('grafana') %}
+{% set role = salt['custom.role_data']('grafana') %}
 
 grafana/packages:
   pkg.installed:

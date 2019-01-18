@@ -1,4 +1,4 @@
-{% set role = salt['ssx.role_data']('incron') %}
+{% set role = salt['custom.role_data']('incron') %}
 
 incron/packages:
   pkg.installed:
@@ -35,7 +35,7 @@ incron/scripts-dir:
       - pkg: incron/packages
 
 {% for _cron_name, _cron in role.crons|dictsort %}
-{% set _cron = salt['ssx.deepmerge'](role.cron_defaults, _cron) %}
+{% set _cron = salt['custom.deep_merge'](role.cron_defaults, _cron) %}
 {% set _cron_script = role.scripts_dir ~ '/' ~ _cron_name %}
 
 incron/cron/{{ _cron_name }}:

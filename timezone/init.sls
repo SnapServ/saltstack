@@ -1,4 +1,4 @@
-{% set role = salt['ssx.role_data']('timezone') %}
+{% set role = salt['custom.role_data']('timezone') %}
 
 {% if role.managed %}
 include:

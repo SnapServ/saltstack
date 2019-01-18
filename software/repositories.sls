@@ -1,4 +1,4 @@
-{% set role = salt['ssx.role_data']('software') %}
+{% set role = salt['custom.role_data']('software') %}
 {% from slspath + '/macros.sls' import repository_macro %}
 
 software/repository/dir:

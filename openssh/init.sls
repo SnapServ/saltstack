@@ -1,4 +1,4 @@
-{% set role = salt['ssx.role_data']('openssh') %}
+{% set role = salt['custom.role_data']('openssh') %}
 
 {% if role.managed %}
 include:

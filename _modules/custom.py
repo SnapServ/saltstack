@@ -1,7 +1,7 @@
 from __future__ import absolute_import, print_function, generators, unicode_literals
 import re
 from salt.exceptions import InvalidEntityError
-from salt.ext import six
+from salt.ext import ipaddress, six
 
 try:
     from collections import Mapping
@@ -59,11 +59,11 @@ def role_data(name, meta=None, max_depth=25):
     return role
 
 
-def deepmerge(obj_a, obj_b):
+def deep_merge(obj_a, obj_b):
     return __salt__['slsutil.merge'](obj_a, obj_b, strategy='recurse')
 
 
-def get_service_instances(service_template):
+def service_unit_instances(service_template):
     instances = []
     prefix = service_template + '@'
 
@@ -72,3 +72,34 @@ def get_service_instances(service_template):
             instances.append(service[len(prefix):])
 
     return instances
+
+
+def network_default_address():
+    _get_route = __salt__['network.get_route']
+    _ip_addrs = __salt__['network.ip_addrs']
+    _ip_addrs6 = __salt__['network.ip_addrs6']
+
+    routes = __salt__['network.default_route']()
+    routes = filter(lambda x: 'G' in x.get('flags', '').upper(), routes)
+    routes = filter(lambda x: x.get('gateway', None), routes)
+
+    gw_routes = map(lambda x: _get_route(x['gateway']), routes)
+    gw_routes = filter(lambda x: x.get('source', None), gw_routes)
+    addrs = map(lambda x: x['source'], gw_routes)
+
+    if_addrs = map(lambda x: _ip_addrs(x['interface']), routes)
+    if_addrs += map(lambda x: _ip_addrs6(x['interface']), routes)
+    addrs += [addr for sublist in if_addrs for addr in sublist]
+
+    addrs = map(lambda x: ipaddress.ip_address(x), addrs)
+    addrs = filter(lambda x: not (x.is_loopback or x.is_link_local), addrs)
+    addrs = filter(lambda x: not (x.is_reserved or x.is_unspecified), addrs)
+    addrs = filter(lambda x: not x.is_multicast, addrs)
+
+    addrs4 = filter(lambda x: isinstance(x, ipaddress.IPv4Address), addrs)
+    addrs6 = filter(lambda x: isinstance(x, ipaddress.IPv6Address), addrs)
+
+    return {
+        'v4': addrs4[0].compressed if len(addrs4) > 0 else None,
+        'v6': addrs6[0].compressed if len(addrs6) > 0 else None,
+    }

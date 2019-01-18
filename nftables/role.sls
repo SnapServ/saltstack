@@ -1,4 +1,4 @@
-{% set role = salt['ssx.role_data']('nftables') %}
+{% set role = salt['custom.role_data']('nftables') %}
 
 nftables/packages:
   pkg.installed:

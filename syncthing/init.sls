@@ -1,4 +1,4 @@
-{% set role = salt['ssx.role_data']('syncthing') %}
+{% set role = salt['custom.role_data']('syncthing') %}
 
 {% if role.managed %}
 include:

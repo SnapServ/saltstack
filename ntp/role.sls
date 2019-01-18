@@ -1,4 +1,4 @@
-{% set role = salt['ssx.role_data']('ntp') %}
+{% set role = salt['custom.role_data']('ntp') %}
 
 ntp/packages:
   pkg.installed:

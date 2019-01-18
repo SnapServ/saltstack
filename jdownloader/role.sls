@@ -1,4 +1,4 @@
-{% set role = salt['ssx.role_data']('jdownloader') %}
+{% set role = salt['custom.role_data']('jdownloader') %}
 
 jdownloader/dependencies:
   pkg.installed:

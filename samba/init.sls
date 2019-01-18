@@ -1,6 +1,7 @@
-{% set role = salt['ssx.role_data']('samba') %}
+{% set role = salt['custom.role_data']('samba') %}
 
 {% if role.managed %}
 include:
+  - {{ sls }}.dependencies
   - {{ sls }}.role
 {% endif %}

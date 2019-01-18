@@ -1,4 +1,4 @@
-{% set role = salt['ssx.role_data']('motd') %}
+{% set role = salt['custom.role_data']('motd') %}
 
 motd/packages:
   pkg.installed:
