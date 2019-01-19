@@ -84,6 +84,26 @@ def service_unit_instances(service_template):
     return instances
 
 
+def list_diff(list1, list2):
+    return [x for x in list1 if x not in set(list2)]
+
+
+def dict_list_diff(dict_list1, dict_list2):
+    result = []
+
+    for dict1 in dict_list1:
+        for dict2 in dict_list2:
+            if len([
+                    key for key, value in six.iteritems(dict2)
+                    if dict1.get(key, None) != value
+            ]) == 0:
+                break
+        else:
+            result.append(dict1)
+
+    return result
+
+
 def default_network_address():
     _get_route = __salt__['network.get_route']
     _ip_addrs = __salt__['network.ip_addrs']
