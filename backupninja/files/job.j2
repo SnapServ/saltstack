@@ -6,7 +6,10 @@
 
 # Managed by SaltStack
 {%- for _section_name, _section in job|dictsort %}
+{%- if _section_name != '__global__' %}
 [{{ _section_name }}]
+{%- endif %}
+
 {%- for _option in _section|sort %}
 {{ _generate_option(_option) }}
 {%- endfor %}
