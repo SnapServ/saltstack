@@ -1,4 +1,4 @@
-{% set role = salt['custom.role_data']('timezone') %}
+{% from slspath ~ '/init.sls' import role %}
 
 timezone/system:
   timezone.system:

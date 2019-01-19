@@ -1,4 +1,4 @@
-{% set role = salt['custom.role_data']('prometheus') %}
+{% from slspath ~ '/init.sls' import role %}
 
 include:
   - account

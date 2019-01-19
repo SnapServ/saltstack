@@ -1,4 +1,7 @@
-{% set role = salt['custom.role_data']('grafana') %}
+{% from slspath ~ '/init.sls' import role %}
+
+include:
+  - .dependencies
 
 grafana/packages:
   pkg.installed:

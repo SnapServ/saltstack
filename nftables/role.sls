@@ -1,4 +1,4 @@
-{% set role = salt['custom.role_data']('nftables') %}
+{% from slspath ~ '/init.sls' import role %}
 
 nftables/packages:
   pkg.installed:

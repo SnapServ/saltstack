@@ -1,4 +1,4 @@
-{% set role = salt['custom.role_data']('sudo') %}
+{% from slspath ~ '/init.sls' import role %}
 
 sudo/packages:
   pkg.installed:

@@ -1,4 +1,4 @@
-{% set role = salt['custom.role_data']('account') %}
+{% from slspath ~ '/init.sls' import role %}
 
 {% for _user_name, _user in role.users|dictsort %}
 {% set _user = salt['custom.deep_merge'](role.user_defaults, _user) %}

@@ -1,4 +1,4 @@
-{% set role = salt['custom.role_data']('locale') %}
+{% from slspath ~ '/init.sls' import role %}
 
 locale/packages:
   pkg.installed:

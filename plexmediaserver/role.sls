@@ -1,4 +1,7 @@
-{% set role = salt['custom.role_data']('plexmediaserver') %}
+{% from slspath ~ '/init.sls' import role %}
+
+include:
+  - .dependencies
 
 plexmediaserver/packages:
   pkg.installed:

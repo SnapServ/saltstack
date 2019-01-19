@@ -1,4 +1,4 @@
-{% set role = salt['custom.role_data']('hosts') %}
+{% from slspath ~ '/init.sls' import role %}
 
 {% if not (role.hostname and role.domain) %}
 hosts/failure-1:

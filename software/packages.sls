@@ -1,4 +1,4 @@
-{% set role = salt['custom.role_data']('software') %}
+{% from slspath ~ '/init.sls' import role %}
 
 software/dependencies:
   pkg.installed:

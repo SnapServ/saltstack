@@ -1,10 +1,10 @@
-{% set role = salt['custom.role_data']('plexmediaserver') %}
-{% from 'software/macros.sls' import repository_macro %}
+{% from slspath ~ '/init.sls' import role %}
+{% from 'software/macros.sls' as software %}
 
 include:
   - software
 
-{{ repository_macro('plexmediaserver', {
+{{ software.declare_repository('plexmediaserver', {
   'sources': role.repository_sources,
   'gpg_key_url': role.repository_gpg_key_url,
 }) }}

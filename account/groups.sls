@@ -1,4 +1,4 @@
-{% set role = salt['custom.role_data']('account') %}
+{% from slspath ~ '/init.sls' import role %}
 
 {# Create dynamic groups for users without an explicit default/primary group #}
 {% set _groups = role.groups %}

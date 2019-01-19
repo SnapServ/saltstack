@@ -9,6 +9,10 @@ except ImportError:
     from collections.abc import Mapping
 
 
+def role_active(name):
+    return role_data(name).get('managed', False)
+
+
 def role_data(name, meta=None, max_depth=25):
     role = {}
 

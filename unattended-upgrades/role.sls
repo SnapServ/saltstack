@@ -1,4 +1,4 @@
-{% set role = salt['custom.role_data']('unattended-upgrades') %}
+{% from slspath ~ '/init.sls' import role %}
 
 unattended-upgrades/packages:
   pkg.installed:

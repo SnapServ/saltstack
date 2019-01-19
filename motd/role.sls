@@ -1,4 +1,4 @@
-{% set role = salt['custom.role_data']('motd') %}
+{% from slspath ~ '/init.sls' import role %}
 
 motd/packages:
   pkg.installed:

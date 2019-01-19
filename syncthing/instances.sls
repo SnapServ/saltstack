@@ -1,4 +1,8 @@
-{% set role = salt['custom.role_data']('syncthing') %}
+{% from slspath ~ '/init.sls' import role %}
+
+include:
+  - .dependencies
+  - .global
 
 {# Prepare empty dictionary of service instances #}
 {% set _instances = {} %}

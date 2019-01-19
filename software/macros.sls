@@ -1,6 +1,6 @@
 {% set role = salt['custom.role_data']('software') %}
 
-{% macro repository_macro(_name, _options) %}
+{% macro declare_repository(_name, _options) %}
 {% set _repo_file = role.sources_dir ~ '/' ~ role.sources_name_tpl.format(_name) %}
 
 $system/repository/{{ _name }}:

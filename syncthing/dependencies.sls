@@ -1,10 +1,10 @@
-{% set role = salt['custom.role_data']('syncthing') %}
-{% from 'software/macros.sls' import repository_macro %}
+{% from slspath ~ '/init.sls' import role %}
+{% import 'software/macros.sls' as software %}
 
 include:
   - software
 
-{{ repository_macro('syncthing', {
+{{ software.declare_repository('syncthing', {
   'sources': role.repository_sources,
   'gpg_key_url': role.repository_gpg_key_url,
 }) }}

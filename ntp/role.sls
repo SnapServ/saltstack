@@ -1,4 +1,4 @@
-{% set role = salt['custom.role_data']('ntp') %}
+{% from slspath ~ '/init.sls' import role %}
 
 ntp/packages:
   pkg.installed:

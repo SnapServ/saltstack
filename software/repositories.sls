@@ -1,5 +1,5 @@
-{% set role = salt['custom.role_data']('software') %}
-{% from slspath + '/macros.sls' import repository_macro %}
+{% from slspath ~ '/init.sls' import role %}
+{% import slspath ~ '/macros.sls' as software %}
 
 software/repository/dir:
   file.directory:
@@ -25,5 +25,5 @@ software/repository/default:
         - pkg: software/packages/latest
 
 {% for _repo_name, _repo in role.repositories|dictsort %}
-{{ repository_macro(_repo_name, _repo) }}
+  {{- software.declare_repository(_repo_name, _repo) -}}
 {% endfor %}

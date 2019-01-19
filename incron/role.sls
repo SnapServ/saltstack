@@ -1,4 +1,4 @@
-{% set role = salt['custom.role_data']('incron') %}
+{% from slspath ~ '/init.sls' import role %}
 
 incron/packages:
   pkg.installed:

@@ -1,5 +1,5 @@
-{% set role = salt['custom.role_data']('backupninja') %}
-{% import 'backupninja/macros.sls' as backupninja %}
+{% from slspath ~ '/init.sls' import role %}
+{% import slspath ~ '/macros.sls' as backupninja %}
 
 backupninja/packages:
   pkg.installed:

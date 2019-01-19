@@ -1,4 +1,4 @@
-{% set role = salt['custom.role_data']('openssh') %}
+{% from slspath ~ '/init.sls' import role %}
 
 openssh/packages:
   pkg.installed:

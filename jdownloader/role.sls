@@ -1,4 +1,4 @@
-{% set role = salt['custom.role_data']('jdownloader') %}
+{% from slspath ~ '/init.sls' import role %}
 
 jdownloader/dependencies:
   pkg.installed:

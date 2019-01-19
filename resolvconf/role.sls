@@ -1,4 +1,4 @@
-{% set role = salt['custom.role_data']('resolvconf') %}
+{% from slspath ~ '/init.sls' import role %}
 
 resolvconf/config:
   file.managed:

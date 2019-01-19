@@ -1,5 +1,8 @@
-{% set role = salt['custom.role_data']('prometheus') %}
+{% from slspath ~ '/init.sls' import role %}
 {% set _install_path = role.base_path ~ '/' ~ 'node_exporter' %}
+
+include:
+  - .dependencies
 
 prometheus/node_exporter/install:
   file.directory:

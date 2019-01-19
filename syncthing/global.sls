@@ -1,4 +1,7 @@
-{% set role = salt['custom.role_data']('syncthing') %}
+{% from slspath ~ '/init.sls' import role %}
+
+include:
+  - .dependencies
 
 syncthing/packages:
   pkg.installed:
