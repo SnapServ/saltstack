@@ -42,7 +42,7 @@ interfaces/config-dir:
     - mode: '0755'
     - clean: True
 
-{% for _interface_name, _interface in role.interfaces|dictsort %}
+{% for _interface_name, _interface in role.configs|dictsort %}
 interfaces/device/{{ _interface_name }}:
   file.managed:
     - name: {{ (role.interfaces_dir ~ '/' ~ _interface_name)|yaml_dquote }}

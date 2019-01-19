@@ -1,7 +1,7 @@
 interfaces:
   managed: False
 
-  interfaces:
+  configs:
     lo:
       - family: 'inet'
       - method: 'loopback'
