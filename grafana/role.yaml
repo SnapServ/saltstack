@@ -7,5 +7,5 @@ grafana:
       service: 'grafana-server'
 
       repository_sources:
-        - 'deb https://packagecloud.io/grafana/stable/debian/ {{ salt['grains.get']('oscodename')|lower }} main'
-      repository_gpg_key_url: 'https://packagecloud.io/gpg.key'
+        - 'deb https://packages.grafana.com/oss/deb stable main'
+      repository_gpg_key_url: 'https://packages.grafana.com/gpg.key'
