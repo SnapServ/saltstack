@@ -18,7 +18,7 @@ software/repository/{{ _name }}:
 {% endif %}
     - file: {{ _repo_file|yaml_dquote }}
     - onchanges_in:
-      - ssx: $system/repository/{{ _name }}
+      - custom: $system/repository/{{ _name }}
     - require:
       - file: software/repository/default
     - require_in:

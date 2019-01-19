@@ -4,4 +4,4 @@ syncthing/packages:
   pkg.installed:
     - pkgs: {{ role.packages|yaml }}
     - require:
-      - ssx: $system/repository/syncthing
+      - custom: $system/repository/syncthing

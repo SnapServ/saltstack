@@ -22,17 +22,17 @@ account/user/{{ _user_name }}:
     - gid: {{ _user_group|yaml_dquote }}
     - gid_from_name: True
     - onchanges_in:
-      - ssx: $system/user/{{ _user_name }}
+      - custom: $system/user/{{ _user_name }}
     - require:
-      - ssx: $system/group/{{ _user_group }}
+      - custom: $system/group/{{ _user_group }}
       {% for _group in _user.groups %}
-      - ssx: $system/group/{{ _group }}
+      - custom: $system/group/{{ _group }}
       {% endfor %}
 {% else %}
   user.absent:
     - name: {{ _user_name|yaml_dquote }}
     - onchanges_in:
-      - ssx: $system/user/{{ _user_name }}
+      - custom: $system/user/{{ _user_name }}
 {% endif %}
 
 {% endfor %}

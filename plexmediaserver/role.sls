@@ -4,7 +4,7 @@ plexmediaserver/packages:
   pkg.installed:
     - pkgs: {{ role.packages|yaml }}
     - require:
-      - ssx: $system/repository/plexmediaserver
+      - custom: $system/repository/plexmediaserver
 
 plexmediaserver/service:
   service.running:

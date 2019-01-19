@@ -4,7 +4,7 @@ grafana/packages:
   pkg.installed:
     - pkgs: {{ role.packages|yaml }}
     - require:
-      - ssx: $system/repository/grafana
+      - custom: $system/repository/grafana
 
 grafana/service:
   service.running:

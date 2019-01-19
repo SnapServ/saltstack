@@ -32,7 +32,7 @@ syncthing/instance/{{ _instance_name }}/service:
     - enable: True
     - require:
       - pkg: syncthing/packages
-      - ssx: $system/user/{{ _instance.username }}
+      - custom: $system/user/{{ _instance.username }}
 
 {% else %}
 

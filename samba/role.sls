@@ -34,5 +34,5 @@ samba/passwords/{{ _user }}:
     - env:
         PASSWORD: {{ _password|yaml_dquote }}
     - require:
-      - ssx: $system/user/{{ _user }}
+      - custom: $system/user/{{ _user }}
 {% endfor %}

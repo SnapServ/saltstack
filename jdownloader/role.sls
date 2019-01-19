@@ -16,8 +16,8 @@ jdownloader/directory:
       - 'group'
     - require:
       - pkg: jdownloader/dependencies
-      - ssx: $system/user/{{ role.service_user }}
-      - ssx: $system/group/{{ role.service_group }}
+      - custom: $system/user/{{ role.service_user }}
+      - custom: $system/group/{{ role.service_group }}
 
 jdownloader/install:
   file.managed:

@@ -9,8 +9,8 @@ prometheus/server/install:
     - mode: '0750'
     - makedirs: True
     - require:
-      - ssx: $system/user/{{ role.service_user }}
-      - ssx: $system/group/{{ role.service_group }}
+      - custom: $system/user/{{ role.service_user }}
+      - custom: $system/group/{{ role.service_group }}
 
   archive.extracted:
     - name: {{ _install_path|yaml_dquote }}

@@ -25,12 +25,12 @@ account/group/{{ _group_name }}:
     - gid: {{ _group.gid|yaml_encode }}
     - system: {{ _group.system|yaml_encode }}
     - onchanges_in:
-      - ssx: $system/group/{{ _group_name }}
+      - custom: $system/group/{{ _group_name }}
 {% else %}
   group.absent:
     - name: {{ _group_name }}
     - onchanges_in:
-      - ssx: $system/group/{{ _group_name }}
+      - custom: $system/group/{{ _group_name }}
 {% endif %}
 
 {% endfor %}
