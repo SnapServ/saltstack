@@ -1,0 +1,13 @@
+prosody:
+  managed: False
+
+  <os_family>:
+    Debian:
+      packages: ['prosody', 'lua-sec']
+      service: 'prosody'
+
+      daemon_config_path: '/etc/docker/daemon.json'
+
+      repository_sources:
+        - 'deb https://packages.prosody.im/debian {{ grains['oscodename'] }} main'
+      repository_gpg_key_url: 'https://prosody.im/files/prosody-debian-packages.key'
