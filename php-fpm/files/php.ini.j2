@@ -1,0 +1,4 @@
+; Managed by SaltStack
+{%- for key, value in config|dictsort %}
+{{ key }} = {{ value }}
+{%- endfor %}

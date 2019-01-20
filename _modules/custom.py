@@ -1,12 +1,13 @@
 from __future__ import absolute_import, print_function, generators, unicode_literals
 import re
+from string import Template
 from salt.exceptions import InvalidEntityError
 from salt.ext import ipaddress, six
 
 try:
-    from collections import Mapping
+    from collections import Mapping, Sequence
 except ImportError:
-    from collections.abc import Mapping
+    from collections.abc import Mapping, Sequence
 
 
 def role_active(name):
@@ -106,6 +107,20 @@ def dict_list_diff(dict_list1, dict_list2):
             result.append(dict1)
 
     return result
+
+
+def recursive_format(obj, **kwargs):
+    if isinstance(obj, six.string_types):
+        return obj.format(**kwargs)
+    elif isinstance(obj, Mapping):
+        return {
+            k: recursive_format(v, **kwargs)
+            for k, v in six.iteritems(obj)
+        }
+    elif isinstance(obj, Sequence):
+        return [recursive_format(v, **kwargs) for v in obj]
+    else:
+        return obj
 
 
 def default_network_address():

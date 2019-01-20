@@ -1,0 +1,5 @@
+; Managed by SaltStack
+[{{ pool_name }}]
+{%- for key, value in pool_config|dictsort %}
+{{ key }} = {{ value }}
+{%- endfor %}
