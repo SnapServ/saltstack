@@ -27,4 +27,4 @@ docker/service:
     - name: {{ role.service|yaml_dquote }}
     - enable: True
     - watch:
-      - docker/daemon-config
+      - file: docker/daemon-config
