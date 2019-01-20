@@ -1,0 +1,15 @@
+docker:
+  managed: False
+
+  daemon_options: {}
+
+  <os_family>:
+    Debian:
+      packages: ['docker-ce']
+      service: 'docker'
+
+      daemon_config_path: '/etc/docker/daemon.json'
+
+      repository_sources:
+        - 'deb [arch={{ grains['osarch'] }}] https://download.docker.com/linux/debian {{ grains['oscodename'] }} stable'
+      repository_gpg_key_url: 'https://download.docker.com/linux/debian/gpg'
