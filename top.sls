@@ -19,6 +19,7 @@ base:
   'I.@grafana.managed': [grafana]
   'I.@mariadb.managed': [mariadb]
   'I.@nftables.managed': [nftables]
+  'I.@nginx.managed': [nginx]
   'I.@php-fpm.managed': [php-fpm]
   'I.@plexmediaserver.managed': [plexmediaserver]
   'I.@prometheus.managed': [prometheus]

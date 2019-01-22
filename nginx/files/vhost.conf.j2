@@ -1,0 +1,38 @@
+{%- set _php_fpm_enabled = vhost_config.php_fpm_pool and vhost_config.php_fpm_version -%}
+{%- set _index_files = vhost_config.index_files or ['index.html', 'index.htm'] -%}
+
+{%- if _php_fpm_enabled -%}{%- do _index_files.append('index.php') -%}{%- endif -%}
+
+# Managed by SaltStack
+server {
+  listen {{ vhost_config.http_port }}{{ ' default' if vhost_config.default else '' }};
+  listen [::]:{{ vhost_config.http_port }}{{ ' default' if vhost_config.default else '' }};
+{%- if vhost_config.server_names %}
+  server_name {{ vhost_config.server_names|join(' ') }};
+{%- endif %}
+
+  access_log {{ vhost_dir ~ '/log/access.log' }};
+  error_log {{ vhost_dir ~ '/log/error.log' }};
+
+  client_body_temp_path {{ vhost_dir ~ '/tmp/nginx-client-body' }};
+  proxy_temp_path {{ vhost_dir ~ '/tmp/nginx-proxy' }};
+  fastcgi_temp_path {{ vhost_dir ~ '/tmp/nginx-fastcgi' }};
+  uwsgi_temp_path {{ vhost_dir ~ '/tmp/nginx-uwsgi' }};
+  scgi_temp_path {{ vhost_dir ~ '/tmp/nginx-scgi' }};
+
+  root {{ vhost_dir ~ '/app/public' }};
+  index {{ _index_files|join(' ') }};
+
+{%- if _php_fpm_enabled %}{{ '\n' }}
+  location ~ \.php {
+    include /etc/nginx/fastcgi.conf;
+
+    fastcgi_param PATH_INFO $fastcgi_path_info;
+    fastcgi_split_path_info ^(.+\.php)(/.+)$;
+    fastcgi_pass unix:{{ role.php_fpm_socket_path_fmt.format(
+      version=vhost_config.php_fpm_version,
+      pool=vhost_config.php_fpm_pool
+    ) }};
+  }
+{%- endif %}
+}
