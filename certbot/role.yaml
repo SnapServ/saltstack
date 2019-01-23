@@ -1,0 +1,14 @@
+certbot:
+  managed: False
+
+  <os_family>:
+    Debian:
+      packages:
+        - 'certbot'
+        - 'python3-requests'
+      service: 'certbot'
+      service_timer: 'certbot.timer'
+
+      <oscodename>:
+        stretch:
+          package_repository: 'stretch-backports'
