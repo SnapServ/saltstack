@@ -12,12 +12,19 @@ acme-dns:
   dns_domain: 'auth.example.org'
   dns_nsname: 'auth.example.org'
   dns_nsadmin: 'auth.example.org'
+  dns_records:
+    - 'auth.example.org. A 1.2.3.4'
+    - 'auth.example.org. NS auth.example.org.'
 
   api_host: '0.0.0.0'
   api_port: 4242
+  api_domain: 'auth.example.org'
   api_cors_origins: ['*']
-  api_disable_registration: False
-  api_use_x_forwarded_for: False
+  api_registration_enabled: True
+  api_letsencrypt_enabled: False
+  api_letsencrypt_port: 4242
+  api_xff_enabled: False
+  api_xff_header: 'X-Forwarded-For'
 
   version: '0.6'
   source_fmt: 'https://github.com/joohoi/acme-dns/releases/download/v{version}/acme-dns_{version}_linux_{arch}.tar.gz'

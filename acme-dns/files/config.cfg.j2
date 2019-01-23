@@ -5,6 +5,11 @@ protocol = "{{ role.listen_protocol }}"
 domain = "{{ role.dns_domain }}"
 nsname = "{{ role.dns_nsname }}"
 nsadmin = "{{ role.dns_nsadmin|replace('@', '.') }}"
+records = [
+{%- for _record in role.dns_records %}
+  "{{ _record }}",
+{%- endfor %}
+]
 debug = false
 
 [database]
@@ -14,11 +19,15 @@ connection = "{{ role.service_dir }}/acme-dns.db"
 [api]
 ip = "{{ role.api_host }}"
 port = "{{ role.api_port }}"
-tls = "none"
+autocert_port = "{{ role.api_letsencrypt_port }}"
+api_domain = "{{ role.api_domain }}"
+
+tls = "{{ 'letsencrypt' if role.api_letsencrypt_enabled else 'none' }}"
+acme_cache_dir = "{{ role.service_dir }}/api-certs"
 corsorigins = ["{{ role.api_cors_origins|join('", "') }}"]
-disable_registration = {{ 'true' if role.api_disable_registration else 'false' }}
-use_header = {{ 'true' if role.api_use_x_forwarded_for else 'false' }}
-header_name = "X-Forwarded-For"
+disable_registration = {{ 'false' if role.api_registration_enabled else 'true' }}
+use_header = {{ 'true' if role.api_xff_enabled else 'false' }}
+header_name = "{{ role.api_xff_header }}"
 
 [logconfig]
 loglevel = "{{ role.logging_level }}"
