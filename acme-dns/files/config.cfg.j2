@@ -1,0 +1,26 @@
+# Managed by SaltStack
+[general]
+listen = "{{ role.listen_address }}"
+protocol = "{{ role.listen_protocol }}"
+domain = "{{ role.dns_domain }}"
+nsname = "{{ role.dns_nsname }}"
+nsadmin = "{{ role.dns_nsadmin|replace('@', '.') }}"
+debug = false
+
+[database]
+engine = "sqlite3"
+connection = "{{ role.service_dir }}/acme-dns.db"
+
+[api]
+ip = "{{ role.api_host }}"
+port = "{{ role.api_port }}"
+tls = "none"
+corsorigins = ["{{ role.api_cors_origins|join('", "') }}"]
+disable_registration = {{ 'true' if role.api_disable_registration else 'false' }}
+use_header = {{ 'true' if role.api_use_x_forwarded_for else 'false' }}
+header_name = "X-Forwarded-For"
+
+[logconfig]
+loglevel = "{{ role.logging_level }}"
+logtype = "stdout"
+logformat = "text"

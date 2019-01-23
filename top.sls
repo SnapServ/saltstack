@@ -13,6 +13,7 @@ base:
     - unattended-upgrades
     - motd
 
+  'I.@acme-dns.managed': [acme-dns]
   'I.@backupninja.managed': [backupninja]
   'I.@docker.managed': [docker]
   'I.@grafana.managed': [grafana]

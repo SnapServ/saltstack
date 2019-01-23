@@ -1,0 +1,28 @@
+acme-dns:
+  managed: False
+
+  service_dir: '/opt/acme-dns'
+  service_user: 'acme-dns'
+  service_group: 'acme-dns'
+
+  listen_address: '[::]:53'
+  listen_protocol: 'udp'
+  logging_level: 'info'
+
+  dns_domain: 'auth.example.org'
+  dns_nsname: 'auth.example.org'
+  dns_nsadmin: 'auth.example.org'
+
+  api_host: '0.0.0.0'
+  api_port: 4242
+  api_cors_origins: ['*']
+  api_disable_registration: False
+  api_use_x_forwarded_for: False
+
+  version: '0.6'
+  source_fmt: 'https://github.com/joohoi/acme-dns/releases/download/v{version}/acme-dns_{version}_linux_{arch}.tar.gz'
+  source_hash_fmt: 'https://github.com/joohoi/acme-dns/releases/download/v{version}/acme-dns_{version}_checksums.txt'
+
+  <cpuarch>:
+    x86_64:
+      arch: 'amd64'
