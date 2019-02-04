@@ -3,8 +3,8 @@ hosts:
 
   hostname: {{ salt['grains.get']('host') }}
   domain: {{ salt['grains.get']('domain') }}
-  primary_address4: {{ salt['custom.default_network_address']().v4 }}
-  primary_address6: {{ salt['custom.default_network_address']().v6 }}
+  primary_address4: {{ salt['custom.default_network_address']().v4|yaml_encode }}
+  primary_address6: {{ salt['custom.default_network_address']().v6|yaml_encode }}
 
   <os_family>:
     Debian:
