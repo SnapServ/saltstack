@@ -1,2 +1,11 @@
+{%- import 'interfaces/files/interface.j2' as interface_tpl -%}
+
 # Managed by SaltStack
+{% if not role.single_config -%}
 source {{ role.interfaces_dir }}/*
+{%- else -%}
+{%- for _interface_name, _interface in role.configs|dictsort -%}
+    {{- interface_tpl.render_interface(_interface_name, _interface) -}}
+    {{- '\n\n' if not loop.last else '' -}}
+{%- endfor -%}
+{%- endif -%}

@@ -1,14 +1,14 @@
-{%- set _properties = salt['custom.dict_list_to_property_list'](interface) -%}
+{%- macro render_interface(_name, _options) -%}
+{%- set _properties = salt['custom.dict_list_to_property_list'](_options) -%}
 {%- set _family = _properties|selectattr('key', 'equalto', 'family')|map(attribute='value')|list|last|default(None) -%}
 {%- set _method = _properties|selectattr('key', 'equalto', 'method')|map(attribute='value')|list|last|default(None) -%}
 
-# Managed by SaltStack
-auto {{ interface_name }}
+auto {{ _name }}
 
 {%- if _family or _method %}
-iface {{ interface_name }} {{ _family or 'inet' }} {{ _method or 'none' }}
+iface {{ _name }} {{ _family or 'inet' }} {{ _method or 'none' }}
 {%- else %}
-iface {{ interface_name }}
+iface {{ _name }}
 {%- endif %}
 
 {%- for _property in _properties %}
@@ -22,3 +22,9 @@ iface {{ interface_name }}
 
 {%- endif %}
 {%- endfor %}
+{%- endmacro -%}
+
+{%- if interface_name is defined and interface is defined -%}
+# Managed by SaltStack
+{{ render_interface(interface_name, interface) }}
+{%- endif -%}

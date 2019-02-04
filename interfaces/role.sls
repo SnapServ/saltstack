@@ -42,6 +42,7 @@ interfaces/config-dir:
     - mode: '0755'
     - clean: True
 
+{% if not role.single_config %}
 {% for _interface_name, _interface in role.configs|dictsort %}
 interfaces/device/{{ _interface_name }}:
   file.managed:
@@ -64,3 +65,4 @@ interfaces/device/{{ _interface_name }}:
     - require_in:
       - file: interfaces/config-dir
 {% endfor %}
+{% endif %}
