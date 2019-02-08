@@ -81,7 +81,7 @@ set {{ _name }} {
 
 {%- if _opts.rules|length > 0 %}
 # {{ _name }}
-{%- for _rule in _opts.rules %}
+{% for _rule in _opts.rules %}
 {{- _block_wrap(_generate_rule(_rule), '\n' if not loop.first else '') }}
 {%- endfor %}
 {%- endif %}
