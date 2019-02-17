@@ -1,6 +1,10 @@
 resolvconf:
   managed: False
 
+  resolver_timeout: 1
+  resolver_attempts: 1
+  resolver_round_robin: true
+
   search_paths: []
   nameservers:
     - '1.1.1.1'

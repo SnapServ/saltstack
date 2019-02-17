@@ -5,4 +5,4 @@ search {{ role.search_paths|join(' ') }}
 {%- for _nameserver in role.nameservers %}
 nameserver {{ _nameserver }}
 {%- endfor %}
-options timeout:1 attempts:1 rotate
+options timeout:{{ role.resolver_timeout }} attempts:{{ role.resolver_attempts }}{{ ' rotate' if role.resolver_round_robin else '' }}
