@@ -1,0 +1,166 @@
+{%- macro render_block(_cfg, _options) %}
+  {%- for _option in _options -%}
+    {{- render_option(_cfg, _option[0], _option[1], _option[2]|default(none)) -}}
+  {%- endfor -%}
+{%- endmacro %}
+
+{%- macro render_option(_cfg, _name, _type, _key=none) -%}
+  {%- set _key = _key if _key else _name.replace('-', '_') -%}
+  {%- set _value = _cfg.get(_key, none) -%}
+  
+  {%- if _value is not none -%}
+    {%- if _type in ('addrs', 'refs') %}
+      {%- if _value is iterable and _value is not string %}
+        {{- _name }}: [{{- _value|join(', ') -}}]
+      {%- else %}
+        {{- _name }}: [{{- _value -}}]
+      {%- endif %}
+    {%- elif _type in ('ref', 'time', 'size', 'int') %}
+      {{- _name }}: {{ _value -}}
+    {%- elif _type in ('str', 'dname') -%}
+      {{- _name }}: {{ _value|yaml_encode -}}
+    {%- elif _type == 'base64' %}
+      {{- _name }}: {{ _value|base64_encode -}}
+    {%- elif _type == 'bool' %}
+      {{- _name }}: {{ 'on' if _value else 'off' -}}
+    {%- else %}
+      {{- salt['test.exception']('Unknown type [{}] for option [{}]'.format(_type, _name)) -}}
+    {%- endif -%}
+
+    {{- '\n' -}}
+  {%- endif -%}
+{%- endmacro -%}
+
+# Managed by SaltStack
+server:
+  user: {{ role.service_user }}:{{ role.service_group }}
+  {%- for _listen in role.server.listen|sort %}
+  listen: {{ _listen if '@' in _listen else (_listen ~ '@53') }}
+  {%- endfor %}
+  identity: {{ role.server.identity|yaml_dquote }}
+  {%- if role.server.version is not none %}
+  version: {{ role.server.version|yaml_dquote }}
+  {%- endif %}
+
+log:
+  - target: syslog
+    any: info
+
+{%- if role.get('keys').keys()|length %}{{ '\n' }}
+key:
+{%- for _key_id, _key in role.get('keys')|dictsort %}
+{%- set _key = salt['custom.deep_merge'](role.key_defaults, _key) %}
+{%- do _key.update({'id': _key_id}) %}
+
+{#-#}
+  - {{ render_block(_key, [
+      ('id', 'str'),
+      ('algorithm', 'str'),
+      ('secret', 'base64'),
+    ])|indent(4) }}
+    {{- '\n' if not loop.last else '' -}}
+{%- endfor %}
+{%- endif %}
+
+{%- if role.policies.keys()|length %}{{ '\n' }}
+policy:
+{%- for _policy_id, _policy in role.policies|dictsort %}
+{%- set _policy = salt['custom.deep_merge'](role.policy_defaults, _policy) %}
+{%- do _policy.update({'id': _policy_id}) %}
+
+{#-#}
+  - {{ render_block(_policy, [
+      ('id', 'str'),
+      ('keystore', 'ref'),
+      ('algorithm', 'str'),
+      ('manual', 'bool'),
+      ('single-type-signing', 'bool'),
+
+      ('propagation-delay', 'time'),
+      ('cds-cdnskey-publish', 'str'),
+      ('nsec3', 'bool', 'nsec3_enabled'),
+      ('nsec3-iterations', 'int'),
+      ('nsec3-salt-length', 'int'),
+      ('nsec3-salt-lifetime', 'time'),
+
+      ('ksk-size', 'int'),
+      ('ksk-lifetime', 'time'),
+      ('ksk-shared', 'bool'),
+      ('zsk-size', 'int'),
+      ('zsk-lifetime', 'time'),
+      ('rrsig-lifetime', 'time'),
+      ('rrsig-refresh', 'time'),
+    ])|indent(4) }}
+    {{- '\n' if not loop.last else '' -}}
+{%- endfor %}
+{%- endif %}
+
+{%- if role.remotes.keys()|length %}{{ '\n' }}
+remote:
+{%- for _remote_id, _remote in role.remotes|dictsort %}
+{%- set _remote = salt['custom.deep_merge'](role.remote_defaults, _remote) %}
+{%- do _remote.update({'id': _remote_id}) %}
+
+{#-#}
+  - {{ render_block(_remote, [
+      ('id', 'str'),
+      ('address', 'addrs'),
+      ('via', 'addrs'),
+      ('key', 'ref'),
+    ])|indent(4) }}
+    {{- '\n' if not loop.last else '' -}}
+{%- endfor %}
+{%- endif %}
+
+{%- if role.acls.keys()|length %}{{ '\n' }}
+acl:
+{%- for _acl_id, _acl in role.acls|dictsort %}
+{%- set _acl = salt['custom.deep_merge'](role.acl_defaults, _acl) %}
+{%- do _acl.update({'id': _acl_id}) %}
+
+{#-#}
+  - {{ render_block(_acl, [
+      ('id', 'str'),
+      ('address', 'addrs'),
+      ('key', 'refs'),
+      ('action', 'refs'),
+      ('deny', 'bool'),
+    ])|indent(4) }}
+    {{- '\n' if not loop.last else '' -}}
+{%- endfor %}
+{%- endif %}
+
+{%- if role.zones.keys()|length %}{{ '\n' }}
+zone:
+{%- for _zone_domain, _zone in role.zones|dictsort %}
+{%- set _zone = salt['custom.deep_merge'](role.zone_defaults, _zone) %}
+{%- do _zone.update({'domain': _zone_domain}) %}
+
+{#-#}
+  - {{ render_block(_zone, [
+      ('domain', 'str'),
+      ('storage', 'str'),
+      ('file', 'str'),
+
+      ('master', 'refs'),
+      ('notify', 'refs'),
+      ('acl', 'refs'),
+      
+      ('serial-policy', 'str'),
+      ('semantic-checks', 'bool'),
+      ('disable-any', 'bool'),
+
+      ('zonefile-sync', 'time'),
+      ('zonefile-load', 'str'),
+      ('dnssec-signing', 'bool'),
+      ('dnssec-policy', 'str'),
+
+      ('min-refresh-interval', 'time'),
+      ('max-refresh-interval', 'time'),
+      ('max-journal-usage', 'size'),
+      ('max-journal-depth', 'int'),
+      ('max-zone-size', 'size'),
+    ])|indent(4) }}
+    {{- '\n' if not loop.last else '' -}}
+{%- endfor %}
+{%- endif %}

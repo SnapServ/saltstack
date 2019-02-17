@@ -1,0 +1,60 @@
+knot:
+  managed: False
+
+  server:
+    listen:
+      - '0.0.0.0@53'
+      - '::'
+    identity: {{ salt['grains.get']('fqdn')|yaml_dquote }}
+    version: null
+
+  keys: {}
+  policies: {}
+  acls: {}
+  remotes: {}
+  zones: {}
+
+  key_defaults: {}
+  policy_defaults: {}
+  acl_defaults: {}
+  remote_defaults: {}
+
+  zone_defaults:
+    file: 'zones/%s.zone'
+    serial_policy: 'unixtime'
+    zonefile_sync: -1
+    zonefile_load: 'difference-no-serial'
+    journal_content: 'changes'
+    semantic_checks: True
+
+  zonefiles: {}
+  zonefile_defaults:
+    default_ttl: 86400
+    soa:
+      nameserver: {{ salt['grains.get']('fqdn')|yaml_dquote }}
+      email: 'hostmaster@example.com'
+      serial: 1
+      refresh: 14400
+      retry: 1800
+      expire: 1209600
+      negative_ttl: 300
+    records: {}
+
+  <os_family>:
+    Debian:
+      packages:
+        - 'knot'
+        - 'knot-dnsutils'
+
+      service: 'knot'
+      service_user: 'knot'
+      service_group: 'knot'
+
+      config_path: '/etc/knot/knot.conf'
+      config_check_cmd: >
+        /bin/sh -c 'exec /usr/sbin/knotc -c "${0}" conf-check'
+      zonefiles_dir: '/var/lib/knot/zones'
+
+      <oscodename>:
+        stretch:
+          packages_fromrepo: 'stretch-backports'

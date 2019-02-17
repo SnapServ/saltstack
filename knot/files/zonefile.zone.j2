@@ -1,0 +1,27 @@
+{%- macro fqdn(value) -%}
+    {{- value if value.endswith('.') else (value ~ '.') -}}
+{%- endmacro -%}
+
+{%- set _soa_email = zonefile.soa.email.split('@') -%}
+{%- set _soa_email = _soa_email[0].replace('.', '\.') ~ '.' ~ _soa_email[1] ~ '.' -%}
+
+; Managed by SaltStack
+$ORIGIN {{ fqdn(zonefile_name) }}
+$TTL {{ zonefile.default_ttl }}
+
+@ IN SOA {{ fqdn(zonefile.soa.nameserver) }} {{ _soa_email }} (
+    {{ zonefile.soa.serial }} ; Serial
+    {{ zonefile.soa.refresh }} ; Refresh
+    {{ zonefile.soa.retry }} ; Retry
+    {{ zonefile.soa.expire }} ; Expire
+    {{ zonefile.soa.negative_ttl }} ; Negative TTL
+)
+{##}
+{%- for _record_name, _record_types in zonefile.records|dictsort %}
+{%- for _record_type, _record_values in _record_types|dictsort %}
+{%- set _record_values = [_record_values] if _record_values is string else _record_values %}
+{%- for _record_value in _record_values|sort %}
+{{ _record_name }} IN {{ _record_type }} {{ _record_value }}
+{%- endfor %}
+{%- endfor %}
+{%- endfor %}
