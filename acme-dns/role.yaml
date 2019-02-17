@@ -16,7 +16,7 @@ acme-dns:
     - 'auth.example.org. A 1.2.3.4'
     - 'auth.example.org. NS auth.example.org.'
 
-  api_host: '0.0.0.0'
+  api_host: '[::]'
   api_port: 4242
   api_domain: 'auth.example.org'
   api_cors_origins: ['*']
@@ -26,7 +26,7 @@ acme-dns:
   api_xff_enabled: False
   api_xff_header: 'X-Forwarded-For'
 
-  version: '0.6'
+  version: '0.7.2'
   source_fmt: 'https://github.com/joohoi/acme-dns/releases/download/v{version}/acme-dns_{version}_linux_{arch}.tar.gz'
   source_hash_fmt: 'https://github.com/joohoi/acme-dns/releases/download/v{version}/acme-dns_{version}_checksums.txt'
 
