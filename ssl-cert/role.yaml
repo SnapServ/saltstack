@@ -1,0 +1,12 @@
+ssl-cert:
+  managed: False
+
+  <os_family>:
+    Debian:
+      packages: ['ssl-cert']
+
+      snakeoil_regenerate_cmd: 'make-ssl-cert generate-default-snakeoil --force-overwrite'
+      snakeoil_verify_cmd: >-
+        test "$(openssl x509 -noout -subject -nameopt multiline -in {certificate:s} | sed -n 's/ *commonName *= //p')" == "$(hostname -f)"
+      snakeoil_certificate_path: '/etc/ssl/certs/ssl-cert-snakeoil.pem'
+      snakeoil_keyfile_path: '/etc/ssl/private/ssl-cert-snakeoil.key'

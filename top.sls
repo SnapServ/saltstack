@@ -8,6 +8,7 @@ base:
     - software
     - ntp
     - account
+    - ssl-cert
     - sudo
     - openssh
     - unattended-upgrades
