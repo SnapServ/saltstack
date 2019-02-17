@@ -6,13 +6,15 @@ base:
     - hosts
     - interfaces
     - software
-    - ntp
     - account
     - ssl-cert
     - sudo
     - openssh
     - unattended-upgrades
     - motd
+
+  'P@virtual:(physical|qemu)':
+    - ntp
 
   'I.@acme-dns.managed': [acme-dns]
   'I.@backupninja.managed': [backupninja]
