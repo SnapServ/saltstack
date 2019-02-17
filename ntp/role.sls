@@ -23,3 +23,12 @@ ntp/service:
     - enable: True
     - watch:
       - file: ntp/config
+
+{% for _service in role.service_blacklist %}
+{% if salt['service.available'](_service) %}
+ntp/service-blacklist/{{ _service }}:
+  service.dead:
+    - name: {{ _service|yaml_dquote }}
+    - enable: False
+{% endif %}
+{% endfor %}
