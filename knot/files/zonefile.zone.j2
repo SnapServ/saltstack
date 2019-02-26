@@ -17,11 +17,14 @@ $TTL {{ zonefile.default_ttl }}
     {{ zonefile.soa.negative_ttl }} ; Negative TTL
 )
 {##}
-{%- for _record_name, _record_types in zonefile.records|dictsort %}
-{%- for _record_type, _record_values in _record_types|dictsort %}
-{%- set _record_values = [_record_values] if _record_values is string else _record_values %}
-{%- for _record_value in _record_values|sort %}
-{{ _record_name }} IN {{ _record_type }} {{ _record_value }}
-{%- endfor %}
+{%- for _record_name, _records in zonefile.records|dictsort %}
+{%- for _record in salt['custom.dict_list_to_property_list'](_records)|sort(attribute='key') %}
+{%- set _record_type, _record_data = _record.key, _record.value %}
+
+{%- if _record_type.upper() == 'TXT' %}
+{{ _record_name }} IN TXT ("{{ (_record_data|wordwrap(255, wrapstring='\n')).split('\n')|join('" "') }}")
+{%- else %}
+{{ _record_name }} IN {{ _record_type }} {{ _record_data }}
+{%- endif %}
 {%- endfor %}
 {%- endfor %}

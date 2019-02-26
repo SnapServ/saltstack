@@ -21,9 +21,24 @@ knot/config:
     - require:
       - pkg: knot/packages
 
-{% for _zonefile_name, _zonefile in role.zonefiles|dictsort %}
+knot/zonefiles-dir:
+  file.directory:
+    - name: {{ role.zonefiles_dir|yaml_dquote }}
+    - user: {{ role.service_user|yaml_dquote }}
+    - group: {{ role.service_group|yaml_dquote }}
+    - group: 'root'
+    - mode: '0750'
+    - clean: True
+    - require:
+      - pkg: knot/packages
+    - watch_in:
+      - service: knot/service
+
+{% set _zonefiles = salt['custom.parse_pillar_zones'](role.zonefiles) %}
+{% for _zonefile_name, _zonefile in _zonefiles|dictsort %}
 {% set _zonefile = salt['custom.deep_merge'](role.zonefile_defaults, _zonefile) %}
 
+{% if not _zonefile_name.startswith('.') %}
 knot/zonefiles/{{ _zonefile_name }}:
   file.managed:
     - name: {{ (role.zonefiles_dir ~ '/' ~ _zonefile_name ~ '.zone')|yaml_dquote }}
@@ -39,8 +54,11 @@ knot/zonefiles/{{ _zonefile_name }}:
         role: {{ role|yaml }}
         zonefile_name: {{ _zonefile_name|yaml }}
         zonefile: {{ _zonefile|yaml }}
+    - require_in:
+      - file: knot/zonefiles-dir      
     - watch_in:
       - service: knot/service
+{% endif %}
 {% endfor %}
 
 knot/service:
