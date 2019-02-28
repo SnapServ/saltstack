@@ -54,7 +54,7 @@ key:
 
 {#-#}
   - {{ render_block(_key, [
-      ('id', 'str'),
+      ('id', 'ref'),
       ('algorithm', 'str'),
       ('secret', 'base64'),
     ])|indent(4) }}
@@ -70,7 +70,7 @@ policy:
 
 {#-#}
   - {{ render_block(_policy, [
-      ('id', 'str'),
+      ('id', 'ref'),
       ('keystore', 'ref'),
       ('algorithm', 'str'),
       ('manual', 'bool'),
@@ -103,7 +103,7 @@ remote:
 
 {#-#}
   - {{ render_block(_remote, [
-      ('id', 'str'),
+      ('id', 'ref'),
       ('address', 'addrs'),
       ('via', 'addrs'),
       ('key', 'ref'),
@@ -120,7 +120,7 @@ acl:
 
 {#-#}
   - {{ render_block(_acl, [
-      ('id', 'str'),
+      ('id', 'ref'),
       ('address', 'addrs'),
       ('key', 'refs'),
       ('action', 'refs'),
@@ -153,7 +153,7 @@ zone:
       ('zonefile-sync', 'time'),
       ('zonefile-load', 'str'),
       ('dnssec-signing', 'bool'),
-      ('dnssec-policy', 'str'),
+      ('dnssec-policy', 'ref'),
 
       ('min-refresh-interval', 'time'),
       ('max-refresh-interval', 'time'),
