@@ -1,0 +1,9 @@
+[Unit]
+Description=borgmatic backup
+
+[Service]
+Type=oneshot
+User={{ vars.service_user }}
+ExecStart={{ borgmatic_bin }} \
+    --config {{ borgmatic_config|quote }} \
+    --stats

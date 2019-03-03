@@ -18,6 +18,7 @@ base:
 
   'I.@acme-dns.managed': [acme-dns]
   'I.@backupninja.managed': [backupninja]
+  'I.@borgbackup.managed': [borgbackup]
   'I.@docker.managed': [docker]
   'I.@grafana.managed': [grafana]
   'I.@incron.managed': [incron]
