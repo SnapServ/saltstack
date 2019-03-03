@@ -1,210 +1,231 @@
+# pylint: disable=missing-docstring,undefined-variable
 from __future__ import absolute_import, print_function, generators, unicode_literals
-import itertools
 import re
-from string import Template
-from salt.exceptions import InvalidEntityError
-from salt.ext import ipaddress, six
-
-try:
-    from collections import Mapping, Sequence
-except ImportError:
-    from collections.abc import Mapping, Sequence
+from copy import deepcopy
+from salt.ext import six
 
 
-def role_active(name):
-    return role_data(name).get('managed', False)
+class Role(object):
+    GRAIN_MATCHER_RE = re.compile(
+        r'^<(?P<grain>[a-z0-9_]+)>$', flags=re.IGNORECASE)
 
+    def __init__(self, name):
+        self._name = name
+        self._includes = ()
+        self._dependencies = ()
 
-def role_data(name, meta=None, max_depth=25):
-    role = {}
+        self._load_defaults()
+        self._load_pillar()
+        self._generate_vars()
 
-    # Load metadata from fileserver if not given and merge into role dict
-    if not isinstance(meta, Mapping):
-        meta_file = 'salt://{0}/role.yaml'.format(name)
-        meta = __salt__['slsutil.renderer'](meta_file).get(name, None)
-        if meta is None:
-            raise InvalidEntityError(
-                'role metadata file [{0}] must contain top-level dictionary key with role name [{1}]'
-                .format(meta_file, name))
+    def add_include(self, sls_name):
+        self._includes += ('.{0}'.format(sls_name), )
 
-    role = deep_merge(role, meta)
+    def add_include_if(self, condition, *args, **kwargs):
+        if condition:
+            self.add_include(*args, **kwargs)
 
-    # Recursively merge pillar data into role dict
-    pillar_data = __salt__['pillar.get'](name, {})
-    role = deep_merge(role, pillar_data)
+    def dependency(self, name):
+        role = Role(name)
+        if not role.managed:
+            raise ValueError('Dependency role [{0}] is not managed'.format(
+                role.name))
 
-    # Loop through role dict to process grain filters
-    iterations = 0
-    while iterations < max_depth:
-        iterations = iterations + 1
-        found = False
+        self._dependencies += (role.name, )
+        return '{0}/macros.sls'.format(role.name)
 
-        for key, value in six.iteritems(role):
-            # Skip pillar variable if value is not a mapping
-            if not isinstance(value, Mapping):
+    def tpl_path(self, path):
+        return 'salt://{0}/files/{1}'.format(self.name, path)
+
+    def _load_defaults(self):
+        defaults_path = 'salt://{0}/role.yaml'.format(self.name)
+        defaults_data = __salt__['slsutil.renderer'](defaults_path)
+
+        if self.name not in defaults_data:
+            raise ValueError(
+                'Invalid role metadata [{0}], missing top-level dict key'.
+                format(defaults_path))
+
+        self._defaults = defaults_data.get(self.name, {})
+
+    def _load_pillar(self):
+        pillar_data = __salt__['pillar.get'](self.name, {})
+        self._pillar = pillar_data
+
+    def _generate_vars(self):
+        vars_data = RecursiveMerger.merge(self._defaults, self._pillar)
+        vars_data = self._process_grain_matchers(vars_data)
+        self._vars = vars_data
+
+    def _process_grain_matchers(self, obj):
+        result = {}
+
+        for k, v in six.iteritems(obj):
+            # Skip values which are not a dictionary
+            if not isinstance(v, dict):
+                result[k] = v
                 continue
 
-            # Skip pillar variable if it does not match <[grain]>
-            if not re.match(r'<[a-z0-9_]+>', key):
+            # Skip keys which are not a grain matcher
+            matcher = self.GRAIN_MATCHER_RE.match(k)
+            if matcher is None:
+                result[k] = self._process_grain_matchers(v)
                 continue
 
-            # Construct grain name and lookup pillar overrides
-            grain_filter = key[1:-1]
-            grain_overrides = __salt__['pillar.get'](name + ':lookup', {})
-            grain_data = __salt__['grains.filter_by'](
-                value, grain=grain_filter, merge=grain_overrides)
+            # Execute grain matcher using optional overrides from pillar
+            matcher_overrides = __salt__['pillar.get'](
+                key=self.name + ':lookup', default={})
+            matcher_data = __salt__['grains.filter_by'](
+                lookup_dict=v,
+                grain=matcher.group('grain'),
+                merge=matcher_overrides)
 
-            # Merge grain data into role dict and remove grain filter
-            role = deep_merge(role, grain_data)
-            role.pop(key, None)
-            found = True
+            # Recursively call this function on results and merge them
+            matcher_data = self._process_grain_matchers(matcher_data)
+            result = RecursiveMerger.merge(result, matcher_data)
 
-        if not found:
-            break
+        return result
 
-    return role
+    @property
+    def name(self):
+        return self._name
 
+    @property
+    def vars(self):
+        return self._vars
 
-def deep_merge(obj_a, obj_b):
-    return __salt__['slsutil.merge'](obj_a, obj_b, strategy='recurse')
+    @property
+    def includes(self):
+        includes = self._dependencies
+        includes += self._includes if self._includes else ('.role', )
+        return includes
 
-
-def dict_list_to_property_list(dict_list):
-    properties = []
-
-    for prop in dict_list:
-        for key, value in six.iteritems(prop):
-            properties.append({'key': key, 'value': value})
-
-    return properties
-
-
-def service_unit_instances(service_template):
-    instances = []
-    prefix = service_template + '@'
-
-    for service in __salt__['service.get_running']():
-        if len(service) > len(prefix) and service.startswith(prefix):
-            instances.append(service[len(prefix):])
-
-    return instances
+    @property
+    def managed(self):
+        return self.vars.get('managed', False)
 
 
-def list_diff(list1, list2):
-    return [x for x in list1 if x not in set(list2)]
+class RecursiveMerger(object):
+    STRATEGIES = ('overwrite', 'remove', 'merge-first', 'merge-last')
 
+    def __init__(self, initial_data):
+        self._data = initial_data if initial_data else {}
 
-def dict_list_diff(dict_list1, dict_list2):
-    result = []
-
-    for dict1 in dict_list1:
-        for dict2 in dict_list2:
-            if len([
-                    key for key, value in six.iteritems(dict2)
-                    if dict1.get(key, None) != value
-            ]) == 0:
-                break
+    @classmethod
+    def merge(cls, a, b, default_strategy='merge-last'):
+        if isinstance(a, dict) and isinstance(b, dict):
+            return cls._merge_dict(deepcopy(a), b, default_strategy)
+        elif isinstance(a, list) and isinstance(b, list):
+            return cls._merge_list(deepcopy(a), b, default_strategy)
         else:
-            result.append(dict1)
+            return deepcopy(b)
 
-    return result
+    @classmethod
+    def _merge_dict(cls, a, b, default_strategy):
+        # Fetch strategy from dictionary
+        strategy = b.pop('__', default_strategy)
+        if strategy not in cls.STRATEGIES:
+            raise ValueError(
+                'Invalid dict merging strategy [{0}], should be one of [{1}]'.
+                format(strategy, cls.STRATEGIES))
+
+        # Handle overwrite strategy by returning the new dict
+        if strategy == 'overwrite':
+            return cls._sanitize(b)
+
+        for k, v in six.iteritems(b):
+            if strategy == 'remove':
+                a.pop(k, None)
+            elif k in a and cls._is_compatible(a[k], v):
+                # Swap a[k] and v when using merge-first strategy
+                if strategy == 'merge-first':
+                    a[k], v = cls._sanitize(v), a[k]
+
+                # Merge k/v from b using current strategy
+                if isinstance(v, dict):
+                    a[k] = cls._merge_dict(a[k], v, default_strategy)
+                elif isinstance(v, list):
+                    a[k] = cls._merge_list(a[k], v, default_strategy)
+                else:
+                    a[k] = v
+            else:
+                a[k] = cls._sanitize(v)
+
+        return a
+
+    @classmethod
+    def _merge_list(cls, a, b, default_strategy):
+        # Set default strategy and start with empty buffer
+        strategy, buffer = default_strategy, []
+
+        # Add stop marker to "b" and loop through all items
+        b.append({'__': None})
+        for item in b:
+            # Append normal items to buffer
+            if not (isinstance(item, dict) and '__' in item):
+                buffer.append(item)
+                continue
+
+            # Apply buffer to "a" using previous strategy
+            if strategy == 'overwrite':
+                a = buffer
+            elif strategy == 'remove':
+                a = [x for x in a if x not in buffer]
+            elif strategy == 'merge-first':
+                a = buffer + a
+            elif strategy == 'merge-last':
+                a = a + buffer
+
+            # Fetch new strategy and empty buffer
+            strategy, buffer = item['__'] or strategy, []
+            if strategy not in cls.STRATEGIES:
+                raise ValueError(
+                    'Invalid list merging strategy [{0}], should be one of [{1}]'
+                    .format(strategy, cls.STRATEGIES))
+
+        return a
+
+    @classmethod
+    def _sanitize(cls, obj):
+        if isinstance(obj, dict):
+            obj.pop('__', None)
+            for k, v in six.iteritems(obj):
+                obj[k] = cls._sanitize(v)
+        elif isinstance(obj, list):
+            obj = [x for x in obj if not (isinstance(x, dict) and '__' in x)]
+
+        return obj
+
+    @classmethod
+    def _is_compatible(cls, a, b):
+        return (isinstance(a, dict) and isinstance(b, dict)) or (isinstance(
+            a, list) and isinstance(b, list)) or (type(a) == type(b))
 
 
-def recursive_format(obj, **kwargs):
+def role(*args, **kwargs):
+    return Role(*args, **kwargs)
+
+
+def merge_recursive(a, b, default_strategy='merge-last'):
+    return RecursiveMerger.merge(a, b)
+
+
+def format_recursive(obj, **kwargs):
     if isinstance(obj, six.string_types):
         return obj.format(**kwargs)
-    elif isinstance(obj, Mapping):
+    elif isinstance(obj, dict):
         return {
-            k: recursive_format(v, **kwargs)
+            k: format_recursive(v, **kwargs)
             for k, v in six.iteritems(obj)
         }
-    elif isinstance(obj, Sequence):
-        return [recursive_format(v, **kwargs) for v in obj]
+    elif isinstance(obj, list):
+        return [format_recursive(v, **kwargs) for v in obj]
     else:
         return obj
 
 
-def default_network_address():
-    _get_route = __salt__['network.get_route']
-    _ip_addrs = __salt__['network.ip_addrs']
-    _ip_addrs6 = __salt__['network.ip_addrs6']
-
-    routes = __salt__['network.default_route']()
-    routes = filter(lambda x: 'G' in x.get('flags', '').upper(), routes)
-    routes = filter(lambda x: x.get('gateway', None), routes)
-
-    gw_routes = map(lambda x: _get_route(x['gateway']), routes)
-    gw_routes = filter(lambda x: x.get('source', None), gw_routes)
-    addrs = map(lambda x: x['source'], gw_routes)
-
-    if_addrs = map(lambda x: _ip_addrs(x['interface']), routes)
-    if_addrs += map(lambda x: _ip_addrs6(x['interface']), routes)
-    addrs += [addr for sublist in if_addrs for addr in sublist]
-
-    addrs = map(lambda x: ipaddress.ip_address(x), addrs)
-    addrs = filter(lambda x: not (x.is_loopback or x.is_link_local), addrs)
-    addrs = filter(lambda x: not (x.is_reserved or x.is_unspecified), addrs)
-    addrs = filter(lambda x: not x.is_multicast, addrs)
-
-    addrs4 = filter(lambda x: isinstance(x, ipaddress.IPv4Address), addrs)
-    addrs6 = filter(lambda x: isinstance(x, ipaddress.IPv6Address), addrs)
-
-    return {
-        'v4': addrs4[0].compressed if len(addrs4) > 0 else None,
-        'v6': addrs6[0].compressed if len(addrs6) > 0 else None,
-    }
-
-def parse_pillar_zones(zones_pillar):
-    zones = {}
-    zone_mixins = {zone_name: zone.get('mixins', []) for zone_name, zone in six.iteritems(zones_pillar)}
-
-    # Attempt to resolve all zone mixins
-    deps_attempts = 25
-    deps_pending = list(itertools.chain.from_iterable(zone_mixins.values()))
-    while deps_attempts > 0 and len(deps_pending):
-        zones_loaded = zones.keys()
-
-        # Iterate through all declared zones and parse zone once all mixins are resolved
-        for zone_name, mixins in six.iteritems(zone_mixins):
-            zone_mixins[zone_name] = mixins = [mixin for mixin in mixins if mixin not in zones_loaded]
-            if len(mixins) == 0:
-                zones[zone_name] = _parse_pillar_zone(zones_pillar, zone_name)
-
-        # Remove zones which have been loaded
-        for zone_name in zone_mixins.keys():
-            if zone_name in zones_loaded:
-                del zone_mixins[zone_name]
-
-        # Decrement the available attempts and update the list of pending dependencies
-        deps_attempts -= 1
-        deps_pending = list(itertools.chain.from_iterable(zone_mixins.values()))
-
-    # Abort if not all mixins have been resolved
-    if len(deps_pending) > 0:
-        raise InvalidEntityError('unresolved pillar zonefile mixins: {0}'.format(', '.join(deps_pending)))
-
-    return zones
-
-def _parse_pillar_zone(zones, zone_name):
-    zone = zones[zone_name]
-    zone_records = {}
-
-    # Merge mixin records in given order
-    for mixin in zone.get('mixins', []):
-        zone_records = __salt__['slsutil.merge'](
-            zone_records,
-            zones[mixin].get('records', {}),
-            strategy='recurse',
-            merge_lists=True
-        )
-
-    # Merge declared records into mixin records
-    zone = __salt__['slsutil.merge'](
-        {'records': zone_records},
-        zone,
-        strategy='recurse',
-        merge_lists=True
-    )
-
-    # Return zone with merged records
-    return zone
+def parse_properties(obj):
+    obj = [obj] if isinstance(obj, dict) else obj
+    for prop in obj:
+        for key, value in six.iteritems(prop):
+            yield {'key': key, 'value': value}
