@@ -125,7 +125,7 @@ borgbackup/initialize:
     - creates: '/etc/systemd/system/borgmatic.service'
     - use_vty: true
     - require:
-      - virtualenv: borgbackup/virtualenv
+      - borgbackup/virtualenv
       - file: borgbackup/borgmatic/config
 
 borgbackup/systemd-service:
