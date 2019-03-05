@@ -8,6 +8,7 @@ import salt.utils.jinja
 import salt.utils.yaml
 from glob import glob
 from jinja2 import FileSystemLoader, Environment
+from salt.utils.decorators.jinja import JinjaFilter, JinjaTest, JinjaGlobal
 
 log = logging.getLogger(__name__)
 
@@ -27,6 +28,9 @@ def _process_stack_cfg(cfg_path, stack, minion_id, pillar):
     jenv = Environment(
         loader=FileSystemLoader(base_dir),
         extensions=['jinja2.ext.do', salt.utils.jinja.SerializerExtension])
+    jenv.tests.update(JinjaTest.salt_jinja_tests)
+    jenv.filters.update(JinjaFilter.salt_jinja_filters)
+    jenv.globals.update(JinjaGlobal.salt_jinja_globals)
     jenv.globals.update({
         'opts': __opts__,
         'salt': __salt__,
@@ -35,19 +39,19 @@ def _process_stack_cfg(cfg_path, stack, minion_id, pillar):
         'minion_id': minion_id,
     })
 
-    # Process each glob pattern in stack file
+    # Render and parse stack configuration, removing empty entries
     cfg_contents = jenv.get_template(cfg_name).render(stack=stack)
-    for glob_name in _parse_stack_cfg(cfg_contents):
-        # Ignore empty/whitespace-only lines
-        if not glob_name.strip():
-            continue
+    glob_patterns = _parse_stack_cfg(cfg_contents)
+    glob_patterns = filter(None, map(lambda x: x.strip(), glob_patterns))
 
+    # Process each glob pattern in stack configuration
+    for glob_pattern in glob_patterns:
         # Attempt to find glob matches
-        file_paths = glob(os.path.join(base_dir, glob_name))
+        file_paths = glob(os.path.join(base_dir, glob_pattern))
         if not file_paths:
             log.info(
                 'Ignoring stack pattern "{:s}": Unable to find glob matches in "{:s}"'
-                .format(glob_name, base_dir))
+                .format(glob_pattern, base_dir))
             continue
 
         file_paths = sorted(file_paths)
