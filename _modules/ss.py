@@ -59,7 +59,8 @@ class Role(object):
         self._pillar = pillar_data
 
     def _generate_vars(self):
-        vars_data = RecursiveMerger.merge(self._defaults, self._pillar)
+        vars_data = RecursiveMerger.merge(
+            self._defaults, self._pillar, list_strategy='overwrite')
         vars_data = self._process_grain_matchers(vars_data)
         self._vars = vars_data
 
@@ -118,16 +119,21 @@ class RecursiveMerger(object):
         self._data = initial_data if initial_data else {}
 
     @classmethod
-    def merge(cls, a, b, default_strategy='merge-last'):
+    def merge(cls,
+              a,
+              b,
+              dict_strategy='merge-last',
+              list_strategy='merge-last'):
+        a, b = deepcopy(a), deepcopy(b)
         if isinstance(a, dict) and isinstance(b, dict):
-            return cls._merge_dict(deepcopy(a), b, default_strategy)
+            return cls._merge_dict(a, b, dict_strategy, list_strategy)
         elif isinstance(a, list) and isinstance(b, list):
-            return cls._merge_list(deepcopy(a), b, default_strategy)
+            return cls._merge_list(a, b, list_strategy)
         else:
-            return deepcopy(b)
+            return b
 
     @classmethod
-    def _merge_dict(cls, a, b, default_strategy):
+    def _merge_dict(cls, a, b, default_strategy, default_list_strategy):
         # Fetch strategy from dictionary
         strategy = b.pop('__', default_strategy)
         if strategy not in cls.STRATEGIES:
@@ -149,9 +155,10 @@ class RecursiveMerger(object):
 
                 # Merge k/v from b using current strategy
                 if isinstance(v, dict):
-                    a[k] = cls._merge_dict(a[k], v, default_strategy)
+                    a[k] = cls._merge_dict(a[k], v, default_strategy,
+                                           default_list_strategy)
                 elif isinstance(v, list):
-                    a[k] = cls._merge_list(a[k], v, default_strategy)
+                    a[k] = cls._merge_list(a[k], v, default_list_strategy)
                 else:
                     a[k] = v
             else:
@@ -212,8 +219,8 @@ def role(*args, **kwargs):
     return Role(*args, **kwargs)
 
 
-def merge_recursive(a, b, default_strategy='merge-last'):
-    return RecursiveMerger.merge(a, b)
+def merge_recursive(a, b, **kwargs):
+    return RecursiveMerger.merge(a, b, **kwargs)
 
 
 def format_recursive(obj, **kwargs):
