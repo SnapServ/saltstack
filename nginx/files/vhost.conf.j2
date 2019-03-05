@@ -29,7 +29,7 @@ server {
 
     fastcgi_param PATH_INFO $fastcgi_path_info;
     fastcgi_split_path_info ^(.+\.php)(/.+)$;
-    fastcgi_pass unix:{{ role.php_fpm_socket_path_fmt.format(
+    fastcgi_pass unix:{{ vars.php_fpm_socket_path_fmt.format(
       version=vhost_config.php_fpm_version,
       pool=vhost_config.php_fpm_pool
     ) }};

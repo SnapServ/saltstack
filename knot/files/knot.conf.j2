@@ -33,23 +33,23 @@
 
 # Managed by SaltStack
 server:
-  user: {{ role.service_user }}:{{ role.service_group }}
-  {%- for _listen in role.server.listen|sort %}
+  user: {{ vars.service_user }}:{{ vars.service_group }}
+  {%- for _listen in vars.server.listen|sort %}
   listen: {{ _listen if '@' in _listen else (_listen ~ '@53') }}
   {%- endfor %}
-  identity: {{ role.server.identity|yaml_dquote }}
-  {%- if role.server.version is not none %}
-  version: {{ role.server.version|yaml_dquote }}
+  identity: {{ vars.server.identity|yaml_dquote }}
+  {%- if vars.server.version is not none %}
+  version: {{ vars.server.version|yaml_dquote }}
   {%- endif %}
 
 log:
   - target: syslog
     any: info
 
-{%- if role.get('keys').keys()|length %}{{ '\n' }}
+{%- if vars.get('keys').keys()|length %}{{ '\n' }}
 key:
-{%- for _key_id, _key in role.get('keys')|dictsort %}
-{%- set _key = salt['custom.deep_merge'](role.key_defaults, _key) %}
+{%- for _key_id, _key in vars.get('keys')|dictsort %}
+{%- set _key = salt['ss.merge_recursive'](vars.key_defaults, _key) %}
 {%- do _key.update({'id': _key_id}) %}
 
 {#-#}
@@ -62,10 +62,10 @@ key:
 {%- endfor %}
 {%- endif %}
 
-{%- if role.policies.keys()|length %}{{ '\n' }}
+{%- if vars.policies.keys()|length %}{{ '\n' }}
 policy:
-{%- for _policy_id, _policy in role.policies|dictsort %}
-{%- set _policy = salt['custom.deep_merge'](role.policy_defaults, _policy) %}
+{%- for _policy_id, _policy in vars.policies|dictsort %}
+{%- set _policy = salt['ss.merge_recursive'](vars.policy_defaults, _policy) %}
 {%- do _policy.update({'id': _policy_id}) %}
 
 {#-#}
@@ -95,10 +95,10 @@ policy:
 {%- endfor %}
 {%- endif %}
 
-{%- if role.remotes.keys()|length %}{{ '\n' }}
+{%- if vars.remotes.keys()|length %}{{ '\n' }}
 remote:
-{%- for _remote_id, _remote in role.remotes|dictsort %}
-{%- set _remote = salt['custom.deep_merge'](role.remote_defaults, _remote) %}
+{%- for _remote_id, _remote in vars.remotes|dictsort %}
+{%- set _remote = salt['ss.merge_recursive'](vars.remote_defaults, _remote) %}
 {%- do _remote.update({'id': _remote_id}) %}
 
 {#-#}
@@ -112,10 +112,10 @@ remote:
 {%- endfor %}
 {%- endif %}
 
-{%- if role.acls.keys()|length %}{{ '\n' }}
+{%- if vars.acls.keys()|length %}{{ '\n' }}
 acl:
-{%- for _acl_id, _acl in role.acls|dictsort %}
-{%- set _acl = salt['custom.deep_merge'](role.acl_defaults, _acl) %}
+{%- for _acl_id, _acl in vars.acls|dictsort %}
+{%- set _acl = salt['ss.merge_recursive'](vars.acl_defaults, _acl) %}
 {%- do _acl.update({'id': _acl_id}) %}
 
 {#-#}
@@ -130,10 +130,10 @@ acl:
 {%- endfor %}
 {%- endif %}
 
-{%- if role.zones.keys()|length %}{{ '\n' }}
+{%- if vars.zones.keys()|length %}{{ '\n' }}
 zone:
-{%- for _zone_domain, _zone in role.zones|dictsort %}
-{%- set _zone = salt['custom.deep_merge'](role.zone_defaults, _zone) %}
+{%- for _zone_domain, _zone in vars.zones|dictsort %}
+{%- set _zone = salt['ss.merge_recursive'](vars.zone_defaults, _zone) %}
 {%- do _zone.update({'domain': _zone_domain}) %}
 
 {#-#}

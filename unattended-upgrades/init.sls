@@ -1,6 +1,3 @@
-{% set role = salt['custom.role_data']('unattended-upgrades') %}
+{% set role = salt['ss.role']('unattended-upgrades') %}
 
-{% if role.managed %}
-include:
-  - {{ sls }}.role
-{% endif %}
+include: {{ role.includes|yaml }}

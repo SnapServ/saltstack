@@ -137,6 +137,6 @@ table {{ _name }} saltstack {
 # Managed by SaltStack
 flush ruleset
 
-{%- for _family_name, _family in role.families|dictsort %}
+{%- for _family_name, _family in vars.families|dictsort %}
 {{- _block_wrap(_generate_family(_family_name, **_family), '\n') }}
 {%- endfor %}

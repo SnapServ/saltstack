@@ -5,6 +5,6 @@ include:
   - software
 
 {{ software.declare_repository('prosody', {
-  'sources': role.repository_sources,
-  'gpg_key_url': role.repository_gpg_key_url,
+  'sources': role.vars.repository_sources,
+  'gpg_key_url': role.vars.repository_gpg_key_url,
 }) }}

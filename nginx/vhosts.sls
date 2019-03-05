@@ -6,7 +6,7 @@ include:
 
 nginx/vhosts-dir:
   file.directory:
-    - name: {{ role.vhosts_dir|yaml_dquote }}
+    - name: {{ role.vars.vhosts_dir|yaml_dquote }}
     - user: 'root'
     - group: 'root'
     - mode: '0755'
@@ -14,6 +14,6 @@ nginx/vhosts-dir:
     - require:
       - pkg: nginx/packages
 
-{% for _vhost_name, _vhost in role.vhosts|dictsort %}
+{% for _vhost_name, _vhost in role.vars.vhosts|dictsort %}
   {{- nginx.declare_vhost(_vhost_name, _vhost) -}}
 {% endfor %}

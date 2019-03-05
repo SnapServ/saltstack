@@ -3,8 +3,8 @@
 include:
   - .server
 
-{% for _database_name, _database in role.databases|dictsort %}
-{% set _database = salt['custom.deep_merge'](role.database_defaults, _database) %}
+{% for _database_name, _database in role.vars.databases|dictsort %}
+{% set _database = salt['ss.merge_recursive'](role.vars.database_defaults, _database) %}
 
 mariadb/database/{{ _database_name }}:
   mysql_database.present:

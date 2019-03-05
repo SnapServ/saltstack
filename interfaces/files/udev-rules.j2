@@ -1,4 +1,4 @@
 # Managed by SaltStack
-{%- for _address, _name in role.device_mappings|dictsort %}
+{%- for _address, _name in vars.device_mappings|dictsort %}
 SUBSYSTEM=="net", ACTION=="add", DRIVERS=="?*", ATTR{address}=="{{ _address|lower }}", ATTR{dev_id}=="0x0", ATTR{type}=="1", NAME="{{ _name }}"
 {%- endfor %}

@@ -1,7 +1,7 @@
-{% set role = salt['custom.role']('python') %}
+{% set role = salt['ss.role']('python') %}
 
 {% macro virtualenv(path) %}
-{% set _state_id = kwargs.get('state_id', 'python/virtualenv-{0}'.format(path)) %}
+{% set _state_id = kwargs.get('state_id', 'python/virtualenv/{0}'.format(path)) %}
 
 {{ _state_id }}:
   virtualenv.managed:

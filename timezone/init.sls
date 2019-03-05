@@ -1,6 +1,3 @@
-{% set role = salt['custom.role_data']('timezone') %}
+{% set role = salt['ss.role']('timezone') %}
 
-{% if role.managed %}
-include:
-  - {{ sls }}.role
-{% endif %}
+include: {{ role.includes|yaml }}

@@ -8,7 +8,7 @@ memory_usage=$(free -m | awk '/Mem/ { printf("%3.1f%%", $3/$2*100) }')
 system_uptime=$(uptime -p | sed 's/up //' | tr -d ',' | awk '{print $1" "$2}')
 root_usage=$(df -h / | awk '/\// {print $(NF-1)}')
 kernel_version=$(uname -r)
-location={{ role.location_str|upper }}
+location={{ vars.location_str|upper }}
 process_count=$(ps ax | wc -l)
 
 label_prefix="\033[00;32m"

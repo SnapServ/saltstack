@@ -1,14 +1,14 @@
-{% from slspath ~ '/init.sls' import role %}
+{% from slspath ~ '/init.sls' import role, account %}
 
 jdownloader/dependencies:
   pkg.installed:
-    - pkgs: {{ role.dependencies|yaml }}
+    - pkgs: {{ role.vars.dependencies|yaml }}
 
 jdownloader/directory:
   file.directory:
-    - name: {{ role.service_dir|yaml_dquote }}
-    - user: {{ role.service_user|yaml_dquote }}
-    - group: {{ role.service_group|yaml_dquote }}
+    - name: {{ role.vars.service_dir|yaml_dquote }}
+    - user: {{ role.vars.service_user|yaml_dquote }}
+    - group: {{ role.vars.service_group|yaml_dquote }}
     - mode: '0755'
     - makedirs: True
     - recurse:
@@ -16,34 +16,34 @@ jdownloader/directory:
       - 'group'
     - require:
       - pkg: jdownloader/dependencies
-      - custom: $system/user/{{ role.service_user }}
-      - custom: $system/group/{{ role.service_group }}
+      - {{ account.resource('user', role.vars.service_user) }}
+      - {{ account.resource('group', role.vars.service_group) }}
 
 jdownloader/install:
   file.managed:
-    - name: {{ (role.service_dir ~ '/JDownloader.jar')|yaml_dquote }}
-    - source: {{ ('salt://' ~ slspath ~ '/files/JDownloader.jar')|yaml_dquote }}
-    - user: {{ role.service_user|yaml_dquote }}
-    - group: {{ role.service_group|yaml_dquote }}
+    - name: {{ (role.vars.service_dir ~ '/JDownloader.jar')|yaml_dquote }}
+    - source: {{ role.tpl_path('JDownloader.jar')|yaml_dquote }}
+    - user: {{ role.vars.service_user|yaml_dquote }}
+    - group: {{ role.vars.service_group|yaml_dquote }}
     - mode: '0644'
     - replace: False
     - require:
       - file: jdownloader/directory
 
-{% if role.myjdownloader.email_address and role.myjdownloader.password %}
+{% if role.vars.myjdownloader.email_address and role.vars.myjdownloader.password %}
 jdownloader/myjd-config:
   file.managed:
-    - name: {{ (role.service_dir ~ 'cfg/org.jdownloader.api.myjdownloader.MyJDownloaderSettings.json')|yaml_dquote }}
-    - source: {{ ('salt://' ~ slspath ~ '/files/myjd.json.j2')|yaml_dquote }}
+    - name: {{ (role.vars.service_dir ~ 'cfg/org.jdownloader.api.myjdownloader.MyJDownloaderSettings.json')|yaml_dquote }}
+    - source: {{ role.tpl_path('myjd.json.j2')|yaml_dquote }}
     - template: 'jinja'
-    - user: {{ role.service_user|yaml_dquote }}
-    - group: {{ role.service_group|yaml_dquote }}
+    - user: {{ role.vars.service_user|yaml_dquote }}
+    - group: {{ role.vars.service_group|yaml_dquote }}
     - mode: '0640'
     - dir_mode: 0755
     - makedirs: True
     - replace: False
     - context:
-        role: {{ role|yaml }}
+        vars: {{ role.vars|yaml }}
     - require:
       - file: jdownloader/install
     - require_in:
@@ -53,13 +53,13 @@ jdownloader/myjd-config:
 jdownloader/service:
   file.managed:
     - name: '/etc/systemd/system/jdownloader.service'
-    - source: {{ ('salt://' ~ slspath ~ '/files/jdownloader.service.j2')|yaml_dquote }}
+    - source: {{ role.tpl_path('jdownloader.service.j2')|yaml_dquote }}
     - template: 'jinja'
     - user: 'root'
     - group: 'root'
     - mode: '0644'
     - context:
-        role: {{ role|yaml }}
+        vars: {{ role.vars|yaml }}
     - require:
       - file: jdownloader/install
 

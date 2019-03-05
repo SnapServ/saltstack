@@ -1,6 +1,3 @@
-{% set role = salt['custom.role_data']('hosts') %}
+{% set role = salt['ss.role']('hosts') %}
 
-{% if role.managed %}
-include:
-  - {{ sls }}.role
-{% endif %}
+include: {{ role.includes|yaml }}

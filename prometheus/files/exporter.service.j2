@@ -3,7 +3,7 @@ Description=Prometheus {{ exporter_name|title }} Exporter
 After=network-online.target
 
 [Service]
-User={{ role.service_user }}
+User={{ vars.service_user }}
 ExecStart={{ install_path }}/{{ exporter_bin|default(exporter_name|lower ~ '_exporter') }} \
   {{ exporter_flags|sort|map('quote')|join(' \\\n  ') }}
 WorkingDirectory={{ install_path }}

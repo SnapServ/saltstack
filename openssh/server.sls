@@ -2,25 +2,25 @@
 
 openssh/packages:
   pkg.installed:
-    - pkgs: {{ role.server.packages|yaml }}
+    - pkgs: {{ role.vars.server.packages|yaml }}
 
 openssh/config:
   file.managed:
-    - name: {{ role.server.sshd_config_path|yaml_dquote }}
-    - source: {{ ('salt://' ~ slspath ~ '/files/sshd_config.j2')|yaml_dquote }}
-    - check_cmd: {{ role.server.sshd_config_check_cmd|yaml_dquote }}
+    - name: {{ role.vars.server.sshd_config_path|yaml_dquote }}
+    - source: {{ role.tpl_path('sshd_config.j2')|yaml_dquote }}
+    - check_cmd: {{ role.vars.server.sshd_config_check_cmd|yaml_dquote }}
     - template: 'jinja'
     - user: 'root'
     - group: 'root'
     - mode: '0640'
     - context:
-        role: {{ role|yaml }}
+        vars: {{ role.vars|yaml }}
     - require:
       - pkg: openssh/packages
 
 openssh/service:
   service.running:
-    - name: {{ role.server.service|yaml_dquote }}
+    - name: {{ role.vars.server.service|yaml_dquote }}
     - enable: True
     - watch:
       - file: openssh/config

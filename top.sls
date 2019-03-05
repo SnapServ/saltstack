@@ -23,6 +23,7 @@ base:
   'I.@grafana.managed': [grafana]
   'I.@incron.managed': [incron]
   'I.@jdownloader.managed': [jdownloader]
+  'I.@knot.managed': [knot]
   'I.@mariadb.managed': [mariadb]
   'I.@nftables.managed': [nftables]
   'I.@nginx.managed': [nginx]

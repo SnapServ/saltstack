@@ -4,9 +4,9 @@ Description=ACME DNS Server
 After=network.target
 
 [Service]
-User={{ role.service_user }}
+User={{ vars.service_user }}
 AmbientCapabilities=CAP_NET_BIND_SERVICE
-ExecStart={{ (role.service_dir ~ '/acme-dns')|quote }} -c {{ (role.service_dir ~ '/config.cfg')|quote }}
+ExecStart={{ (vars.service_dir ~ '/acme-dns')|quote }} -c {{ (vars.service_dir ~ '/config.cfg')|quote }}
 Restart=on-failure
 
 [Install]

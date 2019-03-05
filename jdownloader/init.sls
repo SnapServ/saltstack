@@ -1,6 +1,4 @@
-{% set role = salt['custom.role_data']('jdownloader') %}
+{% set role = salt['ss.role']('jdownloader') %}
+{% import role.dependency('account') as account %}{% set account = account %}
 
-{% if role.managed %}
-include:
-  - {{ sls }}.role
-{% endif %}
+include: {{ role.includes|yaml }}

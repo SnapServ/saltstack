@@ -1,7 +1,4 @@
-{% set role = salt['custom.role_data']('plexmediaserver') %}
+{% set role = salt['ss.role']('plexmediaserver') %}
+{% import role.dependency('software') as software %}{% set software = software %}
 
-{% if role.managed %}
-include:
-  - {{ sls }}.dependencies
-  - {{ sls }}.role
-{% endif %}
+include: {{ role.includes|yaml }}

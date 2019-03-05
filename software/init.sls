@@ -1,7 +1,5 @@
-{% set role = salt['custom.role_data']('software') %}
+{% set role = salt['ss.role']('software') %}
+{% do role.add_include('repositories') %}
+{% do role.add_include('packages') %}
 
-{% if role.managed %}
-include:
-  - {{ sls }}.repositories
-  - {{ sls }}.packages
-{% endif %}
+include: {{ role.includes|yaml }}

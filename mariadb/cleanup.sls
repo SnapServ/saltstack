@@ -6,8 +6,8 @@ include:
   - .users
 
 {% set _stale_dbs = salt['mysql.db_list']() %}
-{% set _stale_dbs = salt['custom.list_diff'](_stale_dbs, role.system_databases) %}
-{% set _stale_dbs = salt['custom.list_diff'](_stale_dbs, role.databases.keys()) %}
+{% set _stale_dbs = salt['ss.list_diff'](_stale_dbs, role.vars.system_databases) %}
+{% set _stale_dbs = salt['ss.list_diff'](_stale_dbs, role.vars.databases.keys()) %}
 
 {% for _stale_db in _stale_dbs %}
 mariadb/cleanup/database/{{ _stale_db }}:
@@ -21,8 +21,8 @@ mariadb/cleanup/database/{{ _stale_db }}:
 {% endfor %}
 
 {% set _active_users = [] %}
-{% for _user_name, _user in role.users|dictsort %}
-  {% set _user = salt['custom.deep_merge'](role.user_defaults, _user) %}
+{% for _user_name, _user in role.vars.users|dictsort %}
+  {% set _user = salt['ss.merge_recursive'](role.vars.user_defaults, _user) %}
   {% for _user_host in _user.hosts %}
     {% do _active_users.append({
       'Host': _user_host,
@@ -32,8 +32,8 @@ mariadb/cleanup/database/{{ _stale_db }}:
 {% endfor %}
 
 {% set _stale_users = salt['mysql.user_list']() %}
-{% set _stale_users = salt['custom.dict_list_diff'](_stale_users, role.system_users) %}
-{% set _stale_users = salt['custom.dict_list_diff'](_stale_users, _active_users) %}
+{% set _stale_users = salt['ss.dict_list_diff'](_stale_users, role.vars.system_users) %}
+{% set _stale_users = salt['ss.dict_list_diff'](_stale_users, _active_users) %}
 
 {% for _stale_user in _stale_users %}
 mariadb/cleanup/user/{{ _stale_user.User }}-{{ _stale_user.Host }}:
@@ -47,8 +47,8 @@ mariadb/cleanup/user/{{ _stale_user.User }}-{{ _stale_user.Host }}:
       - sls: mariadb.users
 {% endfor %}
 
-{% for _user_name, _user in role.users|dictsort %}
-{% set _user = salt['custom.deep_merge'](role.user_defaults, _user) %}
+{% for _user_name, _user in role.vars.users|dictsort %}
+{% set _user = salt['ss.merge_recursive'](role.vars.user_defaults, _user) %}
 {% for _user_host in _user.hosts %}
 
 {% set _stale_grants = {} %}
@@ -58,7 +58,7 @@ mariadb/cleanup/user/{{ _stale_user.User }}-{{ _stale_user.Host }}:
   {% set _current_grant = salt['mysql.tokenize_grant'](_current_grant) %}
   {% set _grant_target = _current_grant.database|replace('`', '') %}
   {% set _grant_privileges = _current_grant.grant|map('upper')|list %}
-  {% set _grant_privileges = salt['custom.list_diff'](_grant_privileges, ['USAGE']) %}
+  {% set _grant_privileges = salt['ss.list_diff'](_grant_privileges, ['USAGE']) %}
 
   {% do _stale_grants.update({_grant_target: _grant_privileges}) %}
 {% endfor %}
@@ -68,7 +68,7 @@ mariadb/cleanup/user/{{ _stale_user.User }}-{{ _stale_user.Host }}:
   {% set _grant_privileges = _user_grant.privileges|map('upper')|list %}
 
   {% do _stale_grants.update({
-    _grant_target: salt['custom.list_diff'](_stale_grants.get(_grant_target, []), _grant_privileges)
+    _grant_target: salt['ss.list_diff'](_stale_grants.get(_grant_target, []), _grant_privileges)
   }) %}
 {% endfor %}
 

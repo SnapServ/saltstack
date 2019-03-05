@@ -1,41 +1,41 @@
 # Managed by SaltStack
-Port {{ role.server.port }}
-HostKey {{ role.server.config_dir }}/ssh_host_ed25519_key
-HostKey {{ role.server.config_dir }}/ssh_host_rsa_key
+Port {{ vars.server.port }}
+HostKey {{ vars.server.config_dir }}/ssh_host_ed25519_key
+HostKey {{ vars.server.config_dir }}/ssh_host_rsa_key
 
 KexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256
 Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr
 MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-512,hmac-sha2-256,umac-128@openssh.com
 
-StrictModes {{ 'yes' if role.server.strict_modes else 'no' }}
-PermitRootLogin {{ 'yes' if role.server.permit_root_login else 'no' }}
-UsePrivilegeSeparation {{ role.server.use_privilege_separation }}
-AuthenticationMethods {{ role.server.authentication_methods|join(' ') }}
+StrictModes {{ 'yes' if vars.server.strict_modes else 'no' }}
+PermitRootLogin {{ 'yes' if vars.server.permit_root_login else 'no' }}
+UsePrivilegeSeparation {{ vars.server.use_privilege_separation }}
+AuthenticationMethods {{ vars.server.authentication_methods|join(' ') }}
 
-AllowAgentForwarding {{ 'yes' if role.server.permit_agent_forwarding else 'no' }}
-AllowTcpForwarding {{ 'yes' if role.server.permit_tcp_forwarding else 'no' }}
-X11Forwarding {{ 'yes' if role.server.permit_x11_forwarding else 'no' }}
-PermitTunnel {{ 'yes' if role.server.permit_tunneling else 'no' }}
+AllowAgentForwarding {{ 'yes' if vars.server.permit_agent_forwarding else 'no' }}
+AllowTcpForwarding {{ 'yes' if vars.server.permit_tcp_forwarding else 'no' }}
+X11Forwarding {{ 'yes' if vars.server.permit_x11_forwarding else 'no' }}
+PermitTunnel {{ 'yes' if vars.server.permit_tunneling else 'no' }}
 StreamLocalBindUnlink yes
 
-UsePAM {{ 'yes' if role.server.use_pam else 'no' }}
-UseDNS {{ 'yes' if role.server.use_dns else 'no' }}
-LogLevel {{ role.server.log_level|upper }}
-Subsystem sftp {{ role.server.sftp_subsystem_cmd }}
-{% if role.server.authorized_keys_command -%}
-AuthorizedKeysCommand {{ role.server.authorized_keys_command }}
+UsePAM {{ 'yes' if vars.server.use_pam else 'no' }}
+UseDNS {{ 'yes' if vars.server.use_dns else 'no' }}
+LogLevel {{ vars.server.log_level|upper }}
+Subsystem sftp {{ vars.server.sftp_subsystem_cmd }}
+{% if vars.server.authorized_keys_command -%}
+AuthorizedKeysCommand {{ vars.server.authorized_keys_command }}
 {% endif -%}
-{% if role.server.authorized_keys_command_user -%}
-AuthorizedKeysCommandUser {{ role.server.authorized_keys_command_user }}
+{% if vars.server.authorized_keys_command_user -%}
+AuthorizedKeysCommandUser {{ vars.server.authorized_keys_command_user }}
 {% endif -%}
 
-AcceptEnv {{ role.server.accept_env|join(' ') }}
-AllowUsers {{ role.server.allow_users|join(' ') }}
-AllowGroups {{ role.server.allow_groups|join(' ') }}
-DenyUsers {{ role.server.deny_users|join(' ') }}
-DenyGroups {{ role.server.deny_groups|join(' ') }}
+AcceptEnv {{ vars.server.accept_env|join(' ') }}
+AllowUsers {{ vars.server.allow_users|join(' ') }}
+AllowGroups {{ vars.server.allow_groups|join(' ') }}
+DenyUsers {{ vars.server.deny_users|join(' ') }}
+DenyGroups {{ vars.server.deny_groups|join(' ') }}
 
-{%- for _name, _config in role.server.custom_configs|dictsort %}
+{%- for _name, _config in vars.server.custom_configs|dictsort %}
 
 # Custom Configuration: {{ _name }}
 {{ _config.strip('\n') }}

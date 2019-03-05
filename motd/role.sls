@@ -2,12 +2,12 @@
 
 motd/packages:
   pkg.installed:
-    - pkgs: {{ role.packages|yaml }}
+    - pkgs: {{ role.vars.packages|yaml }}
 
 motd/deploy-dynamic:
   file.recurse:
-    - name: {{ role.dynamic_motd_dir|yaml_dquote }}
-    - source: {{ ('salt://' ~ slspath ~ '/files/')|yaml_dquote }}
+    - name: {{ role.vars.dynamic_motd_dir|yaml_dquote }}
+    - source: {{ role.tpl_path()|yaml_dquote }}
     - template: 'jinja'
     - user: 'root'
     - group: 'root'
@@ -15,12 +15,12 @@ motd/deploy-dynamic:
     - dir_mode: '0755'
     - clean: True
     - context:
-        role: {{ role|yaml }}
+        vars: {{ role.vars|yaml }}
     - require:
       - pkg: motd/packages
 
 motd/remove-static:
   file.absent:
-    - name: {{ role.static_motd_path|yaml_dquote }}
+    - name: {{ role.vars.static_motd_path|yaml_dquote }}
     - require:
       - file: motd/deploy-dynamic

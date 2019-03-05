@@ -3,10 +3,10 @@
 include:
   - .global
 
-{% for _version_name, _version in role.versions|dictsort %}
+{% for _version_name, _version in role.vars.versions|dictsort %}
 {% set _version_state = 'php-fpm/version/' ~ _version_name %}
-{% set _version = salt['custom.deep_merge'](role.version_defaults, _version) %}
-{% set _version = salt['custom.recursive_format'](_version, version=_version_name) %}
+{% set _version = salt['ss.merge_recursive'](role.vars.version_defaults, _version) %}
+{% set _version = salt['ss.recursive_format'](_version, version=_version_name) %}
 {% set _version_configs = {
   'early': ['00-saltstack.ini', _version.base_config_dir ~ '/saltstack-early.ini'],
   'main': ['99-saltstack.ini', _version.base_config_dir ~ '/saltstack-main.ini'],
@@ -34,13 +34,13 @@ include:
 {{ _version_state }}/config/{{ _config_name }}:
   file.managed:
     - name: {{ _config_paths[1] }}
-    - source: {{ ('salt://' ~ slspath ~ '/files/php.ini.j2') }}
+    - source: {{ role.tpl_path('php.ini.j2') }}
     - template: 'jinja'
     - user: 'root'
     - group: 'root'
     - mode: '0644'
     - context:
-        role: {{ role|yaml }}
+        vars: {{ role.vars|yaml }}
         config: {{ _config_data|yaml }}
     - require:
       - pkg: {{ _version_state }}/packages
@@ -68,15 +68,15 @@ include:
 {% endfor %}
 
 {% for _pool_name, _pool in _version.pools|dictsort %}
-{% set _pool = salt['custom.deep_merge'](role.pool_defaults, _pool) %}
-{% set _pool = salt['custom.deep_merge']({
+{% set _pool = salt['ss.merge_recursive'](role.vars.pool_defaults, _pool) %}
+{% set _pool = salt['ss.merge_recursive']({
   'listen': _version.fpm_socket_prefix ~ _pool_name ~ '.sock',
 }, _pool) %}
 
 {{ _version_state }}/pool/{{ _pool_name }}:
   file.managed:
     - name: {{ (_version.fpm_pool_dir ~ '/' ~ _pool_name ~ '.conf')|yaml_dquote }}
-    - source: {{ ('salt://' ~ slspath ~ '/files/pool.conf.j2')|yaml_dquote }}
+    - source: {{ role.tpl_path('pool.conf.j2')|yaml_dquote }}
     - template: 'jinja'
     - user: 'root'
     - group: 'root'
@@ -84,7 +84,7 @@ include:
     - dir_mode: '0755'
     - makedirs: True
     - context:
-        role: {{ role|yaml }}
+        vars: {{ role.vars|yaml }}
         pool_name: {{ _pool_name|yaml }}
         pool_config: {{ _pool|yaml }}
     - require:

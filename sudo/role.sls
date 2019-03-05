@@ -2,18 +2,18 @@
 
 sudo/packages:
   pkg.installed:
-    - pkgs: {{ role.packages|yaml }}
+    - pkgs: {{ role.vars.packages|yaml }}
 
 sudo/config:
   file.managed:
-    - name: {{ role.sudoers_path|yaml_dquote }}
-    - source: {{ ('salt://' ~ slspath ~ '/files/sudoers.j2')|yaml_dquote }}
-    - check_cmd: {{ role.sudoers_check_cmd|yaml_dquote }}
+    - name: {{ role.vars.sudoers_path|yaml_dquote }}
+    - source: {{ role.tpl_path('sudoers.j2')|yaml_dquote }}
+    - check_cmd: {{ role.vars.sudoers_check_cmd|yaml_dquote }}
     - template: 'jinja'
     - user: 'root'
     - group: 'root'
     - mode: '0640'
     - context:
-        role: {{ role|yaml }}
+        vars: {{ role.vars|yaml }}
     - require:
       - pkg: sudo/packages

@@ -1,17 +1,21 @@
-{% from slspath ~ '/init.sls' import role %}
+{% from slspath ~ '/init.sls' import role, software %}
 
-include:
-  - .dependencies
+{{ software.repository(
+  state_id='plexmediaserver/repository',
+  name='plexmediaserver',
+  sources=role.vars.repository_sources,
+  gpg_key_url=role.vars.repository_gpg_key_url,
+) }}
 
 plexmediaserver/packages:
   pkg.installed:
-    - pkgs: {{ role.packages|yaml }}
+    - pkgs: {{ role.vars.packages|yaml }}
     - require:
-      - custom: $system/repository/plexmediaserver
+      - plexmediaserver/repository
 
 plexmediaserver/service:
   service.running:
-    - name: {{ role.service|yaml_dquote }}
+    - name: {{ role.vars.service|yaml_dquote }}
     - enable: True
     - require:
       - pkg: plexmediaserver/packages

@@ -2,7 +2,7 @@
 from __future__ import absolute_import, print_function, generators, unicode_literals
 import re
 from copy import deepcopy
-from salt.ext import six
+from salt.ext import ipaddress, six
 
 
 class Role(object):
@@ -34,8 +34,14 @@ class Role(object):
         self._dependencies += (role.name, )
         return '{0}/macros.sls'.format(role.name)
 
-    def tpl_path(self, path):
+    def tpl_path(self, path=None):
+        if path is None:
+            return 'salt://{0}/files'.format(self.name)
+
         return 'salt://{0}/files/{1}'.format(self.name, path)
+
+    def resource(self, *names):
+        return 'R@{0}/{1}'.format(self.name, '/'.join(names))
 
     def _load_defaults(self):
         defaults_path = 'salt://{0}/role.yaml'.format(self.name)
@@ -239,26 +245,33 @@ def default_network_address():
     _ip_addrs = __salt__['network.ip_addrs']
     _ip_addrs6 = __salt__['network.ip_addrs6']
 
+    # Get default routes
     routes = __salt__['network.default_route']()
     routes = filter(lambda x: 'G' in x.get('flags', '').upper(), routes)
     routes = filter(lambda x: x.get('gateway', None), routes)
 
+    # Get gateway of default routes
     gw_routes = map(lambda x: _get_route(x['gateway']), routes)
     gw_routes = filter(lambda x: x.get('source', None), gw_routes)
     addrs = map(lambda x: x['source'], gw_routes)
 
+    # Get interface of default gateways
     if_addrs = map(lambda x: _ip_addrs(x['interface']), routes)
     if_addrs += map(lambda x: _ip_addrs6(x['interface']), routes)
     addrs += [addr for sublist in if_addrs for addr in sublist]
 
+    # Get public addresses of interfaces
     addrs = map(lambda x: ipaddress.ip_address(x), addrs)
     addrs = filter(lambda x: not (x.is_loopback or x.is_link_local), addrs)
     addrs = filter(lambda x: not (x.is_reserved or x.is_unspecified), addrs)
     addrs = filter(lambda x: not x.is_multicast, addrs)
 
+    # Split addresses into IPv4 and IPv6
     addrs4 = filter(lambda x: isinstance(x, ipaddress.IPv4Address), addrs)
     addrs6 = filter(lambda x: isinstance(x, ipaddress.IPv6Address), addrs)
+    addrs4, addrs6 = list(addrs4), list(addrs6)
 
+    # Return compressed IPv4 and IPv6 address if found
     return {
         'v4': addrs4[0].compressed if len(addrs4) > 0 else None,
         'v6': addrs6[0].compressed if len(addrs6) > 0 else None,

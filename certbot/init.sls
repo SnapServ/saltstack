@@ -1,6 +1,6 @@
-{% set role = salt['custom.role_data']('certbot') %}
+{% set role = salt['ss.role']('certbot') %}
 
-{% if role.managed %}
+{% if role.vars.managed %}
 include:
   - .role
 {% endif %}

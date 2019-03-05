@@ -1,6 +1,6 @@
-{% set role = salt['custom.role_data']('nginx') %}
+{% set role = salt['ss.role']('nginx') %}
 
-{% if role.managed %}
+{% if role.vars.managed %}
 include:
   - .global
   - .vhosts

@@ -2,9 +2,9 @@
 
 locale/packages:
   pkg.installed:
-    - pkgs: {{ role.packages|yaml }}
+    - pkgs: {{ role.vars.packages|yaml }}
 
-{% for _locale in role.present_locales %}
+{% for _locale in role.vars.present_locales %}
 locale/present/{{ loop.index }}:
   locale.present:
     - name: {{ _locale|yaml_dquote }}
@@ -14,7 +14,7 @@ locale/present/{{ loop.index }}:
       - locale: locale/system
 {% endfor %}
 
-{% for _locale in role.absent_locales %}
+{% for _locale in role.vars.absent_locales %}
 locale/absent/{{ loop.index }}:
   locale.absent:
     - name: {{ _locale|yaml_dquote }}
@@ -24,8 +24,8 @@ locale/absent/{{ loop.index }}:
       - locale: locale/system
 {% endfor %}
 
-{% if role.system_locale %}
+{% if role.vars.system_locale %}
 locale/system:
   locale.system:
-    - name: {{ role.system_locale|yaml_dquote }}
+    - name: {{ role.vars.system_locale|yaml_dquote }}
 {% endif %}

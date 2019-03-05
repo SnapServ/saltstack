@@ -1,5 +1,5 @@
 {%- macro render_interface(_name, _options) -%}
-{%- set _properties = salt['custom.dict_list_to_property_list'](_options) -%}
+{%- set _properties = salt['ss.parse_properties'](_options) -%}
 {%- set _family = _properties|selectattr('key', 'equalto', 'family')|map(attribute='value')|list|last|default(None) -%}
 {%- set _method = _properties|selectattr('key', 'equalto', 'method')|map(attribute='value')|list|last|default(None) -%}
 

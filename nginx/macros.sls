@@ -1,9 +1,9 @@
 {% from 'nginx/init.sls' import role %}
 
 {% macro declare_vhost(_vhost_name, _vhost) %}
-{% set _vhost = salt['custom.deep_merge'](role.vhost_defaults, _vhost) %}
+{% set _vhost = salt['ss.merge_recursive'](role.vars.vhost_defaults, _vhost) %}
 {% set _vhost_state = 'nginx/vhost/' ~ _vhost_name %}
-{% set _vhost_dir = role.vhost_data_dir ~ '/' ~ _vhost_name %}
+{% set _vhost_dir = role.vars.vhost_data_dir ~ '/' ~ _vhost_name %}
 
 {{ _vhost_state }}/filesystem/vhost:
   file.directory:
@@ -18,8 +18,8 @@
 {{ _vhost_state }}/filesystem/app:
   file.directory:
     - name: {{ (_vhost_dir ~ '/app')|yaml_dquote }}
-    - user: {{ (_vhost.app_user or role.service_user)|yaml_dquote }}
-    - group: {{ (_vhost.app_group or role.service_group)|yaml_dquote }}
+    - user: {{ (_vhost.app_user or role.vars.service_user)|yaml_dquote }}
+    - group: {{ (_vhost.app_group or role.vars.service_group)|yaml_dquote }}
     - mode: '2770'
     - require:
       - file: {{ _vhost_state }}/filesystem/vhost
@@ -27,8 +27,8 @@
 {{ _vhost_state }}/filesystem/app/public:
   file.directory:
     - name: {{ (_vhost_dir ~ '/app/public')|yaml_dquote }}
-    - user: {{ (_vhost.app_user or role.service_user)|yaml_dquote }}
-    - group: {{ (_vhost.app_group or role.service_group)|yaml_dquote }}
+    - user: {{ (_vhost.app_user or role.vars.service_user)|yaml_dquote }}
+    - group: {{ (_vhost.app_group or role.vars.service_group)|yaml_dquote }}
     - mode: '2770'
     - require:
       - file: {{ _vhost_state }}/filesystem/app
@@ -54,7 +54,7 @@
 {{ _vhost_state }}/filesystem/tmp:
   file.directory:
     - name: {{ (_vhost_dir ~ '/tmp')|yaml_dquote }}
-    - user: {{ (_vhost.app_user or role.service_user)|yaml_dquote }}
+    - user: {{ (_vhost.app_user or role.vars.service_user)|yaml_dquote }}
     - group: 'root'
     - mode: '1770'
     - require:
@@ -62,7 +62,7 @@
 
 {{ _vhost_state }}/config:
   file.managed:
-    - name: {{ (role.vhosts_dir ~ '/' ~ _vhost_name ~ '.conf')|yaml_dquote }}
+    - name: {{ (role.vars.vhosts_dir ~ '/' ~ _vhost_name ~ '.conf')|yaml_dquote }}
     - source: 'salt://nginx/files/vhost.conf.j2'
     - template: 'jinja'
     - user: 'root'
@@ -71,7 +71,7 @@
     - dir_mode: '0755'
     - makedirs: True
     - context:
-        role: {{ role|yaml }}
+        vars: {{ role.vars|yaml }}
         vhost_name: {{ _vhost_name|yaml }}
         vhost_config: {{ _vhost|yaml }}
         vhost_dir: {{ _vhost_dir|yaml }}

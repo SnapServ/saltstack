@@ -1,8 +1,8 @@
 # Managed by SaltStack
-{%- if role.search_paths %}
-search {{ role.search_paths|join(' ') }}
+{%- if vars.search_paths %}
+search {{ vars.search_paths|join(' ') }}
 {%- endif %}
-{%- for _nameserver in role.nameservers %}
+{%- for _nameserver in vars.nameservers %}
 nameserver {{ _nameserver }}
 {%- endfor %}
-options timeout:{{ role.resolver_timeout }} attempts:{{ role.resolver_attempts }}{{ ' rotate' if role.resolver_round_robin else '' }}
+options timeout:{{ vars.resolver_timeout }} attempts:{{ vars.resolver_attempts }}{{ ' rotate' if vars.resolver_round_robin else '' }}

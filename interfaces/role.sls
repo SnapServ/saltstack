@@ -2,18 +2,18 @@
 
 interfaces/packages:
   pkg.installed:
-    - pkgs: {{ role.packages|yaml }}
+    - pkgs: {{ role.vars.packages|yaml }}
 
 interfaces/udev-rules:
   file.managed:
-    - name: {{ role.udev_rules_path|yaml_dquote }}
-    - source: {{ ('salt://' ~ slspath ~ '/files/udev-rules.j2')|yaml_dquote }}
+    - name: {{ role.vars.udev_rules_path|yaml_dquote }}
+    - source: {{ role.tpl_path('udev-rules.j2')|yaml_dquote }}
     - template: 'jinja'
     - user: 'root'
     - group: 'root'
     - mode: '0644'
     - context:
-        role: {{ role|yaml }}
+        vars: {{ role.vars|yaml }}
     - require:
       - pkg: interfaces/packages
 
@@ -24,30 +24,30 @@ interfaces/udev-rules:
 
 interfaces/config:
   file.managed:
-    - name: {{ role.interfaces_path|yaml_dquote }}
-    - source: {{ ('salt://' ~ slspath ~ '/files/interfaces.j2')|yaml_dquote }}
+    - name: {{ role.vars.interfaces_path|yaml_dquote }}
+    - source: {{ role.tpl_path('interfaces.j2')|yaml_dquote }}
     - template: 'jinja'
     - user: 'root'
     - group: 'root'
     - mode: '0644'
     - template: 'jinja'
     - context:
-        role: {{ role|yaml }}
+        vars: {{ role.vars|yaml }}
 
 interfaces/config-dir:
   file.directory:
-    - name: {{ role.interfaces_dir|yaml_dquote }}
+    - name: {{ role.vars.interfaces_dir|yaml_dquote }}
     - user: 'root'
     - group: 'root'
     - mode: '0755'
     - clean: True
 
-{% if not role.single_config %}
-{% for _interface_name, _interface in role.configs|dictsort %}
+{% if not role.vars.single_config %}
+{% for _interface_name, _interface in role.vars.configs|dictsort %}
 interfaces/device/{{ _interface_name }}:
   file.managed:
-    - name: {{ (role.interfaces_dir ~ '/' ~ _interface_name)|yaml_dquote }}
-    - source: {{ ('salt://' ~ slspath ~ '/files/interface.j2')|yaml_dquote }}
+    - name: {{ (role.vars.interfaces_dir ~ '/' ~ _interface_name)|yaml_dquote }}
+    - source: {{ role.tpl_path('interface.j2')|yaml_dquote }}
     - template: 'jinja'
     - user: 'root'
     - group: 'root'
@@ -56,7 +56,7 @@ interfaces/device/{{ _interface_name }}:
     - makedirs: True
     - template: 'jinja'
     - context:
-        role: {{ role|yaml }}
+        vars: {{ role.vars|yaml }}
         interface_name: {{ _interface_name|yaml }}
         interface: {{ _interface|yaml }}
     - require:

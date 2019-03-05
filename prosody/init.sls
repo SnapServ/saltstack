@@ -1,6 +1,6 @@
-{% set role = salt['custom.role_data']('prosody') %}
+{% set role = salt['ss.role']('prosody') %}
 
-{% if role.managed %}
+{% if role.vars.managed %}
 include:
   - {{ sls }}.dependencies
   - {{ sls }}.role

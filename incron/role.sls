@@ -2,31 +2,31 @@
 
 incron/packages:
   pkg.installed:
-    - pkgs: {{ role.packages|yaml }}
+    - pkgs: {{ role.vars.packages|yaml }}
 
 incron/allowed-users:
   file.managed:
-    - name: {{ role.allowed_users_config|yaml_dquote }}
+    - name: {{ role.vars.allowed_users_config|yaml_dquote }}
     - user: 'root'
-    - group: {{ role.config_group|yaml_dquote }}
+    - group: {{ role.vars.config_group|yaml_dquote }}
     - mode: '0640'
-    - contents: {{ role.allowed_users|join('\n')|yaml_dquote }}
+    - contents: {{ role.vars.allowed_users|join('\n')|yaml_dquote }}
     - require:
       - pkg: incron/packages
 
 incron/denied-users:
   file.managed:
-    - name: {{ role.denied_users_config|yaml_dquote }}
+    - name: {{ role.vars.denied_users_config|yaml_dquote }}
     - user: 'root'
-    - group: {{ role.config_group|yaml_dquote }}
+    - group: {{ role.vars.config_group|yaml_dquote }}
     - mode: '0640'
-    - contents: {{ role.denied_users|join('\n')|yaml_dquote }}
+    - contents: {{ role.vars.denied_users|join('\n')|yaml_dquote }}
     - require:
       - pkg: incron/packages
 
 incron/scripts-dir:
   file.directory:
-    - name: {{ role.scripts_dir|yaml_dquote }}
+    - name: {{ role.vars.scripts_dir|yaml_dquote }}
     - user: 'root'
     - group: 'root'
     - mode: '0755'
@@ -34,9 +34,9 @@ incron/scripts-dir:
     - require:
       - pkg: incron/packages
 
-{% for _cron_name, _cron in role.crons|dictsort %}
-{% set _cron = salt['custom.deep_merge'](role.cron_defaults, _cron) %}
-{% set _cron_script = role.scripts_dir ~ '/' ~ _cron_name %}
+{% for _cron_name, _cron in role.vars.crons|dictsort %}
+{% set _cron = salt['ss.merge_recursive'](role.vars.cron_defaults, _cron) %}
+{% set _cron_script = role.vars.scripts_dir ~ '/' ~ _cron_name %}
 
 incron/cron/{{ _cron_name }}:
   {% if _cron.enabled %}

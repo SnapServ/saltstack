@@ -2,18 +2,18 @@
 
 nginx/packages:
   pkg.installed:
-    - pkgs: {{ role.packages|yaml }}
+    - pkgs: {{ role.vars.packages|yaml }}
 
 nginx/config:
   file.managed:
-    - name: {{ role.config_path|yaml_dquote }}
-    - source: {{ ('salt://' ~ slspath ~ '/files/nginx.conf.j2')|yaml_dquote }}
+    - name: {{ role.vars.config_path|yaml_dquote }}
+    - source: {{ role.tpl_path('nginx.conf.j2')|yaml_dquote }}
     - template: 'jinja'
     - user: 'root'
     - group: 'root'
     - mode: '0644'
     - context:
-        role: {{ role|yaml }}
+        vars: {{ role.vars|yaml }}
     - require:
       - pkg: nginx/packages
     - watch_in:
@@ -21,14 +21,14 @@ nginx/config:
 
 nginx/service:
   service.running:
-    - name: {{ role.service|yaml_dquote }}
+    - name: {{ role.vars.service|yaml_dquote }}
     - enable: True
     - require:
       - pkg: nginx/packages
 
 nginx/service-reload:
   service.running:
-    - name: {{ role.service|yaml_dquote }}
+    - name: {{ role.vars.service|yaml_dquote }}
     - reload: True
     - require:
       - service: nginx/service

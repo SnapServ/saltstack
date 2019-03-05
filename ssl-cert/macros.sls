@@ -1,10 +1,10 @@
-{%- set role = salt['custom.role_data']('ssl-cert') -%}
+{%- set role = salt['ss.role']('ssl-cert') -%}
 
 {%- macro safe_certificate(_path) -%}
   {%- if salt['file.exists'](_path) -%}
     {{- _path -}}
   {%- else %}
-    {{- role.snakeoil_certificate_path -}}
+    {{- role.vars.snakeoil_certificate_path -}}
   {%- endif -%}
 {%- endmacro -%}
 
@@ -12,6 +12,6 @@
   {%- if salt['file.exists'](_path) -%}
     {{- _path -}}
   {%- else %}
-    {{- role.snakeoil_keyfile_path -}}
+    {{- role.vars.snakeoil_keyfile_path -}}
   {%- endif -%}
 {%- endmacro -%}

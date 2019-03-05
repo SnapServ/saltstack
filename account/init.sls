@@ -1,6 +1,6 @@
-{% set role = salt['custom.role_data']('account') %}
+{% set role = salt['ss.role']('account') %}
 
-{% if role.managed %}
+{% if role.vars.managed %}
 include:
   - {{ sls }}.groups
   - {{ sls }}.users

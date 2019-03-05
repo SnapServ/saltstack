@@ -1,17 +1,21 @@
-{% from slspath ~ '/init.sls' import role %}
+{% from slspath ~ '/init.sls' import role, software %}
 
-include:
-  - .dependencies
+{{ software.repository(
+  state_id='prosody/repository',
+  name='prosody'
+  sources=role.vars.repository_sources,
+  gpg_key_url=role.vars.repository_gpg_key_url,
+) }}
 
 prosody/packages:
   pkg.installed:
-    - pkgs: {{ role.packages|yaml }}
+    - pkgs: {{ role.vars.packages|yaml }}
     - require:
-      - custom: $system/repository/prosody
+      - prosody/repository
 
 prosody/service:
   service.running:
-    - name: {{ role.service|yaml_dquote }}
+    - name: {{ role.vars.service|yaml_dquote }}
     - enable: True
     - require:
       - pkg: prosody/packages

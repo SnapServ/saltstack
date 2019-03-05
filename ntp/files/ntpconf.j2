@@ -1,10 +1,10 @@
 # Managed by SaltStack
-{%- for _server in role.servers %}
+{%- for _server in vars.servers %}
 server {{ _server }} iburst
 {%- endfor %}
 
-driftfile {{ role.driftfile_path }}
-statsdir {{ role.stats_dir }}
+driftfile {{ vars.driftfile_path }}
+statsdir {{ vars.stats_dir }}
 statistics loopstats peerstats clockstats
 filegen loopstats file loopstats type day enable
 filegen peerstats file peerstats type day enable

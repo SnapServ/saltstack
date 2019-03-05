@@ -1,7 +1,4 @@
-{% set role = salt['custom.role_data']('samba') %}
+{% set role = salt['ss.role']('samba') %}
+{% import role.dependency('account') as account %}{% set account = account %}
 
-{% if role.managed %}
-include:
-  - {{ sls }}.dependencies
-  - {{ sls }}.role
-{% endif %}
+include: {{ role.includes|yaml }}

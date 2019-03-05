@@ -8,5 +8,5 @@ ff02::1 ip6-allnodes
 ff02::2 ip6-allrouters
 ff02::3 ip6-allhosts
 
-{{ role.primary_address4 or '# <primary IPv4 address>' }} {{ role.hostname ~ '.' ~ role.domain }} {{ role.hostname }}
-{{ role.primary_address6 or '# <primary IPv6 address>' }} {{ role.hostname ~ '.' ~ role.domain }} {{ role.hostname }}
+{{ vars.primary_address4 or '# <primary IPv4 address>' }} {{ vars.hostname ~ '.' ~ vars.domain }} {{ vars.hostname }}
+{{ vars.primary_address6 or '# <primary IPv6 address>' }} {{ vars.hostname ~ '.' ~ vars.domain }} {{ vars.hostname }}

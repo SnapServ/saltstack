@@ -1,24 +1,25 @@
-{% set role = salt['custom.role_data']('software') %}
+{% set role = salt['ss.role']('software') %}
 
-{% macro declare_repository(_name, _options) %}
-{% set _repo_file = role.sources_dir ~ '/' ~ role.sources_name_tpl.format(_name) %}
+{% macro repository(name, sources) %}
+{% set _state_id = kwargs.get('state_id', 'software/repository/{0}'.format(name)) %}
+{% set _repo_file = role.vars.sources_dir ~ '/' ~ role.vars.sources_name_tpl.format(name) %}
 
-$system/repository/{{ _name }}:
-  custom.resource: []
+{{ role.resource('repository', name) }}:
+  ss.resource: []
 
-software/repository/{{ _name }}:
+{{ _state_id }}:
   pkgrepo.managed:
-    - names: {{ _options.sources|default([])|yaml }}
+    - names: {{ sources|yaml }}
     - comments: ['Managed by SaltStack']
-{% if _options.gpg_key_url is defined %}
-    - key_url: {{ _options.gpg_key_url|yaml_dquote }}
-{% elif _options.gpg_key_server is defined and _options.gpg_key_id is defined %}
-    - keyserver: {{ _options.gpg_key_server|yaml_dquote }}
-    - keyid: {{ _options.gpg_key_id|yaml_dquote }}
-{% endif %}
+    {% if kwargs.gpg_key_url is defined %}
+    - key_url: {{ kwargs.get('gpg_key_url', none)|yaml_encode }}
+    {% elif kwargs.gpg_key_server is defined and kwargs.gpg_key_id is defined %}
+    - keyserver: {{ kwargs.get('gpg_key_server', none)|yaml_encode }}
+    - keyid: {{ kwargs.get('gpg_key_id', none)|yaml_encode }}
+    {% endif %}
     - file: {{ _repo_file|yaml_dquote }}
     - onchanges_in:
-      - custom: $system/repository/{{ _name }}
+      - {{ role.resource('repository', name) }}
     - require:
       - file: software/repository/default
     - require_in:
@@ -27,9 +28,10 @@ software/repository/{{ _name }}:
 
   file.exists:
     - name: {{ _repo_file|yaml_dquote }}
+    - onchanges_in:
+      - {{ role.resource('repository', name) }}
     - require:
-      - pkgrepo: software/repository/{{ _name }}
+      - pkgrepo: {{ _state_id }}
     - require_in:
-      - file: software/repository/dir
-
+      - file: software/repository-dir
 {% endmacro %}

@@ -1,6 +1,6 @@
-{% set role = salt['custom.role_data']('php-fpm') %}
+{% set role = salt['ss.role']('php-fpm') %}
 
-{% if role.managed %}
+{% if role.vars.managed %}
 include:
   - {{ sls }}.global
   - {{ sls }}.versions

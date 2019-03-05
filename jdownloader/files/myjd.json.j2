@@ -1,6 +1,6 @@
 {%- set settings = {
-  'devicename': role.myjdownloader.device_name,
-  'email': role.myjdownloader.email_address,
-  'password': role.myjdownloader.password,
+  'devicename': vars.myjdownloader.device_name,
+  'email': vars.myjdownloader.email_address,
+  'password': vars.myjdownloader.password,
 } -%}
 {{- settings|tojson -}}

@@ -1,18 +1,18 @@
 # Managed by SaltStack
 Unattended-Upgrade::Origins-Pattern {
-{%- for _pattern in role.origins_pattern %}
+{%- for _pattern in vars.origins_pattern %}
   "{{ _pattern }}";
 {%- endfor %}
 };
 
 Unattended-Upgrade::Package-Blacklist {
-{%- for _package in role.package_blacklist %}
+{%- for _package in vars.package_blacklist %}
   "{{ _package }}";
 {%- endfor %}
 };
 
-Unattended-Upgrade::Mail "{{ role.mail_address }}";
-Unattended-Upgrade::MailOnlyOnError "{{ 'true' if role.mail_only_errors else 'false' }}";
+Unattended-Upgrade::Mail "{{ vars.mail_address }}";
+Unattended-Upgrade::MailOnlyOnError "{{ 'true' if vars.mail_only_errors else 'false' }}";
 
 Unattended-Upgrade::MinimalSteps "true";
 Unattended-Upgrade::InstallOnShutdown "true";

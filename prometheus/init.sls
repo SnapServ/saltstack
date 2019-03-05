@@ -1,8 +1,7 @@
-{% set role = salt['custom.role_data']('prometheus') %}
+{% set role = salt['ss.role']('prometheus') %}
+{% import role.dependency('account') as account %}{% set account = account %}
 
-{% if role.managed %}
-include:
-  - {{ sls }}.dependencies
-  - {{ sls }}.server
-  - {{ sls }}.node_exporter
-{% endif %}
+{% do role.add_include('.server') %}
+{% do role.add_include('.node_exporter') %}
+
+include: {{ role.includes|yaml }}

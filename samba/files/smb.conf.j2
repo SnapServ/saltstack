@@ -16,14 +16,14 @@
 
 # Managed by SaltStack
 [global]
-  server string = {{ role.server_string }}
-  workgroup = {{ role.workgroup }}
-{%- for _key, _value in role.options|dictsort %}
+  server string = {{ vars.server_string }}
+  workgroup = {{ vars.workgroup }}
+{%- for _key, _value in vars.options|dictsort %}
   {{ samba_option(_key, _value) }}
 {%- endfor %}
 
-{%- for _share_name, _share in role.shares|dictsort %}
-{%- set _share = salt['custom.deep_merge'](role.share_defaults, _share) %}
+{%- for _share_name, _share in vars.shares|dictsort %}
+{%- set _share = salt['ss.merge_recursive'](vars.share_defaults, _share) %}
 
 [{{ _share_name }}]
 {%- for _key, _value in _share|dictsort %}

@@ -15,8 +15,8 @@
 include:
   - .server
 
-{% for _user_name, _user in role.users|dictsort %}
-{% set _user = salt['custom.deep_merge'](role.user_defaults, _user) %}
+{% for _user_name, _user in role.vars.users|dictsort %}
+{% set _user = salt['ss.merge_recursive'](role.vars.user_defaults, _user) %}
 {% for _user_host in _user.hosts %}
 
 mariadb/user/{{ _user_name }}-{{ _user_host }}/account:
@@ -37,7 +37,7 @@ mariadb/user/{{ _user_name }}-{{ _user_host }}/account:
       - service: mariadb/server/service
 
 {% for _user_grant in _user.grants %}
-{% set _user_grant = salt['custom.deep_merge'](role.user_grant_defaults, _user_grant) %}
+{% set _user_grant = salt['ss.merge_recursive'](role.vars.user_grant_defaults, _user_grant) %}
 {% set _grant_target = parse_grant_target(_user_grant) %}
 {% set _grant_privileges = _user_grant.privileges|map('upper')|join(',') %}
 

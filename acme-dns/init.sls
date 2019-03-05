@@ -1,7 +1,4 @@
-{% set role = salt['custom.role_data']('acme-dns') %}
+{% set role = salt['ss.role']('acme-dns') %}
+{% import role.dependency('account') as account %}{% set account = account %}
 
-{% if role.managed %}
-include:
-  - .dependencies
-  - .role
-{% endif %}
+include: {{ role.includes|yaml }}

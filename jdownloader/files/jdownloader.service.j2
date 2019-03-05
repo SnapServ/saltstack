@@ -4,11 +4,11 @@ After=network-online.target
 
 [Service]
 Type=simple
-User={{ role.service_user }}
-ExecStart={{ role.java_bin }} -Djava.awt.headless=true -jar "{{ role.service_dir }}/JDownloader.jar"
+User={{ vars.service_user }}
+ExecStart={{ vars.java_bin }} -Djava.awt.headless=true -jar "{{ vars.service_dir }}/JDownloader.jar"
 Restart=on-failure
 RemainAfterExit=yes
-Environment=JD_HOME={{ role.service_dir }}
+Environment=JD_HOME={{ vars.service_dir }}
 
 [Install]
 WantedBy=multi-user.target

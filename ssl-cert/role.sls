@@ -2,12 +2,12 @@
 
 hosts/ssl-cert-snakeoil:
   pkg.installed:
-    - pkgs: {{ role.packages|yaml }}
+    - pkgs: {{ role.vars.packages|yaml }}
 
   cmd.run:
-    - name: {{ role.snakeoil_regenerate_cmd|yaml_dquote }}
-    - unless: {{ role.snakeoil_verify_cmd.format(
-        certificate=role.snakeoil_certificate_path|quote,
+    - name: {{ role.vars.snakeoil_regenerate_cmd|yaml_dquote }}
+    - unless: {{ role.vars.snakeoil_verify_cmd.format(
+        certificate=role.vars.snakeoil_certificate_path|quote,
       )|yaml_dquote }}
     - require:
       - pkg: hosts/ssl-cert-snakeoil

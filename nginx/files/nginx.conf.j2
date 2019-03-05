@@ -1,14 +1,14 @@
 # Managed by SaltStack
-user {{ role.service_user }};
-worker_processes {{ role.worker_processes }};
-pid {{ role.pidfile_path }};
+user {{ vars.service_user }};
+worker_processes {{ vars.worker_processes }};
+pid {{ vars.pidfile_path }};
 
-{%- for _include in role.global_config_includes %}
+{%- for _include in vars.global_config_includes %}
   include {{ _include }};
 {%- endfor %}
 
 events {
-  worker_connections {{ role.worker_connections }};
+  worker_connections {{ vars.worker_connections }};
 }
 
 http {
@@ -19,14 +19,14 @@ http {
   types_hash_max_size 2048;
 
   server_tokens off;
-  access_log {{ role.global_access_log_path }};
-  error_log {{ role.global_error_log_path }};
+  access_log {{ vars.global_access_log_path }};
+  error_log {{ vars.global_error_log_path }};
 
   include /etc/nginx/mime.types;
   default_type application/octet-stream;
 
-{%- for _include in role.http_config_includes %}
+{%- for _include in vars.http_config_includes %}
   include {{ _include }};
 {%- endfor %}
-  include {{ role.vhosts_dir }}/*.conf;
+  include {{ vars.vhosts_dir }}/*.conf;
 }

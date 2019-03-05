@@ -9,21 +9,21 @@
 {%- endmacro -%}
 
 # Managed by SaltStack
-{%- for _name, _commands in role.user_aliases|dictsort %}
+{%- for _name, _commands in vars.user_aliases|dictsort %}
 User_Alias {{ _name }} = {{ _commands|join(', ') }}
 {%- endfor %}
-{%- for _name, _commands in role.runas_aliases|dictsort %}
+{%- for _name, _commands in vars.runas_aliases|dictsort %}
 Runas_Alias {{ _name }} = {{ _commands|join(', ') }}
 {%- endfor %}
-{%- for _name, _commands in role.host_aliases|dictsort %}
+{%- for _name, _commands in vars.host_aliases|dictsort %}
 Host_Alias {{ _name }} = {{ _commands|join(', ') }}
 {%- endfor %}
-{%- for _name, _commands in role.command_aliases|dictsort %}
+{%- for _name, _commands in vars.command_aliases|dictsort %}
 Cmnd_Alias {{ _name }} = {{ _commands|join(', ') }}
 {%- endfor %}
 
-{%- for _key, _value in role.defaults|dictsort %}
+{%- for _key, _value in vars.defaults|dictsort %}
 Defaults {{ sudoers_default(_key, _value) }}
 {%- endfor %}
 
-{{ role.rules|join('\n') }}
+{{ vars.rules|join('\n') }}

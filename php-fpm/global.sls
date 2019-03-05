@@ -4,6 +4,6 @@
 include:
   - software
 
-{% for _repository_name, _repository in role.repositories|dictsort %}
+{% for _repository_name, _repository in role.vars.repositories|dictsort %}
   {{- software.declare_repository(_repository_name, _repository) -}}
 {% endfor %}
