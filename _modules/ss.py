@@ -103,6 +103,9 @@ class Role(object):
 
     @property
     def includes(self):
+        if not self.managed:
+            return []
+
         includes = self._dependencies
         includes += self._includes if self._includes else ('.role', )
         return includes
