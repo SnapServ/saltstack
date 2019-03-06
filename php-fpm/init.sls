@@ -1,7 +1,5 @@
 {% set role = salt['ss.role']('php-fpm') %}
+{% do role.add_include('global') %}
+{% do role.add_include('versions') %}
 
-{% if role.vars.managed %}
-include:
-  - {{ sls }}.global
-  - {{ sls }}.versions
-{% endif %}
+include: {{ role.includes|yaml }}

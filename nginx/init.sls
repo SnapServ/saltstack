@@ -1,7 +1,5 @@
 {% set role = salt['ss.role']('nginx') %}
+{% do role.add_include('global') %}
+{% do role.add_include('vhosts') %}
 
-{% if role.vars.managed %}
-include:
-  - .global
-  - .vhosts
-{% endif %}
+include: {{ role.includes|yaml }}

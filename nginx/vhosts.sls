@@ -1,5 +1,5 @@
 {% from slspath ~ '/init.sls' import role %}
-{% import 'nginx/macros.sls' as nginx %}
+{% import slspath ~ '/macros.sls' as nginx %}
 
 include:
   - .global
@@ -15,5 +15,5 @@ nginx/vhosts-dir:
       - pkg: nginx/packages
 
 {% for _vhost_name, _vhost in role.vars.vhosts|dictsort %}
-  {{- nginx.declare_vhost(_vhost_name, _vhost) -}}
+  {{- nginx.virtualhost(_vhost_name, **_vhost) -}}
 {% endfor %}

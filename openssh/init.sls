@@ -1,6 +1,4 @@
 {% set role = salt['ss.role']('openssh') %}
+{% do role.add_include('server') %}
 
-{% if role.vars.managed %}
-include:
-  - {{ sls }}.server
-{% endif %}
+include: {{ role.includes|yaml }}

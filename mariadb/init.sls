@@ -1,12 +1,6 @@
 {% set role = salt['ss.role']('mariadb') %}
+{% do role.add_include('server') %}
+{% do role.add_include('databases') %}
+{% do role.add_include('users') %}
 
-{% if role.vars.managed %}
-include:
-  - {{ sls }}.server
-  - {{ sls }}.databases
-  - {{ sls }}.users
-
-{% if salt['ss.role_active']('backupninja') %}
-  - {{ sls }}.backupninja
-{% endif %}
-{% endif %}
+include: {{ role.includes|yaml }}

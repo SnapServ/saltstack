@@ -1,8 +1,5 @@
 {% from slspath ~ '/init.sls' import role %}
 
-include:
-  - .global
-
 {% for _version_name, _version in role.vars.versions|dictsort %}
 {% set _version_state = 'php-fpm/version/' ~ _version_name %}
 {% set _version = salt['ss.merge_recursive'](role.vars.version_defaults, _version) %}

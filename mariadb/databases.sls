@@ -1,8 +1,5 @@
 {% from slspath ~ '/init.sls' import role %}
 
-include:
-  - .server
-
 {% for _database_name, _database in role.vars.databases|dictsort %}
 {% set _database = salt['ss.merge_recursive'](role.vars.database_defaults, _database) %}
 

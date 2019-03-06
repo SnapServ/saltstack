@@ -8,8 +8,8 @@ acme-dns/install:
     - mode: '0750'
     - makedirs: True
     - require:
-      - {{ account.resource('user', role.vars.service_user) }}
-      - {{ account.resource('group', role.vars.service_group) }}
+      - {{ account.role.resource('user', role.vars.service_user) }}
+      - {{ account.role.resource('group', role.vars.service_group) }}
 
   archive.extracted:
     - name: {{ role.vars.service_dir|yaml_dquote }}

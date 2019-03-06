@@ -1,6 +1,5 @@
 {%- set _php_fpm_enabled = vhost_config.php_fpm_pool and vhost_config.php_fpm_version -%}
-{%- set _index_files = vhost_config.index_files or ['index.html', 'index.htm'] -%}
-
+{%- set _index_files = vhost_config.get('index_files', ['index.html', 'index.htm']) -%}
 {%- if _php_fpm_enabled -%}{%- do _index_files.append('index.php') -%}{%- endif -%}
 
 # Managed by SaltStack
