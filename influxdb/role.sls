@@ -2,7 +2,7 @@
 
 {{ software.repository(
   state_id='influxdb/repository',
-  name='influxdb',
+  name='influxdata',
   sources=role.vars.repository_sources,
   gpg_key_url=role.vars.repository_gpg_key_url,
 ) }}
