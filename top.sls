@@ -22,6 +22,7 @@ base:
   'I.@docker.managed': [docker]
   'I.@grafana.managed': [grafana]
   'I.@incron.managed': [incron]
+  'I.@influxdb.managed': [influxdb]
   'I.@jdownloader.managed': [jdownloader]
   'I.@knot.managed': [knot]
   'I.@mariadb.managed': [mariadb]
