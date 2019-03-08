@@ -3,4 +3,4 @@ from __future__ import absolute_import, print_function, generators, unicode_lite
 
 def resource():
     return __states__['test.configurable_test_state'](
-        changes=True, ret=True, comment='Resource Declaration')
+        changes=True, result=True, comment='Resource Declaration')
