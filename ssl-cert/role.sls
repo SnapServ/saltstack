@@ -1,6 +1,6 @@
 {% from slspath ~ '/init.sls' import role %}
 
-hosts/ssl-cert-snakeoil:
+ssl-cert/snakeoil:
   pkg.installed:
     - pkgs: {{ role.vars.packages|yaml }}
 
@@ -10,4 +10,4 @@ hosts/ssl-cert-snakeoil:
         certificate=role.vars.snakeoil_certificate_path|quote,
       )|yaml_dquote }}
     - require:
-      - pkg: hosts/ssl-cert-snakeoil
+      - pkg: ssl-cert/snakeoil
