@@ -35,6 +35,7 @@ borgbackup/directory:
   {% do _repo_hosts.append(_repo_host.split('@')[1].split(':')[0]) %}
 {% endfor %}
 
+{% if _repo_hosts %}
 borgbackup/ssh-hosts:
   file.managed:
     - name: {{ _ssh_hosts_path|yaml_dquote }}
@@ -56,6 +57,13 @@ borgbackup/ssh-hosts:
     - unless: {{ ['test', '-s', _ssh_hosts_path]|map('quote')|join(' ')|yaml_dquote }}
     - require:
       - file: borgbackup/ssh-hosts
+{% else %}
+borgbackup/ssh-hosts:
+  test.configurable_test_state:
+    - result: false
+    - changes: false
+    - comment: 'No remote SSH hosts configured'
+{% endif %}
 
 borgbackup/ssh-keyfile:
   cmd.run:
