@@ -15,7 +15,7 @@ Unattended-Upgrade::Mail "{{ vars.mail_address }}";
 Unattended-Upgrade::MailOnlyOnError "{{ 'true' if vars.mail_only_errors else 'false' }}";
 
 Unattended-Upgrade::MinimalSteps "true";
-Unattended-Upgrade::InstallOnShutdown "true";
+Unattended-Upgrade::InstallOnShutdown "false";
 Unattended-Upgrade::Remove-Unused-Dependencies "true";
 Unattended-Upgrade::AutoFixInterruptedDpkg "false";
 
