@@ -3,7 +3,7 @@
 {% for _version_name, _version in role.vars.versions|dictsort %}
 {% set _version_state = 'php-fpm/version/' ~ _version_name %}
 {% set _version = salt['ss.merge_recursive'](role.vars.version_defaults, _version) %}
-{% set _version = salt['ss.recursive_format'](_version, version=_version_name) %}
+{% set _version = salt['ss.format_recursive'](_version, version=_version_name) %}
 {% set _version_configs = {
   'early': ['00-saltstack.ini', _version.base_config_dir ~ '/saltstack-early.ini'],
   'main': ['99-saltstack.ini', _version.base_config_dir ~ '/saltstack-main.ini'],
