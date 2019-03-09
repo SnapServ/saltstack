@@ -1,0 +1,11 @@
+{%- macro render(value) -%}
+  {{- salt['slsutil.serialize']('toml', value) -}}
+{%- endmacro -%}
+
+# Managed by SaltStack
+{{ render({'global_tags': vars.global_tags}) }}
+{{ render({'agent': vars.agent_config}) }}
+{{ render({'processors': vars.processors}) }}
+{{ render({'aggregators': vars.aggregators}) }}
+{{ render({'inputs': vars.inputs}) }}
+{{ render({'outputs': vars.outputs}) }}
