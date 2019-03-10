@@ -1,4 +1,4 @@
 ; Managed by SaltStack
-{%- for key, value in config|dictsort %}
-{{ key }} = {{ value }}
+{%- for property in salt['ss.parse_properties'](config)|sort(attribute='key') %}
+{{ property.key }} = {{ property.value }}
 {%- endfor %}
