@@ -1,6 +1,4 @@
 {%- set _php_fpm_enabled = vhost_config.php_fpm_pool and vhost_config.php_fpm_version -%}
-{%- set _index_files = vhost_config.get('index_files', ['index.html', 'index.htm']) -%}
-{%- if _php_fpm_enabled -%}{%- do _index_files.append('index.php') -%}{%- endif -%}
 
 # Managed by SaltStack
 server {
@@ -20,8 +18,12 @@ server {
   scgi_temp_path {{ vhost_dir ~ '/tmp/nginx-scgi' }};
 
   root {{ vhost_dir ~ '/app/public' }};
-{%- if _index_files %}
-  index {{ _index_files|join(' ') }};
+{%- if vhost_config.index_files %}
+  index {{ vhost_config.index_files|join(' ') }};
+{%- elif _php_fpm_enabled %}
+  index index.html index.php;
+{%- else %}
+  index index.html;
 {%- endif %}
 
 {%- if _php_fpm_enabled %}{{ '\n' }}
