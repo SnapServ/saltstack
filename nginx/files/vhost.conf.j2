@@ -38,4 +38,9 @@ server {
     ) }};
   }
 {%- endif %}
+
+{%- for _config_name, _config in vhost_config.custom_configs|dictsort %}{{ '\n' }}
+  # Custom Configuration: {{ _config_name }}
+  {{ _config|indent(width=2) }}
+{%- endfor %}
 }

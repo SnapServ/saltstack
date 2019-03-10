@@ -16,6 +16,7 @@ nginx:
     app_group: null
     server_names: []
     index_files: []
+    custom_configs: {}
 
     php_fpm_version: null
     php_fpm_pool: null
