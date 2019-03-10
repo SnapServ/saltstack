@@ -15,5 +15,6 @@ nginx/vhosts-dir:
       - pkg: nginx/packages
 
 {% for _vhost_name, _vhost in role.vars.vhosts|dictsort %}
+  {%- set _vhost = salt['ss.merge_recursive'](role.vars.vhost_defaults, _vhost) -%}
   {{- nginx.virtualhost(_vhost_name, **_vhost) -}}
 {% endfor %}

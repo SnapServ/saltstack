@@ -5,6 +5,9 @@
 {% set _vhost = salt['ss.merge_recursive'](role.vars.vhost_defaults, _vhost) %}
 {% set _vhost_dir = role.vars.vhost_data_dir ~ '/' ~ name %}
 
+{% set _vhost_user = kwargs.get('app_user', none) or role.vars.service_user %}
+{% set _vhost_group = kwargs.get('app_group', none) or role.vars.service_group %}
+
 {{ _state_id }}/filesystem/vhost:
   file.directory:
     - name: {{ _vhost_dir|yaml_dquote }}
@@ -18,8 +21,8 @@
 {{ _state_id }}/filesystem/app:
   file.directory:
     - name: {{ (_vhost_dir ~ '/app')|yaml_dquote }}
-    - user: {{ kwargs.get('app_user', role.vars.service_user)|yaml_dquote }}
-    - group: {{ kwargs.get('app_group', role.vars.service_group)|yaml_dquote }}
+    - user: {{ _vhost_user|yaml_dquote }}
+    - group: {{ _vhost_group|yaml_dquote }}
     - mode: '2770'
     - require:
       - file: {{ _state_id }}/filesystem/vhost
@@ -27,8 +30,8 @@
 {{ _state_id }}/filesystem/app/public:
   file.directory:
     - name: {{ (_vhost_dir ~ '/app/public')|yaml_dquote }}
-    - user: {{ kwargs.get('app_user', role.vars.service_user)|yaml_dquote }}
-    - group: {{ kwargs.get('app_group', role.vars.service_group)|yaml_dquote }}
+    - user: {{ _vhost_user|yaml_dquote }}
+    - group: {{ _vhost_group|yaml_dquote }}
     - mode: '2770'
     - require:
       - file: {{ _state_id }}/filesystem/app
@@ -54,7 +57,7 @@
 {{ _state_id }}/filesystem/tmp:
   file.directory:
     - name: {{ (_vhost_dir ~ '/tmp')|yaml_dquote }}
-    - user: {{ kwargs.get('app_user', role.vars.service_user)|yaml_dquote }}
+    - user: {{ _vhost_user|yaml_dquote }}
     - group: 'root'
     - mode: '1770'
     - require:
