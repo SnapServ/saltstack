@@ -59,10 +59,9 @@ class Role(object):
         self._pillar = pillar_data
 
     def _generate_vars(self):
-        vars_data = RecursiveMerger.merge(
-            self._defaults, self._pillar, list_strategy='overwrite')
+        vars_data = RecursiveMerger.merge(self._defaults, self._pillar)
         vars_data = self._process_grain_matchers(vars_data)
-        self._vars = vars_data
+        self._vars = RecursiveMerger.sanitize(vars_data)
 
     def _process_grain_matchers(self, obj):
         result = {}
@@ -136,6 +135,17 @@ class RecursiveMerger(object):
             return b
 
     @classmethod
+    def sanitize(cls, obj):
+        if isinstance(obj, dict):
+            obj.pop('__', None)
+            for k, v in six.iteritems(obj):
+                obj[k] = cls.sanitize(v)
+        elif isinstance(obj, list):
+            obj = [x for x in obj if not (isinstance(x, dict) and '__' in x)]
+
+        return obj
+
+    @classmethod
     def _merge_dict(cls, a, b, default_strategy, default_list_strategy):
         # Fetch strategy from dictionary
         strategy = b.pop('__', default_strategy)
@@ -146,7 +156,7 @@ class RecursiveMerger(object):
 
         # Handle overwrite strategy by returning the new dict
         if strategy == 'overwrite':
-            return cls._sanitize(b)
+            return cls.sanitize(b)
 
         for k, v in six.iteritems(b):
             if strategy == 'remove':
@@ -154,7 +164,7 @@ class RecursiveMerger(object):
             elif k in a and cls._is_compatible(a[k], v):
                 # Swap a[k] and v when using merge-first strategy
                 if strategy == 'merge-first':
-                    a[k], v = cls._sanitize(v), a[k]
+                    a[k], v = cls.sanitize(v), a[k]
 
                 # Merge k/v from b using current strategy
                 if isinstance(v, dict):
@@ -165,7 +175,7 @@ class RecursiveMerger(object):
                 else:
                     a[k] = v
             else:
-                a[k] = cls._sanitize(v)
+                a[k] = cls.sanitize(v) if k in a else v
 
         return a
 
@@ -173,6 +183,11 @@ class RecursiveMerger(object):
     def _merge_list(cls, a, b, default_strategy):
         # Set default strategy and start with empty buffer
         strategy, buffer = default_strategy, []
+
+        # Try to fetch original strategy
+        original_strategy = None
+        if len(a) > 0 and isinstance(a[0], dict) and '__' in a[0]:
+            original_strategy = a.pop(0)
 
         # Add stop marker to "b" and loop through all items
         b.append({'__': None})
@@ -185,6 +200,7 @@ class RecursiveMerger(object):
             # Apply buffer to "a" using previous strategy
             if strategy == 'overwrite':
                 a = buffer
+                original_strategy = {'__': 'overwrite'}
             elif strategy == 'remove':
                 a = [x for x in a if x not in buffer]
             elif strategy == 'merge-first':
@@ -199,18 +215,11 @@ class RecursiveMerger(object):
                     'Invalid list merging strategy [{0}], should be one of [{1}]'
                     .format(strategy, cls.STRATEGIES))
 
+        # Re-insert original strategy if available
+        if original_strategy:
+            a.insert(0, original_strategy)
+
         return a
-
-    @classmethod
-    def _sanitize(cls, obj):
-        if isinstance(obj, dict):
-            obj.pop('__', None)
-            for k, v in six.iteritems(obj):
-                obj[k] = cls._sanitize(v)
-        elif isinstance(obj, list):
-            obj = [x for x in obj if not (isinstance(x, dict) and '__' in x)]
-
-        return obj
 
     @classmethod
     def _is_compatible(cls, a, b):
