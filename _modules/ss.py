@@ -227,12 +227,68 @@ class RecursiveMerger(object):
             a, list) and isinstance(b, list)) or (type(a) == type(b))
 
 
+class LuaSerializer(object):
+    LUA_STRING_DELIMITERS = [('[{}['.format('=' * n), ']{}]'.format('=' * n))
+                             for n in range(10)]
+
+    @classmethod
+    def serialize(cls, value):
+        if cls._type_of(value, int, float):
+            return '{}'.format(value)
+        elif cls._type_of(value, str):
+            delim_open, delim_close = cls._get_string_delimiter(value)
+            return '{}{}{}'.format(delim_open, value, delim_close)
+        elif cls._type_of(value, list, tuple, set):
+            value_dict = {k + 1: cls.serialize(v) for k, v in enumerate(value)}
+            return cls.serialize(value_dict)
+        elif cls._type_of(value, dict):
+            item_lines = []
+            for k, v in value.items():
+                k, v = cls._build_dict_key(k), cls.serialize(v)
+                item_lines.append('{} = {}'.format(k, v))
+
+            if item_lines:
+                return '{{\n{}\n}}'.format(
+                    cls._indent(',\n'.join(item_lines), 1))
+            else:
+                return '{}'
+
+        return cls.serialize(str(value))
+
+    @staticmethod
+    def _indent(string, level):
+        delim = ' ' * level * 2
+        return delim + ('\n' + delim).join(string.split('\n'))
+
+    @staticmethod
+    def _type_of(value, *types):
+        return any(isinstance(value, t) for t in types)
+
+    @classmethod
+    def _build_dict_key(cls, key):
+        key = str(cls.serialize(key))
+        key_fmt = '[ {} ]' if key.startswith('[') else '[{}]'
+        return key_fmt.format(key)
+
+    @classmethod
+    def _get_string_delimiter(cls, value):
+        if '"' not in value and '\n' not in value:
+            return '"', '"'
+        for delim_open, delim_close in cls.LUA_STRING_DELIMITERS:
+            if delim_open not in value and delim_close not in value:
+                return delim_open, delim_close
+
+
 def role(*args, **kwargs):
     return Role(*args, **kwargs)
 
 
 def merge_recursive(a, b, **kwargs):
     return RecursiveMerger.merge(a, b, **kwargs)
+
+
+def serialize_lua(value):
+    return LuaSerializer.serialize(value)
 
 
 def format_recursive(obj, **kwargs):
