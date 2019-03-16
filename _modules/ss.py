@@ -239,7 +239,7 @@ class LuaSerializer(object):
             delim_open, delim_close = cls._get_string_delimiter(value)
             return '{}{}{}'.format(delim_open, value, delim_close)
         elif cls._type_of(value, list, tuple, set):
-            value_dict = {k + 1: cls.serialize(v) for k, v in enumerate(value)}
+            value_dict = {k + 1: v for k, v in enumerate(value)}
             return cls.serialize(value_dict)
         elif cls._type_of(value, dict):
             item_lines = []
