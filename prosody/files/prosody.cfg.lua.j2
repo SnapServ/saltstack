@@ -5,7 +5,6 @@
 -- Managed by SaltStack
 use_libevent = true
 pidfile = {{ lua(vars.pidfile_path) }}
-certificates = {{ lua(vars.certs_dir) }}
 plugin_paths = {{ lua([vars.community_modules_dir]) }}
 
 log = {
@@ -13,32 +12,12 @@ log = {
   error = {{ lua(vars.logfile_dir ~ '/prosody.err') }}
 }
 
-c2s_ports = { 5222 }
-s2s_ports = { 5269 }
-http_ports = { 5280 }
-https_ports = {}
-proxy65_ports = { 5000 }
-
-modules_enabled = {{ lua(vars.modules_enabled) }}
-modules_disabled = {{ lua(vars.modules_disabled) }}
-
-admins = {{ lua(vars.admins) }}
-authentication = {{ lua(vars.authentication_backend) }}
-storage = {{ lua(vars.storage_backend) }}
-statistics = {{ lua(vars.statistics_backend) }}
-
-c2s_require_encryption = {{ lua(vars.c2s_require_encryption) }}
-s2s_require_encryption = {{ lua(vars.s2s_require_encryption) }}
-s2s_secure_auth = {{ lua(vars.s2s_verify_certificate) }}
-s2s_secure_domains = {{ lua(vars.s2s_secure_domains) }}
-s2s_insecure_domains = {{ lua(vars.s2s_insecure_domains) }}
-
-{%- for _config_key, _config_value in vars.extra_config|dictsort %}
+{%- for _config_key, _config_value in vars.configuration|dictsort %}
 {%- if loop.first %}{{- '\n' -}}{%- endif %}
 {{ _config_key }} = {{ lua(_config_value) }}
 {%- endfor %}
 
-{%- for _vhost_name, _vhost_config in vars.virtual_hosts|dictsort %}{{- '\n' -}}
+{%- for _vhost_name, _vhost_config in vars.virtual_hosts|dictsort %}{{ '\n' }}
 VirtualHost {{ lua(_vhost_name) }}
 
 {%- for _config_key, _config_value in _vhost_config|dictsort %}
@@ -46,8 +25,8 @@ VirtualHost {{ lua(_vhost_name) }}
 {%- endfor %}
 {%- endfor %}
 
-{%- for _component_name, _component_config in vars.components|dictsort %}{{- '\n' -}}
-{%- if '__type__' in _component_config %}
+{%- for _component_name, _component_config in vars.components|dictsort %}{{ '\n' }}
+{%- if 'type' in _component_config %}
 Component {{ lua(_component_name) }} {{ lua(_component_config.pop('type')) }}
 {%- else %}
 Component {{ lua(_component_name) }}
