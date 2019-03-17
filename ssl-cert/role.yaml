@@ -1,9 +1,24 @@
 ssl-cert:
   managed: False
 
+  acmesh_repository: 'https://github.com/Neilpang/acme.sh.git'
+  acmesh_revision: '2.8.0'
+
+  acmedns_update_url: 'https://auth.example.com/update'
+
+  certificates: {}
+
   <os_family>:
     Debian:
-      packages: ['ssl-cert']
+      packages:
+        - 'bash'
+        - 'git'
+        - 'ssl-cert'
+      service_user: 'ssl-cert'
+      service_group: 'ssl-cert'
+
+      acmesh_install_dir: '/opt/acme.sh'
+      acmesh_source_dir: '/usr/local/src/acme.sh'
 
       snakeoil_regenerate_cmd: 'make-ssl-cert generate-default-snakeoil --force-overwrite'
       snakeoil_verify_cmd: >-
