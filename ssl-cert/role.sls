@@ -4,6 +4,7 @@ ssl-cert/packages:
   pkg.installed:
     - pkgs: {{ role.vars.packages|yaml }}
 
+{% if role.vars.certificates.keys() %}
 ssl-cert/acme.sh/source:
   file.directory:
     - name: {{ role.vars.acmesh_source_dir|yaml_dquote }}
@@ -161,6 +162,7 @@ ssl-cert/acme.sh/remove/{{ _cert_name }}:
 {% endfor %}
 
 include: {{ _all_dependencies|yaml }}
+{% endif %}
 
 ssl-cert/snakeoil:
   cmd.run:
