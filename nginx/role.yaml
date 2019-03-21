@@ -30,6 +30,7 @@ nginx:
 
       config_path: '/etc/nginx/nginx.conf'
       config_check_cmd: '/usr/sbin/nginx -t -c'
+      fastcgi_config_path: '/etc/nginx/fastcgi.conf'
       pidfile_path: '/run/nginx.pid'
 
       global_config_includes:

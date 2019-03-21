@@ -25,6 +25,11 @@ http {
   include /etc/nginx/mime.types;
   default_type application/octet-stream;
 
+  map $http_x_forwarded_proto $fastcgi_param_https_variable {
+    default '';
+    https 'on';
+  }
+
 {%- for _include in vars.http_config_includes %}
   include {{ _include }};
 {%- endfor %}
