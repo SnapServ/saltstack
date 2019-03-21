@@ -45,18 +45,23 @@ set {{ _name }} {
 {%- macro _generate_rule(_rule) %}
 {%- set _parsed_rules = {0: _rule} %}
 {%- set _rewrite_rules = {
-  'inet(\s+[sd]addr\s+@[^ ]+)( |$)': {
-    0: 'ip\g<1>4\g<2>',
-    1: 'ip6\g<1>6\g<2>',
+  '(^| )inet(\s+[sd]addr\s+(?:[!=]=\s+)?@[^ ]+)( |$)': {
+    0: '\g<1>ip\g<2>4\g<3>',
+    1: '\g<1>ip6\g<2>6\g<3>',
   },
+  '(^| )inet\s+protocol( |$)': {
+    0: '\g<1>ip protocol\g<2>',
+    1: '\g<1>ip6 nexthdr\g<2>',
+  }
  } %}
 
 {%- for _regex, _replacements in _rewrite_rules|dictsort %}
-  {%- set _match = _rule|regex_match(_regex) %}
+  {%- set _match = _rule|regex_search(_regex) %}
   {%- if _match is not none %}
     {%- for _index, _replacement in _replacements|dictsort %}
+      {%- set _current_rule = _parsed_rules[_index]|default(_rule) %}
       {%- do _parsed_rules.update({
-        _index: _rule|regex_replace(_regex, _replacement),
+        _index: _current_rule|regex_replace(_regex, _replacement),
       }) %}
     {%- endfor %}
   {%- endif %}
