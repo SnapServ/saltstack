@@ -35,3 +35,4 @@ base:
   'I.@samba.managed': [samba]
   'I.@syncthing.managed': [syncthing]
   'I.@telegraf.managed': [telegraf]
+  'I.@tor-relay.managed': [tor-relay]
