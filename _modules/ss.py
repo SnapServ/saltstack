@@ -316,6 +316,13 @@ def parse_properties(obj):
 
 
 def default_network_address():
+    # Check grains for manually specified IPv4/v6 address
+    grains_v4 = __salt__['grains.get']('ss:primary_address4', None)
+    grains_v6 = __salt__['grains.get']('ss:primary_address6', None)
+    if grains_v4 or grains_v6:
+        return {'v4': grains_v4, 'v6': grains_v6}
+
+    # Declare function aliases
     _get_route = __salt__['network.get_route']
     _ip_addrs = __salt__['network.ip_addrs']
     _ip_addrs6 = __salt__['network.ip_addrs6']
