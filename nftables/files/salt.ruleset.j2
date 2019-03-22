@@ -98,12 +98,14 @@ set {{ _name }} {
 {%- do _opts.update({
   'type': _opts.get('type', 'filter'),
   'hook': _opts.get('hook', 'input'),
+  'policy': _opts.get('policy', 'accept'),
   'priority': _opts.get('priority', 0),
   'policies': _opts.get('policies', {}),
 }) %}
 
 chain {{ _name }} {
   type {{ _opts.type }} hook {{ _opts.hook }} priority {{ _opts.priority }}
+  policy {{ _opts.policy }}
 
   {%- for _policy_name, _policy in _opts.policies|dictsort %}
   {%- set _policy = _policy if _policy is mapping else {'rules': _policy} -%}
