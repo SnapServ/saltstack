@@ -5,6 +5,18 @@ frrouting:
     bgpd: true
     bfdd: true
 
+  prefix_lists:
+    PL6-BGP-AS202959: { objects: 'AS202959', family: 'ipv6' }
+    PL6-BGP-AS207149: { objects: 'AS207149', family: 'ipv6' }
+
+  prefix_list_defaults:
+    ipv4:
+      prefix_le: 32
+      prefix_max: 24
+    ipv6:
+      prefix_le: 128
+      prefix_max: 48
+
   <os_family>:
     Debian:
       packages:
@@ -15,7 +27,9 @@ frrouting:
       service_user: 'frr'
       service_group: 'frr'
 
+      vtysh_bin: '/usr/bin/vtysh'
       daemons_config_path: '/etc/frr/daemons'
+      prefix_lists_path: '/etc/frr/salt/prefix-lists.conf'
 
       repository_sources:
         - 'deb https://deb.frrouting.org/frr {{ grains['oscodename'] }} frr-stable'
