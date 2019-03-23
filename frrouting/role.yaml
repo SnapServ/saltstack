@@ -5,10 +5,7 @@ frrouting:
     bgpd: true
     bfdd: true
 
-  prefix_lists:
-    PL6-BGP-AS202959: { objects: 'AS202959', family: 'ipv6' }
-    PL6-BGP-AS207149: { objects: 'AS207149', family: 'ipv6' }
-
+  prefix_lists: {}
   prefix_list_defaults:
     ipv4:
       prefix_le: 32
