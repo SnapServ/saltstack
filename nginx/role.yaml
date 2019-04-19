@@ -11,12 +11,17 @@ nginx:
   vhost_defaults:
     default: False
     http_port: 80
+    https_port: 443
 
     app_user: null
     app_group: null
     server_names: []
+
     index_files: []
     custom_configs: {}
+
+    ssl_enabled: False
+    ssl_forced: True
 
     php_fpm_version: null
     php_fpm_pool: null
@@ -39,6 +44,7 @@ nginx:
         - '/etc/nginx/conf.d/*.conf'
         - '/etc/nginx/sites-enabled/*'
       
+      certs_dir: '/etc/nginx/certs'
       vhosts_dir: '/etc/nginx/sites-saltstack'
       vhost_data_dir: '/srv/www'
       global_access_log_path: '/var/log/nginx/access.log'

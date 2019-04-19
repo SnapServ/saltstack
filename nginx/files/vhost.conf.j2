@@ -1,6 +1,12 @@
+{%- import 'ssl-cert/macros.sls' as sslcert -%}
 {%- set _php_fpm_enabled = vhost_config.php_fpm_pool and vhost_config.php_fpm_version -%}
 
+{%- macro certs_path(name) -%}
+  {{- vars.certs_dir ~ '/' ~ name.split('.')[-2:]|join('.') -}}
+{%- endmacro -%}
+
 # Managed by SaltStack
+{%- if vhost_config.ssl_enabled and vhost_config.ssl_forced %}
 server {
   listen {{ vhost_config.http_port }}{{ ' default' if vhost_config.default else '' }};
   listen [::]:{{ vhost_config.http_port }}{{ ' default' if vhost_config.default else '' }};
@@ -8,8 +14,50 @@ server {
   server_name {{ vhost_config.server_names|join(' ') }};
 {%- endif %}
 
+  return 301 https://$host$request_uri;
+}
+{{- '\n' -}}
+{%- endif %}
+
+{%- if vhost_config.server_names|count >= 2 and vhost_config.ssl_enabled %}
+{%- for _vhost_alias in vhost_config.server_names[1:] %}
+server {
+  listen {{ vhost_config.https_port }}{{ ' default' if vhost_config.default else '' }} ssl http2;
+  listen [::]:{{ vhost_config.https_port }}{{ ' default' if vhost_config.default else '' }} ssl http2;
+  server_name {{ _vhost_alias }};
+
+  ssl_certificate {{ sslcert.safe_certificate(certs_path(_vhost_alias) ~ '.fullchain.crt') }};
+  ssl_certificate_key {{ sslcert.safe_keyfile(certs_path(_vhost_alias) ~ '.key') }};
+  ssl_trusted_certificate {{ sslcert.safe_certificate(certs_path(_vhost_alias) ~ '.ca.crt') }};
+
+  return 301 https://{{ vhost_config.server_names[0] }}$request_uri;
+}
+{{- '\n' -}}
+{%- endfor %}
+{%- endif %}
+
+{{- '' }}
+server {
+{%- if not vhost_config.ssl_enabled or not vhost_config.ssl_forced %}
+  listen {{ vhost_config.http_port }}{{ ' default' if vhost_config.default else '' }};
+  listen [::]:{{ vhost_config.http_port }}{{ ' default' if vhost_config.default else '' }};
+{%- endif %}
+{%- if vhost_config.ssl_enabled %}
+  listen {{ vhost_config.https_port }}{{ ' default' if vhost_config.default else '' }} ssl http2;
+  listen [::]:{{ vhost_config.https_port }}{{ ' default' if vhost_config.default else '' }} ssl http2;
+{%- endif %}
+{%- if vhost_config.server_names %}
+  server_name {{ vhost_config.server_names|join(' ') }};
+{%- endif %}
+
   access_log {{ vhost_dir ~ '/log/access.log' }};
   error_log {{ vhost_dir ~ '/log/error.log' }};
+{%- if vhost_config.server_names and vhost_config.ssl_enabled %}
+  {%- set _certs_path = certs_path(vhost_config.server_names[0]) %}
+  ssl_certificate {{ sslcert.safe_certificate(_certs_path ~ '.fullchain.crt') }};
+  ssl_certificate_key {{ sslcert.safe_keyfile(_certs_path ~ '.key') }};
+  ssl_trusted_certificate {{ sslcert.safe_certificate(_certs_path ~ '.ca.crt') }};
+{%- endif %}
 
   client_body_temp_path {{ vhost_dir ~ '/tmp/nginx-client-body' }};
   proxy_temp_path {{ vhost_dir ~ '/tmp/nginx-proxy' }};
