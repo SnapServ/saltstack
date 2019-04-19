@@ -1,63 +1,10 @@
 {% from slspath ~ '/init.sls' import role, account %}
 
-ssl-cert/packages:
-  pkg.installed:
-    - pkgs: {{ role.vars.packages|yaml }}
-
-{% if role.vars.certificates.keys() %}
-ssl-cert/acme.sh/source:
-  file.directory:
-    - name: {{ role.vars.acmesh_source_dir|yaml_dquote }}
-    - user: 'root'
-    - group: 'root'
-    - mode: '0755'
-    - makedirs: true
-
-  git.latest:
-    - name: {{ role.vars.acmesh_repository|yaml_dquote }}
-    - rev: {{ role.vars.acmesh_revision|yaml_dquote }}
-    - target: {{ role.vars.acmesh_source_dir|yaml_dquote }}
-    - user: 'root'
-    - update_head: true
-    - force_checkout: true
-    - force_clone: true
-    - force_fetch: true
-    - force_reset: true
-    - require:
-      - pkg: ssl-cert/packages
-      - file: ssl-cert/acme.sh/source
-
-ssl-cert/acme.sh/install:
-  file.directory:
-    - name: {{ role.vars.acmesh_install_dir|yaml_dquote }}
-    - user: {{ role.vars.service_user|yaml_dquote }}
-    - group: {{ role.vars.service_group|yaml_dquote }}
-    - mode: '0750'
-    - makedirs: true
-    - require:
-      - {{ account.role.resource('user', role.vars.service_user) }}
-      - {{ account.role.resource('group', role.vars.service_group) }}
-
-  cmd.run:
-    - name: >-
-        {{ (role.vars.acmesh_source_dir ~ '/acme.sh')|quote }}
-        --install
-        --home {{ role.vars.acmesh_install_dir|quote }}
-    - runas: {{ role.vars.service_user|yaml_dquote }}
-    - cwd: {{ role.vars.acmesh_source_dir|yaml_dquote }}
-    - shell: '/bin/bash'
-    - use_vt: true
-    - unless: >-
-        cmp --silent
-        <(tail -n+2 {{ (role.vars.acmesh_source_dir ~ '/acme.sh')|quote }})
-        <(tail -n+2 {{ (role.vars.acmesh_install_dir ~ '/acme.sh')|quote }})
-    - require:
-      - file: ssl-cert/acme.sh/install
-      - git: ssl-cert/acme.sh/source
-
 {% set _all_dependencies = [] %}
 {% for _cert_name, _cert in role.vars.certificates|dictsort %}
 {% if _cert.get('managed', true) %}
+
+{% set _cert = salt['ss.format_recursive'](_cert, cert_name=_cert_name) %}
 
 {% set _cert_state_cmd = [
   (role.vars.acmesh_install_dir ~ '/acme.sh')|quote, '--list', '--listraw',
@@ -71,7 +18,7 @@ ssl-cert/acme.sh/install:
   python_shell=true,
   shell='/bin/bash',
   env=[{'LE_WORKING_DIR': role.vars.acmesh_install_dir}]
-) %}
+) if salt['file.directory_exists'](role.vars.acmesh_install_dir) else '' %}
 
 ssl-cert/acme.sh/issue/{{ _cert_name }}:
   cmd.run:
@@ -93,7 +40,44 @@ ssl-cert/acme.sh/issue/{{ _cert_name }}:
     - require:
       - cmd: ssl-cert/acme.sh/install
 
-{% for _cert_perm in _cert.get('install_permissions', []) %}
+{% set _cert_perms = _cert.get('install_permissions', []) %}
+{% set _cert_perm_targets = _cert_perms|map(attribute='target') %}
+
+{% if 'install_fullchain' in _cert and _cert.install_fullchain not in _cert_perm_targets %}
+  {% do _cert_perms.append({
+    'target': _cert.install_fullchain,
+    'user': 'root',
+    'group': role.vars.service_group,
+    'mode': '0664'
+  }) %}
+{% endif %}
+{% if 'install_certificate' in _cert and _cert.install_certificate not in _cert_perm_targets %}
+  {% do _cert_perms.append({
+    'target': _cert.install_certificate,
+    'user': 'root',
+    'group': role.vars.service_group,
+    'mode': '0664'
+  }) %}
+{% endif %}
+{% if 'install_keyfile' in _cert and _cert.install_keyfile not in _cert_perm_targets %}
+  {% do _cert_perms.append({
+    'target': _cert.install_keyfile,
+    'user': 'root',
+    'group': role.vars.service_group,
+    'mode': '0660'
+  }) %}
+{% endif %}
+{% if 'install_cafile' in _cert and _cert.install_cafile not in _cert_perm_targets %}
+  {% do _cert_perms.append({
+    'target': _cert.install_cafile,
+    'user': 'root',
+    'group': role.vars.service_group,
+    'mode': '0660'
+  }) %}
+{% endif %}
+
+{% set _cert_perm_targets = _cert_perms|map(attribute='target') %}
+{% for _cert_perm in _cert_perms %}
 {% set _directory = _cert_perm.get('directory', false) %}
 
 ssl-cert/acme.sh/install/{{ _cert_name }}-{{ loop.index }}:
@@ -127,6 +111,9 @@ ssl-cert/acme.sh/install/{{ _cert_name }}:
         {%- if 'install_keyfile' in _cert %}
         --key-file {{ _cert.install_keyfile|quote }}
         {%- endif %}
+        {%- if 'install_cafile' in _cert %}
+        --ca-file {{ _cert.install_cafile|quote }}
+        {%- endif %}
         {%- if 'install_command' in _cert %}
         --reloadcmd {{ _cert.install_command|quote }}
         {%- endif %}
@@ -137,10 +124,12 @@ ssl-cert/acme.sh/install/{{ _cert_name }}:
     - use_vt: true
     - unless: >-
         test "$({{ _cert_state_cmd }})" = {{ _cert_state|quote }}
+        {{ '-a -s ' if _cert_perm_targets else '' }}
+        {{ _cert_perm_targets|map('quote')|join(' -a -s ') }}
     {% if _dependencies %}
     - require:
     {% for _dependency in _dependencies %}
-      - sls: {{ _dependency ~ '.role' }}
+      - sls: {{ _dependency ~ '.role' if '.' not in _dependency else _dependency }}
     {% endfor %}
     {% endif %}
     - onchanges:
@@ -162,13 +151,3 @@ ssl-cert/acme.sh/remove/{{ _cert_name }}:
 {% endfor %}
 
 include: {{ _all_dependencies|yaml }}
-{% endif %}
-
-ssl-cert/snakeoil:
-  cmd.run:
-    - name: {{ role.vars.snakeoil_regenerate_cmd|yaml_dquote }}
-    - unless: {{ role.vars.snakeoil_verify_cmd.format(
-        certificate=role.vars.snakeoil_certificate_path|quote,
-      )|yaml_dquote }}
-    - require:
-      - pkg: ssl-cert/packages

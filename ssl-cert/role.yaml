@@ -10,15 +10,18 @@ ssl-cert:
 
   <os_family>:
     Debian:
-      packages:
+      snakeoil_packages:
+        - 'ssl-cert'
+      acmesh_packages:
         - 'bash'
         - 'git'
-        - 'ssl-cert'
+
       service_user: 'ssl-cert'
       service_group: 'ssl-cert'
 
       acmesh_install_dir: '/opt/acme.sh'
       acmesh_source_dir: '/usr/local/src/acme.sh'
+
 
       snakeoil_regenerate_cmd: 'make-ssl-cert generate-default-snakeoil --force-overwrite'
       snakeoil_verify_cmd: >-
