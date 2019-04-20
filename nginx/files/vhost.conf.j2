@@ -83,20 +83,19 @@ server {
   add_header "{{ _header_name }}" "{{ _header_value|replace('"', '\\"') }}" always;
   {%- endfor %}
 
+  proxy_set_header Host $host;
+  proxy_set_header X-Real-IP $remote_addr;
+  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  proxy_set_header X-Forwarded-Port $server_port;
+  proxy_set_header X-Forwarded-Proto $scheme;
+  proxy_cookie_path / "/
+    {{- '; HttpOnly' if vhost_config.security.enforce_http_only_cookies else '' -}}
+    {{- '; Secure' if vhost_config.security.enforce_secure_cookies else '' -}}
+  ";
+
 {%- if 'proxy_target' in vhost_config %}{{ '\n' }}
   location / {
     proxy_pass {{ vhost_config.proxy_target }};
-
-    proxy_set_header Host $host;
-    proxy_set_header X-Real-IP $remote_addr;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Port $server_port;
-    proxy_set_header X-Forwarded-Proto $scheme;
-
-    proxy_cookie_path / "/
-      {{- '; HttpOnly' if vhost_config.security.enforce_http_only_cookies else '' -}}
-      {{- '; Secure' if vhost_config.security.enforce_secure_cookies else '' -}}
-    ";
   }
 {%- elif _php_fpm_enabled %}{{ '\n' }}
   location ~ \.php {
