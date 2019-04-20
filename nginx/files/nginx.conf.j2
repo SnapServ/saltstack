@@ -38,8 +38,12 @@ http {
     default $https;
     https 'on';
   }
+{%- for _config_name, _config in vars.custom_configs|dictsort %}{{ '\n' }}
+  # Custom Configuration: {{ _config_name }}
+  {{ _config|indent(width=2) }}
+{%- endfor %}
 
-{%- for _upstream_name, _upstream in vars.upstreams|dictsort %}{{'\n'}}
+{%- for _upstream_name, _upstream in vars.upstreams|dictsort %}{{ '\n' }}
   {%- set _backends = _upstream.get('backends') %}
   {%- if _backends %}
   upstream {{ _upstream_name }} {

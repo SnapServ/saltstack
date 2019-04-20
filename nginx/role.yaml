@@ -6,6 +6,7 @@ nginx:
   global_config_includes: []
   http_config_includes: []
 
+  custom_configs: {}
   upstreams: {}
   vhosts: {}
 
