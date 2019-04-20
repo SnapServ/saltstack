@@ -6,6 +6,7 @@ nginx:
   global_config_includes: []
   http_config_includes: []
 
+  upstreams: {}
   vhosts: {}
 
   vhost_defaults:
@@ -13,15 +14,51 @@ nginx:
     http_port: 80
     https_port: 443
 
-    app_user: null
-    app_group: null
+    ssl_enabled: False
+    ssl_forced: True
     server_names: []
 
+    app_user: null
+    app_group: null
     index_files: []
     custom_configs: {}
 
-    ssl_enabled: False
-    ssl_forced: True
+    headers:
+      Content-Security-Policy: >-
+        default-src https:;
+        img-src https: data:;
+        script-src https: 'unsafe-inline' 'unsafe-eval';
+        style-src https: 'unsafe-inline';
+        report-uri https://snapserv.report-uri.com/r/d/csp/enforce
+      Expect-CT: 'max-age=0, report-uri="https://snapserv.report-uri.com/r/d/ct/reportOnly"'
+      Feature-Policy: >-
+        accelerometer 'none';
+        ambient-light-sensor 'none';
+        autoplay 'self';
+        camera 'none';
+        encrypted-media 'none';
+        fullscreen 'self';
+        geolocation 'none';
+        gyroscope 'none';
+        magnetometer 'none';
+        microphone 'none';
+        midi 'none';
+        payment 'none';
+        picture-in-picture *;
+        speaker 'none';
+        sync-xhr 'none';
+        usb 'none'
+      Referrer-Policy: 'no-referrer-when-downgrade'
+      Strict-Transport-Security: 'max-age=31536000; includeSubDomains; preload'
+      X-Content-Type-Options: 'nosniff'
+      X-Frame-Options: 'sameorigin'
+      X-XSS-Protection: '1; mode=block'
+    redirect_headers:
+      - 'Strict-Transport-Security'
+
+    security:
+      enforce_http_only_cookies: true
+      enforce_secure_cookies: true
 
     php_fpm_version: null
     php_fpm_pool: null

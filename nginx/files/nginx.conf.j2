@@ -35,10 +35,21 @@ http {
   ssl_ciphers 'ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256';
 
   map $http_x_forwarded_proto $fastcgi_param_https_variable {
-    default '';
+    default $https;
     https 'on';
   }
 
+{%- for _upstream_name, _upstream in vars.upstreams|dictsort %}{{'\n'}}
+  {%- set _backends = _upstream.get('backends') %}
+  {%- if _backends %}
+  upstream {{ _upstream_name }} {
+  {%- for _backend in _backends %}
+    server {{ _backend }};
+  {%- endfor %}
+  }
+  {%- endif %}
+{%- endfor %}
+{{- '\n' }}
 {%- for _include in vars.http_config_includes %}
   include {{ _include }};
 {%- endfor %}
