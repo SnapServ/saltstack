@@ -4,8 +4,15 @@
 {% set _state_id = kwargs.get('state_id', 'software/repository/{0}'.format(name)) %}
 {% set _repo_file = role.vars.sources_dir ~ '/' ~ role.vars.sources_name_tpl.format(name) %}
 
-{{ role.resource('repository', name) }}:
+{% set _resource_sid = role.resource('repository', name) %}
+{% if _resource_sid not in opts.get('ss.resources', []) %}
+{{ _resource_sid }}:
   ss.resource: []
+
+{% do opts.update({
+  'ss.resources': opts.get('ss.resources', []) + [_resource_sid]
+}) %}
+{% endif %}
 
 {{ _state_id }}:
   pkgrepo.managed:
