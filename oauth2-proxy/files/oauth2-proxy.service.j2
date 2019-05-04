@@ -1,0 +1,12 @@
+# Managed by SaltStack
+[Unit]
+Description=OAuth2 Proxy Server
+After=network.target
+
+[Service]
+User={{ vars.service_user }}
+ExecStart={{ (vars.service_dir ~ '/oauth2_proxy-linux-' ~ vars.arch)|quote }} -config {{ (vars.service_dir ~ '/config.cfg')|quote }}
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

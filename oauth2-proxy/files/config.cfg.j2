@@ -1,0 +1,27 @@
+# Managed by SaltStack
+http_address = "{{ vars.listen_address }}"
+email_domains = [
+{%- for _record in vars.email_domains %}
+  "{{ _record }}",
+{%- endfor %}
+]
+whitelist_domains = [
+{%- for _record in vars.whitelist_domains %}
+  "{{ _record }}",
+{%- endfor %}
+]
+set_xauthrequest = {{ 'true' if vars.set_xauthrequest else 'false' }}
+
+{%- if vars.cookie_domain %}
+cookie_domain = "{{ vars.cookie_domain }}"
+{%- endif %}
+cookie_secret = "{{ vars.cookie_secret }}"
+cookie_refresh = "{{ vars.cookie_refresh }}"
+cookie_expire = "{{ vars.cookie_expire }}"
+
+provider = "{{ vars.provider }}"
+client_id = "{{ vars.client_id }}"
+client_secret = "{{ vars.client_secret }}"
+{%- if vars.redirect_url %}
+redirect_url = "{{ vars.redirect_url }}"
+{%- endif %}
