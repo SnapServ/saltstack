@@ -2,7 +2,11 @@
 {%- set _php_fpm_enabled = vhost_config.php_fpm_pool and vhost_config.php_fpm_version -%}
 
 {%- macro certs_path(name) -%}
-  {{- vars.certs_dir ~ '/' ~ name.split('.')[-2:]|join('.') -}}
+  {%- if name in vhost_config.ssl_mappings -%}
+    {{- vars.certs_dir ~ '/' ~ vhost_config.ssl_mappings[name] -}}
+  {%- else -%}
+    {{- vars.certs_dir ~ '/' ~ name.split('.')[-2:]|join('.') -}}
+  {%- endif -%}
 {%- endmacro -%}
 
 # Managed by SaltStack
@@ -35,7 +39,7 @@ server {
   add_header "{{ _header_name }}" "{{ _header_value|replace('"', '\\"') }}" always;
   {% endif -%}
   {% endfor -%}
-  return 301 https://{{ vhost_config.server_names[0] }}$request_uri;
+  return 301 https://{{ vhost_config.alias_redirect_target or vhost_config.server_names[0] }}$request_uri;
 }
 {{- '\n' -}}
 {%- endfor %}
@@ -52,7 +56,11 @@ server {
   listen [::]:{{ vhost_config.https_port }}{{ ' default' if vhost_config.default else '' }} ssl http2;
 {%- endif %}
 {%- if vhost_config.server_names %}
+{%- if vhost_config.ssl_enabled %}
+  server_name {{ vhost_config.server_names[0] }};
+{%- else %}
   server_name {{ vhost_config.server_names|join(' ') }};
+{%- endif %}
 {%- endif %}
 
   access_log {{ vhost_dir ~ '/log/access.log' }};

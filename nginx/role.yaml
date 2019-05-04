@@ -17,7 +17,9 @@ nginx:
 
     ssl_enabled: False
     ssl_forced: True
+    ssl_mappings: {}
     server_names: []
+    alias_redirect_target: null
 
     app_user: null
     app_group: null
