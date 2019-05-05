@@ -21,7 +21,10 @@ function RemoteNode(RemoteNodeName) {
     }
 }
 
-{%- for _minion, _minion_grains in salt['mine.get']('icinga:managed:true', 'grains.item', 'pillar')|dictsort %}
+{%- set _nodes = salt['mine.get']('icinga:managed:true', 'grains.item', 'pillar') %}
+{%- do _nodes.pop(grains['fqdn'], None) %}
+
+{%- for _minion, _minion_grains in _nodes|dictsort %}
 {%- if loop.first %}{{ '\n' }}{%- endif %}
 RemoteNode("{{ _minion_grains['fqdn'] }}")
 {%- endfor %}
