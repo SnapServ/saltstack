@@ -7,7 +7,9 @@ icinga:
 
   <os_family>:
     Debian:
-      packages: ['icinga2']
+      packages:
+        - 'icinga2'
+        - 'nagios-plugins'
       service: 'icinga2'
 
       zones_config: '/etc/icinga2/zones.conf'
