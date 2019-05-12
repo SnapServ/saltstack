@@ -39,6 +39,14 @@ def _process_stack_cfg(cfg_path, stack, minion_id, pillar):
         'minion_id': minion_id,
     })
 
+    # Define global utility macros
+    jenv.globals['ss_embed_file'] = jenv.from_string(''.join([
+        '{%- macro ss_embed_file(path) -%}',
+        '{%- import_text path as __data__ -%}',
+        '{{- __data__|yaml_dquote -}}',
+        '{%- endmacro -%}',
+    ])).module.ss_embed_file
+
     # Render and parse stack configuration, removing empty entries
     cfg_contents = jenv.get_template(cfg_name).render(stack=stack)
     glob_patterns = _parse_stack_cfg(cfg_contents)
