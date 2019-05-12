@@ -18,7 +18,7 @@ icinga/saltstack-zone/directory:
       - icinga/packages
 
 {% for _file_name, _file in role.vars.saltstack_zone_files|dictsort %}
-icinga/saltstack-zone/files/{{ _zone_name }}:
+icinga/saltstack-zone/files/{{ _file_name }}:
   file.managed:
     - name: {{ (role.vars.saltstack_zone_dir ~ '/' ~ _file_name)|yaml_dquote }}
     - contents: {{ _file|yaml_dquote }}
