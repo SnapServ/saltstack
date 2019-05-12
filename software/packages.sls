@@ -11,3 +11,9 @@ software/packages/{{ _state }}:
     - require:
       - pkg: software/dependencies
 {% endfor %}
+
+software/remote-packages:
+  pkg.installed:
+    - sources: {{ role.vars.remote_packages|yaml }}
+    - require:
+      - pkg: software/dependencies
