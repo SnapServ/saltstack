@@ -26,7 +26,7 @@ ssl-cert/acme.sh/issue/{{ _cert_name }}:
         {{ (role.vars.acmesh_install_dir ~ '/acme.sh')|quote }}
         --issue --dns dns_acmedns --dnssleep 0
         --accountkeylength 4096 --keylength 4096
-        --domain {{ ([_cert_name] + _cert.domains)|map('quote')|join(' --domain ') }}
+        --domain {{ ([_cert_name] + _cert.get('domains', []))|map('quote')|join(' --domain ') }}
     - env:
       - LE_WORKING_DIR: {{ role.vars.acmesh_install_dir|yaml_dquote }}
       - ACMEDNS_UPDATE_URL: {{ role.vars.acmedns_update_url|yaml_dquote }}
