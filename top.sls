@@ -34,6 +34,7 @@ base:
   'I.@plexmediaserver.managed': [plexmediaserver]
   'I.@prometheus.managed': [prometheus]
   'I.@prosody.managed': [prosody]
+  'I.@quassel.managed': [quassel]
   'I.@samba.managed': [samba]
   'I.@syncthing.managed': [syncthing]
   'I.@telegraf.managed': [telegraf]
