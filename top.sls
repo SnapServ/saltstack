@@ -26,6 +26,7 @@ base:
   'I.@influxdb.managed': [influxdb]
   'I.@jdownloader.managed': [jdownloader]
   'I.@knot.managed': [knot]
+  'I.@lldpd.managed': [lldpd]
   'I.@mariadb.managed': [mariadb]
   'I.@nftables.managed': [nftables]
   'I.@nginx.managed': [nginx]
