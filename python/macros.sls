@@ -11,5 +11,8 @@
     - requirements: {{ kwargs.get('requirements', none)|yaml_encode }}
     - pip_pkgs: {{ kwargs.get('pip_pkgs', none)|yaml }}
     - pip_upgrade: {{ kwargs.get('pip_upgrade', false)|yaml_encode }}
-    - require: [{'pkg': 'python/packages'}]
+    - venv_bin: {{ role.vars.venv_wrapper_bin|yaml_dquote }}
+    - require:
+      - pkg: python/packages
+      - file: python/venv-wrapper
 {% endmacro %}
