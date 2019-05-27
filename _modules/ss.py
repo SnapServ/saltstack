@@ -2,7 +2,12 @@
 from __future__ import absolute_import, print_function, generators, unicode_literals
 import re
 from copy import deepcopy
-from salt.ext import ipaddress, six
+from salt.ext import six
+
+if six.PY3:
+    import ipaddress
+else:
+    import salt.ext.ipaddress as ipaddress
 
 
 class Role(object):
@@ -87,8 +92,9 @@ class Role(object):
                 merge=matcher_overrides)
 
             # Recursively call this function on results and merge them
-            matcher_data = self._process_grain_matchers(matcher_data)
-            result = RecursiveMerger.merge(result, matcher_data)
+            if matcher_data is not None:
+                matcher_data = self._process_grain_matchers(matcher_data)
+                result = RecursiveMerger.merge(result, matcher_data)
 
         return result
 
@@ -335,11 +341,11 @@ def default_network_address():
     # Get gateway of default routes
     gw_routes = map(lambda x: _get_route(x['gateway']), routes)
     gw_routes = filter(lambda x: x.get('source', None), gw_routes)
-    addrs = map(lambda x: x['source'], gw_routes)
+    addrs = list(map(lambda x: x['source'], gw_routes))
 
     # Get interface of default gateways
-    if_addrs = map(lambda x: _ip_addrs(x['interface']), routes)
-    if_addrs += map(lambda x: _ip_addrs6(x['interface']), routes)
+    if_addrs = list(map(lambda x: _ip_addrs(x['interface']), routes))
+    if_addrs += list(map(lambda x: _ip_addrs6(x['interface']), routes))
     addrs += [addr for sublist in if_addrs for addr in sublist]
 
     # Get public addresses of interfaces
