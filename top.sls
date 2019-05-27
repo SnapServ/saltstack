@@ -13,7 +13,7 @@ base:
     - unattended-upgrades
     - motd
 
-  'P@virtual:(physical|qemu)':
+  'P@virtual:(physical|qemu|kvm)':
     - ntp
 
   'I.@acme-dns.managed': [acme-dns]
