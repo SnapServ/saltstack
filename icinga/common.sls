@@ -4,7 +4,7 @@ icinga/packages:
   pkg.installed:
     - pkgs: {{ role.vars.packages|yaml }}
     {% if 'packages_fromrepo' in role.vars %}
-    - fromrepo: {{ role.vars.packages_fromrepo }}
+    - fromrepo: {{ role.vars.packages_fromrepo|yaml_encode }}
     {% endif %}
 
 icinga/saltstack-zone/directory:
