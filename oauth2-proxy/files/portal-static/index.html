@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Secure Area</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.min.js"
+        integrity="sha256-chlNFSVx3TdcQ2Xlw7SvnbLAavAQLO0Y/LBiWX04viY=" crossorigin="anonymous"></script>
+
+    <style>
+        .lh-100 {
+            line-height: 1;
+        }
+
+        .lh-125 {
+            line-height: 1.25;
+        }
+
+        .loader-leave-active {
+            transition: opacity 1s;
+            opacity: 0;
+        }
+
+        .loader-wrapper {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+
+            display: flex;
+            overflow: hidden;
+            align-items: center;
+            justify-content: center;
+            width: 100vw;
+            height: 100vh;
+            background-color: #ffffff;
+        }
+
+        .loader {
+            position: relative;
+            display: block;
+            width: 65px;
+            height: 28px;
+        }
+
+        .loader::before,
+        .loader::after {
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: block;
+            width: 10px;
+            height: 10px;
+            background-color: #28a745;
+            border-radius: 50%;
+            offset-path: path("M23.71 5.21l17.58 17.58a12.43 12.43 0 0 0 17.57 0 12.43 12.43 0 0 0 0-17.57 12.43 12.43 0 0 0-17.57 0L23.71 22.79a12.43 12.43 0 0 1-17.57 0 12.43 12.43 0 0 1 0-17.57 12.43 12.43 0 0 1 17.57-.01z");
+            animation: loader 1500ms cubic-bezier(0.645, 0.045, 0.355, 1) infinite;
+            content: "";
+        }
+
+        .loader::after {
+            animation-delay: 100ms;
+        }
+
+        @keyframes loader {
+            0% {
+                offset-distance: 0%;
+            }
+
+            100% {
+                offset-distance: 100%;
+            }
+        }
+    </style>
+
+    <script>
+        window.addEventListener('load', function (event) {
+            new Vue({
+                el: '#application',
+
+                data: {
+                    isLoading: true,
+
+                    pageTitle: 'Secure Area',
+                    authUser: '<not available>',
+                    authEmail: '<not available>',
+                    categories: [],
+                },
+
+                mounted: function () {
+                    var p1 = fetch('/oauth2/auth').then(function (res) {
+                        this.authUser = res.headers.get('x-auth-request-user');
+                        this.authEmail = res.headers.get('x-auth-request-email');
+                    }.bind(this));
+
+                    var p2 = fetch('/settings.json')
+                        .then(function (res) { return res.json(); })
+                        .then(function (data) {
+                            document.title = data.page_title;
+                            this.pageTitle = data.page_title;
+                            this.categories = data.categories;
+                        }.bind(this));
+
+                    Promise.all([p1, p2]).then(function () {
+                        this.isLoading = false;
+                    }.bind(this));
+                }
+            });
+        });
+    </script>
+</head>
+
+<body>
+    <div id="application">
+        <transition name="loader">
+            <div class="loader-wrapper" v-if="isLoading">
+                <div class="loader"></div>
+            </div>
+        </transition>
+
+        <main role="main" class="container">
+            <div class="d-flex p-3 my-3 justify-content-between rounded shadow bg-success text-white">
+                <div class="lh-100">
+                    <h6 class="mb-0">{{ pageTitle }}</h6>
+                    <small>Authenticated as {{ authUser }} ({{ authEmail }})</small>
+                </div>
+                <div class="float-right">
+                    <a href="/oauth2/sign_out" role="button" class="btn btn-success">Logout</a>
+                </div>
+            </div>
+
+            <div class="p-3 my-3 bg-white rounded shadow" v-for="category in categories">
+                <h6 class="pb-2 mb-0 border-bottom">{{ category.name }}</h6>
+                <div class="list-group pt-3">
+                    <template v-for="link in category.links">
+                        <a v-bind:href="link.target" target="_blank"
+                            class="list-group-item list-group-item-action flex-column align-items-start lh-125">
+                            <div class="d-flex w-100 justify-content-between">
+                                <strong class="d-block text-primary">{{ link.name }}</strong>
+                            </div>
+                            <p class="mb-0 text-secondary small">{{ link.target }}</p>
+                        </a>
+                    </template>
+                </div>
+            </div>
+
+            <footer class="footer">
+                <div class="container">
+                    <p class="float-right">
+                        <a class="text-muted small" href="https://snapserv.net" target="_blank">
+                            Copyright &copy; 2018 - 2019 SnapServ Mathis. All rights reserved.
+                        </a>
+                    </p>
+                </div>
+            </footer>
+        </main>
+    </div>
+</body>
+
+</html>

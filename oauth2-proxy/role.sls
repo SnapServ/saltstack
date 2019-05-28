@@ -37,6 +37,32 @@ oauth2-proxy/config:
     - require:
       - archive: oauth2-proxy/install
 
+oauth2-proxy/portal/static-files:
+  file.recurse:
+    - name: {{ role.vars.static_files_dir|yaml_dquote }}
+    - source: {{ role.tpl_path('portal-static/')|yaml_dquote }}
+    - user: 'root'
+    - group: {{ role.vars.service_group|yaml_dquote }}
+    - file_mode: '0640'
+    - file_mode: '0750'
+    - exclude_pat: 'settings.json'
+    - clean: True
+    - require:
+        - archive: oauth2-proxy/install
+
+oauth2-proxy/portal/settings:
+  file.managed:
+    - name: {{ (role.vars.static_files_dir ~ '/settings.json')|yaml_dquote }}
+    - source: {{ role.tpl_path('portal-settings.json.j2')|yaml_dquote }}
+    - template: 'jinja'
+    - user: 'root'
+    - group: {{ role.vars.service_group|yaml_dquote }}
+    - mode: '0640'
+    - context:
+        vars: {{ role.vars|yaml }}
+    - require:
+      - archive: oauth2-proxy/install
+
 oauth2-proxy/service:
   file.managed:
     - name: '/etc/systemd/system/oauth2-proxy.service'

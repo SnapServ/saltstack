@@ -1,5 +1,6 @@
 # Managed by SaltStack
 http_address = "{{ vars.listen_address }}"
+upstreams = ["file://{{ vars.static_files_dir }}#/"]
 email_domains = [
 {%- for _record in vars.email_domains %}
   "{{ _record }}",

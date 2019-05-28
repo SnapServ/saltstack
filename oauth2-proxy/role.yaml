@@ -4,6 +4,7 @@ oauth2-proxy:
   service_dir: '/opt/oauth2-proxy'
   service_user: 'oauth2-proxy'
   service_group: 'oauth2-proxy'
+  static_files_dir: '/opt/oauth2-proxy/static'
 
   listen_address: '[::]:4180'
   email_domains: []
@@ -23,6 +24,10 @@ oauth2-proxy:
   version: '3.2.0'
   source_fmt: 'https://github.com/pusher/oauth2_proxy/releases/download/v{version}/oauth2_proxy-v{version}.linux-{arch}.go1.11.tar.gz'
   source_hash_fmt: 'fac3c8e8a809d4086d1dfd52c4897b79a49132fb97374bd0837f484ba002689a'
+
+  portal_settings:
+    page_title: 'Secure Area'
+    categories: []
 
   <cpuarch>:
     x86_64:
