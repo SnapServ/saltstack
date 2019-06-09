@@ -1,0 +1,302 @@
+{%- macro dict_require(_dict, _key, _name) -%}
+  {%- if _key not in _dict -%}
+    {{- salt['test.exception']('Missing required ' ~ _name ~ ': ' ~ _key) -}}
+  {%- endif -%}
+{%- endmacro -%}
+
+{%- macro list_join_safe(_value, _delimiter) -%}
+  {%- if _value is string -%}
+    {{- _value -}}
+  {%- else -%}
+    {{- value|join(_delimiter) -}}
+  {%- endif -%}
+{%- endmacro -%}
+
+
+{%- macro afi_to_ip_version(_afi) -%}
+  {%- if _afi == 'ipv4 unicast' -%}4
+  {%- elif _afi == 'ipv6 unicast' -%}6
+  {%- else -%}
+    {{- salt['test.exception']('Unable to determine IP version from AFI: ' ~ _afi) -}}
+  {%- endif -%}
+{%- endmacro -%}
+
+{%- macro aspath_list_require(_name) -%}
+  {{- dict_require(vars.aspath_lists, _name, 'AS Path Access-List') -}}
+{%- endmacro -%}
+
+{%- macro community_list_require(_name) -%}
+  {{- dict_require(vars.community_lists, _name, 'Community List') -}}
+{%- endmacro -%}
+
+{%- macro large_community_list_require(_name) -%}
+  {{- dict_require(vars.large_community_lists, _name, 'Large Community List') -}}
+{%- endmacro -%}
+
+{%- macro peergroup_require(_instance, _name) -%}
+  {{- dict_require(_instance.peergroups|default({}), _name, 'Route Map') -}}
+{%- endmacro -%}
+
+{%- macro prefix_list_require(_name, afi=none, ip_version=none) -%}
+  {%- set _ip_version = (ip_version or afi_to_ip_version(afi))|int -%}
+
+  {%- if _ip_version == 4 -%}
+    {{- dict_require(vars.prefix_lists4, _name, 'IPv4 Prefix List') -}}
+  {%- elif _ip_version == 6 -%}
+    {{- dict_require(vars.prefix_lists6, _name, 'IPv6 Prefix List') -}}
+  {%- else -%}
+    {{- salt['test.exception']('Invalid IP version: ' ~ _ip_version) -}}
+  {%- endif -%}
+{%- endmacro -%}
+
+{%- macro routemap_require(_name) -%}
+  {{- dict_require(vars.routemaps, _name, 'Route Map') -}}
+{%- endmacro -%}
+
+
+{%- macro routemap_call(_target) -%}
+  {{- routemap_require(_target) -}}
+  call {{ _target }}
+{%- endmacro -%}
+
+{%- macro routemap_matcher(_type, _value) -%}
+  {%- if _type == 'as-path' -%}
+    {{- aspath_list_require(_value) -}}
+    match as-path {{ _value }}
+  {%- elif _type == 'prefix4' %}
+    {{- prefix_list_require(_value, ip_version=4) -}}
+    match ip address prefix-list {{ _value }}
+  {%- elif _type == 'prefix6' %}
+    {{- prefix_list_require(_value, ip_version=6) -}}
+    match ipv6 address prefix-list {{ _value }}
+  {%- elif _type == 'community' %}
+    {{- community_list_require(_value) -}}
+    match community {{ _value }}
+  {%- elif _type == 'large-community' %}
+    {{- large_community_list_require(_value) -}}
+    match large-community {{ _value }}
+  {%- else %}
+    {{- salt['test.exception']('Invalid route-map matcher: ' ~ _type) -}}
+  {%- endif -%}
+{%- endmacro -%}
+
+{%- macro routemap_setter(_type, _value) -%}
+  {%- if _type == 'add-ext-communities' -%}
+    set extcommunity rt {{ list_join_safe(_value, ' ') }}
+  {%- elif _type == 'add-large-communities' -%}
+    set large-community {{ list_join_safe(_value, ' ') }} additive
+  {%- elif _type == 'local-preference' -%}
+    set local-preference {{ _value }}
+  {%- elif _type == 'source' -%}
+    set src {{ _value }}
+  {%- elif _type == 'strip-large-communities' -%}
+    {{- large_community_list_require(_value) -}}
+    set large-comm-list {{ _value }} delete
+  {%- else %}
+    {{- salt['test.exception']('Invalid route-map setter: ' ~ _type) -}}
+  {%- endif -%}
+{%- endmacro -%}
+
+{%- macro bgp_option_bool(_value, _line) -%}
+  {%- if _value -%}
+    {{- _line -}}
+  {%- else -%}
+    {{- 'no ' ~ _line -}}
+  {%- endif -%}
+{%- endmacro -%}
+
+{%- macro bgp_peer_options(_instance, _peer, _options) -%}
+  {%- for _key, _value in _options|dictsort -%}
+    {%- if not _key.startswith('af_') -%}
+      {{- '\n' ~ bgp_peer_option(_instance, _peer, _key, _value) -}}
+    {%- endif -%}
+  {%- endfor -%}
+{%- endmacro -%}
+
+{%- macro bgp_af_options(_instance, _afi) -%}
+  {%- set _afi_key = 'af_' ~ _afi|replace(' ', '_') %}
+  {{- '\naddress-family ' ~ _afi -}}
+
+    {%- for _network in _instance.networks[_afi_key]|default([]) -%}
+      {{- '\n  ' -}} network {{ _network.prefix }}
+        {{- (' route-map ' ~ _network.routemap) if 'routemap' in _network else '' }}
+    {%- endfor -%}
+
+    {%- for _name, _options in _instance.peergroups|default({})|dictsort %}
+      {%- set _afi_options = _options[_afi_key]|default({}) -%}
+      {{- bgp_peer_af_options(_instance, _name, _afi, _afi_options)|indent(2) }}
+    {%- endfor %}
+
+    {%- for _peer, _options in _instance.peers|default({})|dictsort %}
+      {%- set _afi_options = _options[_afi_key]|default({}) -%}
+      {{- bgp_peer_af_options(_instance, _peer, _afi, _afi_options)|indent(2) }}
+    {%- endfor %}
+
+  {{- '\nexit-address-family' -}}
+{%- endmacro -%}
+
+{%- macro bgp_peer_af_options(_instance, _peer, _afi, _options) %}
+  {%- for _key, _value in _options|dictsort -%}
+    {{- '\n' ~ bgp_peer_af_option(_instance, _peer, _afi, _key, _value) -}}
+  {%- endfor -%}
+{%- endmacro %}
+
+{%- macro bgp_peer_option(_instance, _peer, _key, _value) -%}
+  {%- set _prefix = 'neighbor ' ~ _peer -%}
+  {%- if _key == 'enforce_first_as' and _value -%}
+    {{- bgp_option_bool(_value, _prefix ~ ' enforce-first-as') -}}
+  {%- elif _key == 'capability' -%}
+    {{ _prefix }} capability {{ _value }}
+  {%- elif _key == 'description' -%}
+    {{ _prefix }} description {{ _value }}
+  {%- elif _key == 'password' -%}
+    {{ _prefix }} password {{ _value }}
+  {%- elif _key == 'peergroup' -%}
+    {{- peergroup_require(_instance, _value) -}}
+    {{ _prefix }} peer-group {{ _value }}
+  {%- elif _key == 'shutdown' and _value -%}
+    {{- bgp_option_bool(_value, _prefix ~ ' shutdown') -}}
+  {%- elif _key == 'update_source' -%}
+    {{ _prefix }} update-source {{ _value }}
+  {%- else -%}
+    {{- salt['test.exception']('Invalid peer option: ' ~ _key) -}}
+  {%- endif -%}
+{%- endmacro -%}
+
+{%- macro bgp_peer_af_option(_instance, _peer, _afi, _key, _value) -%}
+  {%- set _prefix = 'neighbor ' ~ _peer -%}
+  {%- if _key == 'activate' and _value -%}
+    {{- bgp_option_bool(_value, _prefix ~ ' activate') -}}
+  {%- elif _key == 'allowas_in' -%}
+    {{ _prefix }} allowas-in {{ _value }}
+  {%- elif _key == 'maximum_prefix' -%}
+    {{ _prefix }} maximum-prefix {{ _value }}
+  {%- elif _key == 'prefix_list_in' -%}
+    {{- prefix_list_require(_value, afi=_afi) -}}
+    {{ _prefix }} route-map {{ _value }} in
+  {%- elif _key == 'routemap_in' -%}
+    {{- routemap_require(_value) -}}
+    {{ _prefix }} route-map {{ _value }} in
+  {%- elif _key == 'routemap_out' -%}
+    {{- routemap_require(_value) -}}
+    {{ _prefix }} route-map {{ _value }} out
+  {%- elif _key == 'soft_reconfiguration_inbound' -%}
+    {{- bgp_option_bool(_value, _prefix ~ ' soft-reconfiguration inbound') -}}
+  {%- else -%}
+    {{- salt['test.exception']('Invalid peer option [afi=' ~ _afi ~ ']: ' ~ _key) -}}
+  {%- endif -%}
+{%- endmacro -%}
+
+# Managed by SaltStack
+log syslog informational
+frr defaults traditional
+service integrated-vtysh-config
+
+{%- for _instance in vars.bgp_instances.values() %}
+router bgp {{ _instance.asn }}
+  bgp deterministic-med
+  bgp log-neighbor-changes
+  no bgp default ipv4-unicast
+  {%- if 'router_id' in _instance %}
+  bgp router-id {{ _instance.router_id }}
+  {%- endif %}
+
+  {%- for _name, _options in _instance.peergroups|default({})|dictsort %}
+    {{- '\n  ' -}} neighbor {{ _name }} peer-group
+    {{- bgp_peer_options(_instance, _name, _options)|indent(2) }}
+  {%- endfor %}
+
+  {%- for _peer, _options in _instance.peers|default({})|dictsort %}
+    {%- set _asn = _options.pop('asn') -%}
+    {{- '\n  ' -}} neighbor {{ _peer }} remote-as {{ _asn }}
+    {{- bgp_peer_options(_instance, _peer, _options)|indent(2) }}
+  {%- endfor %}
+
+  {{- bgp_af_options(_instance, 'ipv4 unicast') }}
+  {{- bgp_af_options(_instance, 'ipv6 unicast') }}
+{%- endfor %}
+
+ip protocol bgp route-map RM-BGP-PROTOCOL4
+ipv6 protocol bgp route-map RM-BGP-PROTOCOL6
+
+{%- for _route in vars.routes4 %}
+ip route {{ _route.prefix }} {{ _route.target }}
+{%- endfor %}
+
+{%- for _route in vars.routes6 %}
+ipv6 route {{ _route.prefix }} {{ _route.target }}
+{%- endfor %}
+
+{%- for _name, _entries in vars.prefix_lists4|dictsort %}
+{%- for _entry in _entries %}
+ip prefix-list {{ _name }} seq {{ loop.index * 10 }}
+  {{- ' ' ~ (_entry.action|default('permit')) }}
+  {{- ' ' ~ (_entry.prefix|default('any')) }}
+  {{- (' ge ' ~ _entry.ge) if 'ge' in _entry else '' }}
+  {{- (' le ' ~ _entry.le) if 'le' in _entry else '' }}
+{%- endfor %}
+{%- endfor %}
+
+{%- for _name, _entries in vars.prefix_lists6|dictsort %}
+{%- for _entry in _entries %}
+ipv6 prefix-list {{ _name }} seq {{ loop.index * 10 }}
+  {{- ' ' ~ (_entry.action|default('permit')) }}
+  {{- ' ' ~ (_entry.prefix|default('any')) }}
+  {{- (' ge ' ~ _entry.ge) if 'ge' in _entry else '' }}
+  {{- (' le ' ~ _entry.le) if 'le' in _entry else '' }}
+{%- endfor %}
+{%- endfor %}
+
+{%- for _name, _entries in vars.aspath_lists|dictsort %}
+{%- for _entry in _entries %}
+bgp as-path access-list {{ _name }}
+  {{- ' ' ~ (_entry.action|default('permit')) }}
+  {{- ' ' ~ _entry.regex }}
+{%- endfor %}
+{%- endfor %}
+
+{%- for _name, _entries in vars.community_lists|dictsort %}
+{%- for _entry in _entries %}
+bgp community-list expanded {{ _name }}
+  {{- ' ' ~ (_entry.action|default('permit')) }}
+  {{- ' ' ~ _entry.regex }}
+{%- endfor %}
+{%- endfor %}
+
+{%- for _name, _entries in vars.large_community_lists|dictsort %}
+{%- for _entry in _entries %}
+bgp large-community-list expanded {{ _name }}
+  {{- ' ' ~ (_entry.action|default('permit')) }}
+  {{- ' ' ~ _entry.regex }}
+{%- endfor %}
+{%- endfor %}
+
+{%- for _name, _entries in vars.routemaps|dictsort %}
+{%- for _entry in _entries %}
+route-map {{ _name }} {{ _entry.action|default('permit') }} {{ loop.index * 10 }}
+  {%- if 'description' in _entry %}
+  description {{ _entry.description }}
+  {%- endif %}
+  {%- if _entry.fallthrough|default(false) %}
+  on-match next
+  {%- endif %}
+
+  {%- if 'call' in _entry %}
+    {{- '\n  ' ~ routemap_call(_entry.call) }}
+  {%- endif %}
+
+  {%- for _matcher in _entry.match|default([]) %}
+    {%- set _matcher_type = _matcher.keys()[0] %}
+    {%- set _matcher_value = _matcher[_matcher_type] %}
+
+    {{- '\n  ' ~ routemap_matcher(_matcher_type, _matcher_value)|indent(2) }}
+  {%- endfor %}
+
+  {%- for _setter in _entry.set|default([]) %}
+    {%- set _setter_type = _setter.keys()[0] %}
+    {%- set _setter_value = _setter[_setter_type] %}
+
+    {{- '\n  ' ~ routemap_setter(_setter_type, _setter_value)|indent(2) }}
+  {%- endfor %}
+{%- endfor %}
+{%- endfor %}

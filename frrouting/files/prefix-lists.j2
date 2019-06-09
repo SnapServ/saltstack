@@ -1,6 +1,0 @@
-# Managed by SaltStack
-{%- for _name, _options in vars.prefix_lists|dictsort %}
-{%- set _defaults = vars.prefix_list_defaults.get(_options.get('family', 'ipv4')) %}
-{%- set _options = salt['ss.merge_recursive'](_defaults, _options) %}
-{{ salt['bgpq3.query'](format='ios', label=_name, **_options)|join('\n') }}
-{%- endfor %}

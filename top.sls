@@ -20,6 +20,7 @@ base:
   'I.@backupninja.managed': [backupninja]
   'I.@borgbackup.managed': [borgbackup]
   'I.@docker.managed': [docker]
+  'I.@frrouting.managed': [frrouting]
   'I.@grafana.managed': [grafana]
   'I.@icinga.managed': [icinga]
   'I.@incron.managed': [incron]

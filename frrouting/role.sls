@@ -13,6 +13,22 @@ frrouting/packages:
     - require:
       - frrouting/repository
 
+frrouting/config:
+  file.managed:
+    - name: {{ role.vars.config_path|yaml_dquote }}
+    - source: {{ role.tpl_path('frr.conf.j2')|yaml_dquote }}
+    - check_cmd: {{ role.vars.config_check_cmd|yaml_dquote }}
+    - template: 'jinja'
+    - user: {{ role.vars.service_user|yaml_dquote }}
+    - group: {{ role.vars.service_group|yaml_dquote }}
+    - mode: '0640'
+    - context:
+        vars: {{ role.vars|yaml }}
+    - require:
+      - pkg: frrouting/packages
+    - watch_in:
+      - service: frrouting/service
+
 {% for _daemon_name, _daemon_state in role.vars.daemons|dictsort %}
 frrouting/daemons/{{ _daemon_name }}:
   file.line:
