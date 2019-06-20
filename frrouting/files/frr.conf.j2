@@ -122,6 +122,12 @@
         {{- (' route-map ' ~ _network.routemap) if 'routemap' in _network else '' }}
     {%- endfor -%}
 
+    {%- for _redistribute in _instance.redistribute[_afi_key]|default([]) -%}
+      {{- '\n  ' -}} redistribute {{ _redistribute.type }}
+        {{- (' metric ' ~ _redistribute.metric) if 'metric' in _redistribute else '' }}
+        {{- (' route-map ' ~ _redistribute.routemap) if 'routemap' in _redistribute else '' }}
+    {%- endfor -%}
+
     {%- for _name, _options in _instance.peergroups|default({})|dictsort %}
       {%- set _afi_options = _options[_afi_key]|default({}) -%}
       {{- bgp_peer_af_options(_instance, _name, _afi, _afi_options)|indent(2) }}
@@ -171,6 +177,8 @@
     {{ _prefix }} allowas-in {{ _value }}
   {%- elif _key == 'maximum_prefix' -%}
     {{ _prefix }} maximum-prefix {{ _value }}
+  {%- elif _key == 'next_hop_self' and _value -%}
+    {{- bgp_option_bool(_value, _prefix ~ ' next-hop-self') -}}
   {%- elif _key == 'prefix_list_in' -%}
     {{- prefix_list_require(_value, afi=_afi) -}}
     {{ _prefix }} route-map {{ _value }} in
@@ -221,10 +229,12 @@ ipv6 protocol bgp route-map RM-BGP-PROTOCOL6
 
 {%- for _route in vars.routes4 %}
 ip route {{ _route.prefix }} {{ _route.target }}
+  {{- (' ' ~ _route.distance) if _route.distance|default(none) is not none else '' }}
 {%- endfor %}
 
 {%- for _route in vars.routes6 %}
 ipv6 route {{ _route.prefix }} {{ _route.target }}
+  {{- (' ' ~ _route.distance) if _route.distance|default(none) is not none else '' }}
 {%- endfor %}
 
 {%- for _name, _entries in vars.prefix_lists4|dictsort %}
