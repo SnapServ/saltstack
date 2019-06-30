@@ -7,9 +7,9 @@ icinga/packages:
     - fromrepo: {{ role.vars.packages_fromrepo|yaml_encode }}
     {% endif %}
 
-icinga/saltstack-zone/directory:
+icinga/global-zone/directory:
   file.directory:
-    - name: {{ role.vars.saltstack_zone_dir|yaml_dquote }}
+    - name: {{ role.vars.global_zone_dir|yaml_dquote }}
     - user: 'root'
     - group: 'root'
     - mode: '0755'
@@ -17,10 +17,10 @@ icinga/saltstack-zone/directory:
     - require:
       - icinga/packages
 
-{% for _file_name, _file in role.vars.saltstack_zone_files|dictsort %}
-icinga/saltstack-zone/files/{{ _file_name }}:
+{% for _file_name, _file in role.vars.global_zone_files|dictsort %}
+icinga/global-zone/files/{{ _file_name }}:
   file.managed:
-    - name: {{ (role.vars.saltstack_zone_dir ~ '/' ~ _file_name)|yaml_dquote }}
+    - name: {{ (role.vars.global_zone_dir ~ '/' ~ _file_name)|yaml_dquote }}
     - contents: {{ _file|yaml_dquote }}
     - user: 'root'
     - group: 'root'
@@ -30,7 +30,7 @@ icinga/saltstack-zone/files/{{ _file_name }}:
     - require:
       - pkg: icinga/packages
     - require_in:
-      - file: icinga/saltstack-zone/directory
+      - file: icinga/global-zone/directory
     - watch_in:
       - service: icinga/service
 {% endfor %}
@@ -40,3 +40,5 @@ icinga/service:
     - name: {{ role.vars.service|yaml_dquote }}
     - enable: true
     - reload: true
+    - require:
+      - file: icinga/global-zone/directory

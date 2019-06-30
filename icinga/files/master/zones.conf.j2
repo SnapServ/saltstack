@@ -1,5 +1,5 @@
 # Managed by SaltStack
-object Zone "saltstack" {
+object Zone "global" {
 }
 
 object Zone "master" {
@@ -27,4 +27,7 @@ function RemoteNode(RemoteNodeName) {
 {%- for _minion, _minion_grains in _nodes|dictsort %}
 {%- if loop.first %}{{ '\n' }}{%- endif %}
 RemoteNode("{{ _minion_grains['fqdn'] }}")
+{%- endfor %}
+{%- for _fqdn in vars.client_nodes|sort %}
+RemoteNode("{{ _fqdn }}")
 {%- endfor %}

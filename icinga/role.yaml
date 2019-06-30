@@ -3,7 +3,8 @@ icinga:
 
   master_fqdn: null
   master_host: null
-  saltstack_zone_files: {}
+  client_nodes: []
+  global_zone_files: {}
 
   <os_family>:
     Debian:
@@ -18,7 +19,7 @@ icinga:
 
       config_dir: '/etc/icinga2/conf.d'
       certs_dir: '/var/lib/icinga2/certs'
-      saltstack_zone_dir: '/etc/icinga2/zones.d/saltstack'
+      global_zone_dir: '/etc/icinga2/zones.d/global'
 
       <oscodename>:
         stretch:
