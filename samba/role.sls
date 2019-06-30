@@ -34,5 +34,5 @@ samba/passwords/{{ _user }}:
     - env:
         PASSWORD: {{ _password|yaml_dquote }}
     - require:
-      - {{ account.resource('user', _user) }}
+      - {{ account.role.resource('user', _user) }}
 {% endfor %}
