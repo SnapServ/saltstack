@@ -364,3 +364,14 @@ def default_network_address():
         'v4': addrs4[0].compressed if len(addrs4) > 0 else None,
         'v6': addrs6[0].compressed if len(addrs6) > 0 else None,
     }
+
+
+def systemd_service_instances(service_template):
+    instances = []
+    prefix = service_template + '@'
+
+    for service in __salt__['service.get_running']():
+        if len(service) > len(prefix) and service.startswith(prefix):
+            instances.append(service[len(prefix):])
+
+    return instances
