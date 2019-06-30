@@ -1,14 +1,10 @@
 {% from slspath ~ '/init.sls' import role, account %}
 
-include:
-  - .dependencies
-  - .global
-
 {# Prepare empty dictionary of service instances #}
 {% set _instances = {} %}
 
 {# Add running service instances as disabled (to delete them if unconfigured) #}
-{% for _name in salt['ssx.service_unit_instances'](role.vars.service_template) %}
+{% for _name in salt['ss.systemd_service_instances'](role.vars.service_template) %}
   {% do _instances.update(salt['ss.merge_recursive'](_instances, {
     _name: { 'enabled': false },
   })) %}
@@ -36,7 +32,7 @@ syncthing/instance/{{ _instance_name }}/service:
     - enable: True
     - require:
       - pkg: syncthing/packages
-      - {{ account.resource('user', _instance.username) }}
+      - {{ account.role.resource('user', _instance.username) }}
 
 {% else %}
 
