@@ -16,8 +16,8 @@ jdownloader/directory:
       - 'group'
     - require:
       - pkg: jdownloader/dependencies
-      - {{ account.resource('user', role.vars.service_user) }}
-      - {{ account.resource('group', role.vars.service_group) }}
+      - {{ account.role.resource('user', role.vars.service_user) }}
+      - {{ account.role.resource('group', role.vars.service_group) }}
 
 jdownloader/install:
   file.managed:
