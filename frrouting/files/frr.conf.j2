@@ -63,6 +63,10 @@
   {%- if _type == 'as-path' -%}
     {{- aspath_list_require(_value) -}}
     match as-path {{ _value }}
+  {%- elif _type == 'nexthop-type4' -%}
+    match ip next-hop type {{ _value }}
+  {%- elif _type == 'nexthop-type6' -%}
+    match ipv6 next-hop type {{ _value }}
   {%- elif _type == 'prefix4' %}
     {{- prefix_list_require(_value, ip_version=4) -}}
     match ip address prefix-list {{ _value }}
