@@ -45,6 +45,28 @@ frrouting/daemons/{{ _daemon_name }}:
       - service: frrouting/service
 {% endfor %}
 
+# See https://github.com/FRRouting/frr/issues/4249#issuecomment-504686409
+frrouting/service-after-networking:
+  file.managed:
+    - name: '/etc/systemd/system/frr.service.d/override.conf'
+    - contents: |
+        [Unit]
+        After=networking.service
+    - user: 'root'
+    - group: 'root'
+    - mode: '0644'
+    - dir_mode: '0755'
+    - makedirs: true
+    - require:
+      - pkg: frrouting/packages
+
+  module.run:
+    - name: 'service.systemctl_reload'
+    - onchanges:
+      - file: frrouting/service-after-networking
+    - require_in:
+      - service: frrouting/service
+
 frrouting/service:
   service.running:
     - name: {{ role.vars.service|yaml_dquote }}
