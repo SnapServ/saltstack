@@ -22,6 +22,7 @@ base:
   'I.@docker.managed': [docker]
   'I.@frrouting.managed': [frrouting]
   'I.@grafana.managed': [grafana]
+  'I.@grub.managed': [grub]
   'I.@icinga.managed': [icinga]
   'I.@incron.managed': [incron]
   'I.@influxdb.managed': [influxdb]

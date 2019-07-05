@@ -1,0 +1,11 @@
+grub:
+  managed: false
+
+  defaults: {}
+
+  <os_family>:
+    Debian:
+      packages: ['grub2']
+
+      defaults_config: '/etc/default/grub'
+      regenerate_config_cmd: '/usr/sbin/update-grub'
