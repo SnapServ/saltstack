@@ -38,6 +38,19 @@ tor-relay/disable-apparmor:
       - file: tor-relay/disable-apparmor
     - require_in:
       - service: tor-relay/service
+{% else %}
+tor-relay/enable-apparmor:
+  file.absent:
+    - name: '/etc/systemd/system/tor@default.service.d/override.conf'
+    - require:
+      - pkg: tor-relay/packages
+
+  module.run:
+    - name: 'service.systemctl_reload'
+    - onchanges:
+      - file: tor-relay/enable-apparmor
+    - require_in:
+      - service: tor-relay/service
 {% endif %}
 
 tor-relay/service:
