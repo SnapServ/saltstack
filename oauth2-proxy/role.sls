@@ -37,6 +37,19 @@ oauth2-proxy/config:
     - require:
       - archive: oauth2-proxy/install
 
+oauth2-proxy/authenticated-emails:
+  file.managed:
+    - name: {{ (role.vars.service_dir ~ '/authenticated-emails')|yaml_dquote }}
+    - source: {{ role.tpl_path('authenticated-emails.j2')|yaml_dquote }}
+    - template: 'jinja'
+    - user: {{ role.vars.service_user|yaml_dquote }}
+    - group: {{ role.vars.service_group|yaml_dquote }}
+    - mode: '0640'
+    - context:
+        vars: {{ role.vars|yaml }}
+    - require:
+      - archive: oauth2-proxy/install
+
 oauth2-proxy/portal/static-files:
   file.recurse:
     - name: {{ role.vars.static_files_dir|yaml_dquote }}

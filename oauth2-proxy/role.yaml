@@ -7,6 +7,7 @@ oauth2-proxy:
   static_files_dir: '/opt/oauth2-proxy/static'
 
   listen_address: '[::]:4180'
+  email_addresses: []
   email_domains: []
   whitelist_domains: []
   set_xauthrequest: true
