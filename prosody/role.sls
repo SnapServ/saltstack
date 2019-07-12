@@ -76,5 +76,6 @@ prosody/service:
   service.running:
     - name: {{ role.vars.service|yaml_dquote }}
     - enable: True
+    - reload: True
     - require:
       - pkg: prosody/packages
