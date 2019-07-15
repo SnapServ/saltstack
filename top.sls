@@ -39,6 +39,7 @@ base:
   'I.@prosody.managed': [prosody]
   'I.@quassel.managed': [quassel]
   'I.@samba.managed': [samba]
+  'I.@strongswan.managed': [strongswan]
   'I.@syncthing.managed': [syncthing]
   'I.@telegraf.managed': [telegraf]
   'I.@tor-relay.managed': [tor-relay]
