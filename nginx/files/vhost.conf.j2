@@ -3,7 +3,18 @@
 
 {%- macro certs_path(name) -%}
   {%- if name in vhost_config.ssl_mappings -%}
-    {{- vars.certs_dir ~ '/' ~ vhost_config.ssl_mappings[name] -}}
+    {%- set _identifier = vhost_config.ssl_mappings[name] -%}
+    {%- if _identifier != 'snakeoil' -%}
+      {{- vars.certs_dir ~ '/' ~ _identifier -}}
+    {%- else -%}
+      {{- 'snakeoil' -}}
+    {%- endif -%}
+  {%- elif vhost_config.ssl_default_mapping -%}
+    {%- if vhost_config.ssl_default_mapping != 'snakeoil' -%}
+      {{- vars.certs_dir ~ '/' ~ vhost_config.ssl_default_mapping -}}
+    {%- else -%}
+      {{- 'snakeoil' -}}
+    {%- endif -%}
   {%- else -%}
     {{- vars.certs_dir ~ '/' ~ name.split('.')[-2:]|join('.') -}}
   {%- endif -%}
@@ -67,9 +78,16 @@ server {
   error_log {{ vhost_dir ~ '/log/error.log' }};
 {%- if vhost_config.server_names and vhost_config.ssl_enabled %}
   {%- set _certs_path = certs_path(vhost_config.server_names[0]) %}
+
+  {%- if certs_path != 'snakeoil' %}
   ssl_certificate {{ sslcert.safe_certificate(_certs_path ~ '.fullchain.crt') }};
   ssl_certificate_key {{ sslcert.safe_keyfile(_certs_path ~ '.key') }};
   ssl_trusted_certificate {{ sslcert.safe_certificate(_certs_path ~ '.ca.crt') }};
+  {%- else %}
+  ssl_certificate {{ sslcert.snakeoil_certificate() }};
+  ssl_certificate_key {{ sslcert.snakeoil_keyfile() }};
+  ssl_trusted_certificate {{ sslcert.snakeoil_certificate() }};
+  {%- endif %}
 {%- endif %}
 
   client_body_temp_path {{ vhost_dir ~ '/tmp/nginx-client-body' }};
@@ -78,7 +96,7 @@ server {
   uwsgi_temp_path {{ vhost_dir ~ '/tmp/nginx-uwsgi' }};
   scgi_temp_path {{ vhost_dir ~ '/tmp/nginx-scgi' }};
 
-  root {{ vhost_dir ~ '/app/public' }};
+  root {{ vhost_config.document_root if vhost_config.document_root else vhost_dir ~ '/app/public' }};
 {%- if vhost_config.index_files %}
   index {{ vhost_config.index_files|join(' ') }};
 {%- elif _php_fpm_enabled %}

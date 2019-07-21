@@ -17,12 +17,14 @@ nginx:
 
     ssl_enabled: False
     ssl_forced: True
+    ssl_default_mapping: null
     ssl_mappings: {}
     server_names: []
     alias_redirect_target: null
 
     app_user: null
     app_group: null
+    document_root: null
     index_files: []
     custom_configs: {}
 
