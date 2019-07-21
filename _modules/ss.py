@@ -321,6 +321,11 @@ def parse_properties(obj):
     return props
 
 
+def dict_strip_none(obj):
+    return dict((k, v) for k, v in six.iteritems(obj)
+                if k is not None and v is not None)
+
+
 def default_network_address():
     # Check grains for manually specified IPv4/v6 address
     grains_v4 = __salt__['grains.get']('ss:primary_address4', None)
