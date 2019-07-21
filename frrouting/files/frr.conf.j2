@@ -8,7 +8,7 @@
   {%- if _value is string -%}
     {{- _value -}}
   {%- else -%}
-    {{- value|join(_delimiter) -}}
+    {{- _value|join(_delimiter) -}}
   {%- endif -%}
 {%- endmacro -%}
 
@@ -89,6 +89,8 @@
     set extcommunity rt {{ list_join_safe(_value, ' ') }}
   {%- elif _type == 'add-large-communities' -%}
     set large-community {{ list_join_safe(_value, ' ') }} additive
+  {%- elif _type == 'as-path-prepend' -%}
+    set as-path prepend {{ list_join_safe(_value, ' ') }}
   {%- elif _type == 'local-preference' -%}
     set local-preference {{ _value }}
   {%- elif _type == 'source' -%}
@@ -110,8 +112,16 @@
 {%- endmacro -%}
 
 {%- macro bgp_peer_options(_instance, _peer, _options) -%}
+  {%- set _ordered_keys = ('peergroup',) -%}
+
+  {%- for _key in _ordered_keys -%}
+    {%- if _key in _options -%}
+      {{- '\n' ~ bgp_peer_option(_instance, _peer, _key, _options[_key]) -}}
+    {%- endif -%}
+  {%- endfor -%}
+
   {%- for _key, _value in _options|dictsort -%}
-    {%- if not _key.startswith('af_') -%}
+    {%- if _key not in _ordered_keys and not _key.startswith('af_') -%}
       {{- '\n' ~ bgp_peer_option(_instance, _peer, _key, _value) -}}
     {%- endif -%}
   {%- endfor -%}
@@ -159,6 +169,8 @@
     {{ _prefix }} capability {{ _value }}
   {%- elif _key == 'description' -%}
     {{ _prefix }} description {{ _value }}
+  {%- elif _key == 'multihop' -%}
+    {{ _prefix }} ebgp-multihop {{ _value }}
   {%- elif _key == 'password' -%}
     {{ _prefix }} password {{ _value }}
   {%- elif _key == 'peergroup' -%}
@@ -185,7 +197,7 @@
     {{- bgp_option_bool(_value, _prefix ~ ' next-hop-self') -}}
   {%- elif _key == 'prefix_list_in' -%}
     {{- prefix_list_require(_value, afi=_afi) -}}
-    {{ _prefix }} route-map {{ _value }} in
+    {{ _prefix }} prefix-list {{ _value }} in
   {%- elif _key == 'routemap_in' -%}
     {{- routemap_require(_value) -}}
     {{ _prefix }} route-map {{ _value }} in
