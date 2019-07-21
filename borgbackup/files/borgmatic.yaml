@@ -28,6 +28,8 @@ consistency:
   prefix: {{ vars.consistency.prefix|yaml_dquote }}
 
 hooks:
-  before_backup: {{ vars.hooks.before_backup|yaml }}
+  before_backup: {{ (vars.hooks.before_backup + [
+    'salt-call state.apply borgbackup.tasks.retention_schedules',
+  ])|yaml }}
   after_backup: {{ vars.hooks.after_backup|yaml }}
   on_error: {{ vars.hooks.on_error|yaml }}

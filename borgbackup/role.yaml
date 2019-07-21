@@ -22,6 +22,8 @@ borgbackup:
     keep_monthly: 6
     prefix: '{hostname}-'
 
+  retention_schedules: {}
+
   consistency:
     checks:
       - 'archives'
