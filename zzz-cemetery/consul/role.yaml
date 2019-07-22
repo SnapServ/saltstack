@@ -1,0 +1,11 @@
+consul:
+  managed: false
+
+  docker_image: 'consul:1.5.1'
+  docker_volume: 'consul-data'
+
+  config: {}
+
+  <os_family>:
+    Debian:
+      service_dir: '/srv/docker/consul'

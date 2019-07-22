@@ -1,0 +1,13 @@
+foreman:
+  <os_family>:
+    Debian:
+      packages: ['foreman-installer']
+
+      puppet_repository_sources:
+        - 'deb https://apt.puppetlabs.com/ {{ grains['oscodename'] }} puppet6'
+      puppet_repository_gpg_key_url: 'https://apt.puppetlabs.com/DEB-GPG-KEY-puppet'
+
+      foreman_repository_sources:
+        - 'deb http://deb.theforeman.org/ {{ grains['oscodename'] }} 1.22'
+        - 'deb http://deb.theforeman.org/ plugins 1.22'
+      foreman_repository_gpg_key_url: 'https://deb.theforeman.org/pubkey.gpg'
