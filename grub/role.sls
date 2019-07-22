@@ -7,10 +7,9 @@ grub/packages:
 grub/defaults-strip:
   file.replace:
     - name: {{ role.vars.defaults_config|yaml_dquote }}
-    - pattern: '(^|(?<=\n))\s*(#.*?)([\r\n]{1,2}|$)'
+    - pattern: '(^|(?<=\\n))\\s*(#.*?)([\\r\\n]{1,2}|$)'
     - repl: ''
     - flags: 0
-    - backslash_literal: true
     - require:
       - pkg: grub/packages
     - onchanges_in:
