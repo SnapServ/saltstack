@@ -1,3 +1,9 @@
-{% set role = salt['ss.role']('nftables') %}
+{%- set nftables = {} %}
 
-include: {{ role.includes|yaml }}
+{%- import 'stdlib.jinja' as stdlib %}
+{{- stdlib.formula_config(tpldir, nftables) }}
+
+{%- if nftables.managed %}
+include:
+  - .main
+{%- endif %}

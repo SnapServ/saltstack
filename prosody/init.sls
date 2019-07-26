@@ -1,4 +1,9 @@
-{% set role = salt['ss.role']('prosody') %}
-{% import role.dependency('software') as software %}{% set software = software %}
+{%- set prosody = {} %}
 
-include: {{ role.includes|yaml }}
+{%- import 'stdlib.jinja' as stdlib %}
+{{- stdlib.formula_config(tpldir, prosody) }}
+
+{%- if prosody.managed %}
+include:
+  - .main
+{%- endif %}

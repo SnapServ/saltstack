@@ -1,0 +1,8 @@
+- os_family:    
+    Debian:
+      packages: ['tor']
+      service: 'tor@default'
+      service_user: 'debian-tor'
+      service_group: 'debian-tor'
+
+      config_path: '/etc/tor/torrc'

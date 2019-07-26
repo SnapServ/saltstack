@@ -1,0 +1,3 @@
+- os_family:
+    Debian:
+      resolvconf_path: '/etc/resolv.conf'

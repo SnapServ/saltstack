@@ -1,3 +1,9 @@
-{% set role = salt['ss.role']('grub') %}
+{%- set grub = {} %}
 
-include: {{ role.includes|yaml }}
+{%- import 'stdlib.jinja' as stdlib %}
+{{- stdlib.formula_config(tpldir, grub) }}
+
+{%- if grub.managed %}
+include:
+  - .main
+{%- endif %}

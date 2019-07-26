@@ -1,0 +1,13 @@
+#!/bin/bash
+# Managed by SaltStack
+set -euo pipefail
+IFS=$'\n\t'
+
+declare -gr QUASSEL_PATH="{{ quassel.core.data_dir|quote }}"
+declare -gr CERT_NAME="${1}"
+
+/bin/cat \
+    "${QUASSEL_PATH}/certs/${CERT_NAME}.key" \
+    "${QUASSEL_PATH}/certs/${CERT_NAME}.fullchain.crt" \
+    > "${QUASSEL_PATH}/quasselCert.pem"
+/bin/systemctl reload quasselcore

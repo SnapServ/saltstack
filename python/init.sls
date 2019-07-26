@@ -1,3 +1,9 @@
-{% set role = salt['ss.role']('python') %}
+{%- set python = {} %}
 
-include: {{ role.includes|yaml }}
+{%- import 'stdlib.jinja' as stdlib %}
+{{- stdlib.formula_config(tpldir, python) }}
+
+{%- if python.managed %}
+include:
+  - .main
+{%- endif %}

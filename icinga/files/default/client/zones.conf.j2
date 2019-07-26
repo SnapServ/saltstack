@@ -1,0 +1,20 @@
+# Managed by SaltStack
+object Zone "global" {
+}
+
+object Zone "{{ grains['fqdn'] }}" {
+	endpoints = [ "{{ grains['fqdn'] }}" ]
+	parent = "master"
+}
+
+object Endpoint "{{ grains['fqdn'] }}" {
+	host = "{{ grains['fqdn'] }}"
+}
+
+object Zone "master" {
+	endpoints = [ "{{ icinga.master_fqdn }}" ]
+}
+
+object Endpoint "{{ icinga.master_fqdn }}" {
+	host = "{{ icinga.master_host or icinga.master_fqdn }}"
+}

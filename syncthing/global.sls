@@ -1,14 +1,18 @@
-{% from slspath ~ '/init.sls' import role, software %}
+{%- import 'stdlib.jinja' as stdlib %}
+{%- from stdlib.formula_sls(tpldir) import syncthing %}
+{%- from stdlib.formula_macros('software') import software_repository %}
 
-{{ software.repository(
-  state_id='syncthing/repository',
+include:
+  - software
+
+{{ software_repository(
   name='syncthing',
-  sources=role.vars.repository_sources,
-  gpg_key_url=role.vars.repository_gpg_key_url,
+  sources=syncthing.repository_sources,
+  gpg_key_url=syncthing.repository_gpg_key_url,
 ) }}
 
 syncthing/packages:
   pkg.installed:
-    - pkgs: {{ role.vars.packages|yaml }}
+    - pkgs: {{ syncthing.packages|yaml }}
     - require:
-      - syncthing/repository
+      - {{ stdlib.resource_dep('software-repository', 'syncthing') }}

@@ -1,0 +1,6 @@
+{%- set settings = {
+  'devicename': jdownloader.myjdownloader.device_name or grains['fqdn'],
+  'email': jdownloader.myjdownloader.email_address,
+  'password': jdownloader.myjdownloader.password,
+} -%}
+{{- settings|tojson -}}

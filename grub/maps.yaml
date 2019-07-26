@@ -1,0 +1,5 @@
+- os_family:
+    Debian:
+      packages: ['grub2']
+      defaults_config: '/etc/default/grub'
+      update_config_cmd: '/usr/sbin/update-grub'

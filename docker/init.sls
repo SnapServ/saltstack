@@ -1,4 +1,9 @@
-{% set role = salt['ss.role']('docker') %}
-{% import role.dependency('software') as software %}{% set software = software %}
+{%- set docker = {} %}
 
-include: {{ role.includes|yaml }}
+{%- import 'stdlib.jinja' as stdlib %}
+{{- stdlib.formula_config(tpldir, docker) }}
+
+{%- if docker.managed %}
+include:
+  - .main
+{%- endif %}

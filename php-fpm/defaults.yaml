@@ -1,0 +1,18 @@
+managed: False
+
+versions: {}
+repositories: {}
+
+version_defaults:
+  enabled: False
+  pools: {}
+  
+  early_config: {}
+  main_config: {}
+
+pool_defaults:
+  pm: 'dynamic'
+  pm.max_children: 4
+  pm.start_servers: 2
+  pm.min_spare_servers: 1
+  pm.max_spare_servers: 3

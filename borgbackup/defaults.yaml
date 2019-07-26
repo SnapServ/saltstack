@@ -1,0 +1,36 @@
+managed: False
+
+service_dir: '/opt/borg'
+service_user: 'root'
+service_group: 'root'
+
+location:
+  source_directories: []
+  repositories: []
+  exclude_patterns: []
+  exclude_caches: true
+
+storage:
+  passphrase: null
+  compression: 'auto,zstd'
+  archive_name_format: '{hostname}-{now:%Y-%m-%dT%H:%M:%S.%f}'
+
+retention:
+  keep_daily: 7
+  keep_weekly: 4
+  keep_monthly: 6
+  prefix: '{hostname}-'
+
+retention_schedules: {}
+
+consistency:
+  checks:
+    - 'archives'
+    - 'repository'
+  check_last: 3
+  prefix: '{hostname}-'
+
+hooks:
+  before_backup: []
+  after_backup: []
+  on_error: []

@@ -1,23 +1,30 @@
-{% from slspath ~ '/init.sls' import role %}
+{%- import 'stdlib.jinja' as stdlib %}
+{%- from stdlib.formula_sls(tpldir) import mariadb %}
 
-{% macro parse_grant_target(_grant) -%}
-  {%- if _grant.get('database', None) -%}
-    {%- if _grant.get('table', None) -%}
-      {{- _grant.database ~ '.' ~ _grant.table -}}
-    {%- else -%}
-      {{- _grant.database ~ '.*' -}}
-    {%- endif -%}
-  {%- else -%}
-    {{- '*.*' -}}
-  {%- endif -%}
+{%- macro build_grant_target(_grant) %}
+  {%- if _grant.get('database', None) %}
+    {%- if _grant.get('table', None) %}
+      {{- _grant.database ~ '.' ~ _grant.table }}
+    {%- else %}
+      {{- _grant.database ~ '.*' }}
+    {%- endif %}
+  {%- else %}
+    {{- '*.*' }}
+  {%- endif %}
 {%- endmacro %}
 
 include:
   - .server
 
-{% for _user_name, _user in role.vars.users|dictsort %}
-{% set _user = salt['ss.merge_recursive'](role.vars.user_defaults, _user) %}
-{% for _user_host in _user.hosts %}
+{%- for _user_name, _user in mariadb.users|dictsort %}
+
+{#- Merge user settings with defaults #}
+{%- set _user = salt['defaults.merge'](
+  mariadb.user_defaults, _user, in_place=False
+) %}
+
+{#- Declare user for each specified host #}
+{%- for _user_host in _user.hosts %}
 
 mariadb/user/{{ _user_name }}-{{ _user_host }}/account:
   mysql_user.present:
@@ -36,11 +43,18 @@ mariadb/user/{{ _user_name }}-{{ _user_host }}/account:
     - require:
       - service: mariadb/server/service
 
-{% for _user_grant in _user.grants %}
-{% set _user_grant = salt['ss.merge_recursive'](role.vars.user_grant_defaults, _user_grant) %}
-{% set _grant_target = parse_grant_target(_user_grant) %}
-{% set _grant_privileges = _user_grant.privileges|map('upper')|join(',') %}
+{%- for _user_grant in _user.grants %}
 
+{#- Merge user grant settings with defaults #}
+{%- set _user_grant = salt['defaults.merge'](
+  mariadb.user_grant_defaults, _user_grant, in_place=False
+) %}
+
+{#- Build user grant targets from pillar #}
+{%- set _grant_target = build_grant_target(_user_grant) %}
+{%- set _grant_privileges = _user_grant.privileges|map('upper')|join(',') %}
+
+{#- Declare user grant target #}
 mariadb/user/{{ _user_name }}-{{ _user_host }}/grants/{{ loop.index }}:
   mysql_grants.present:
     - user: {{ _user_name|yaml_dquote }}
@@ -54,7 +68,7 @@ mariadb/user/{{ _user_name }}-{{ _user_host }}/grants/{{ loop.index }}:
     - connection_charset: 'utf8'
     - require:
       - mysql_user: mariadb/user/{{ _user_name }}-{{ _user_host }}/account
-{% endfor %}
+{%- endfor %}
 
-{% endfor %}
-{% endfor %}
+{%- endfor %}
+{%- endfor %}

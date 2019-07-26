@@ -1,4 +1,9 @@
-{% set role = salt['ss.role']('acme-dns') %}
-{% import role.dependency('account') as account %}{% set account = account %}
+{%- set acme_dns = {} %}
 
-include: {{ role.includes|yaml }}
+{%- import 'stdlib.jinja' as stdlib %}
+{{- stdlib.formula_config(tpldir, acme_dns) }}
+
+{%- if acme_dns.managed %}
+include:
+  - .main
+{%- endif %}

@@ -1,3 +1,9 @@
-{% set role = salt['ss.role']('lldpd') %}
+{%- set lldpd = {} %}
 
-include: {{ role.includes|yaml }}
+{%- import 'stdlib.jinja' as stdlib %}
+{{- stdlib.formula_config(tpldir, lldpd) }}
+
+{%- if lldpd.managed %}
+include:
+  - .main
+{%- endif %}

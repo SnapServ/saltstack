@@ -1,6 +1,11 @@
-{% set role = salt['ss.role']('account') %}
-{% do role.add_include('groups') %}
-{% do role.add_include('users') %}
-{% do role.add_include('sshkeys') %}
+{%- set account = {} %}
 
-include: {{ role.includes|yaml }}
+{%- import 'stdlib.jinja' as stdlib %}
+{{- stdlib.formula_config(tpldir, account) }}
+
+{%- if account.managed %}
+include:
+  - .users
+  - .groups
+  - .ssh_keys
+{%- endif %}

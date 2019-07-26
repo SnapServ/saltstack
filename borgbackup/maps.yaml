@@ -1,0 +1,10 @@
+- os_family:
+    Debian:
+      packages:
+        - 'cython3'
+        - 'libacl1-dev'
+        - 'libssl-dev'
+        - 'openssh-client'
+
+      ssh_keygen_bin: '/usr/bin/ssh-keygen'
+      ssh_keyscan_bin: '/usr/bin/ssh-keyscan'

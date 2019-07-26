@@ -1,0 +1,18 @@
+managed: False
+
+families:
+  inet:
+    sets: {}
+    chains: {}
+  ip:
+    sets: {}
+    chains: {}
+  ip6:
+    sets: {}
+    chains: {}
+  arp:
+    sets: {}
+    chains: {}
+  bridge:
+    sets: {}
+    chains: {}

@@ -1,7 +1,10 @@
-{% set role = salt['ss.role']('php-fpm') %}
-{% import role.dependency('software') as software %}{% set software = software %}
+{%- set php_fpm = {} %}
 
-{% do role.add_include('global') %}
-{% do role.add_include('versions') %}
+{%- import 'stdlib.jinja' as stdlib %}
+{{- stdlib.formula_config(tpldir, php_fpm) }}
 
-include: {{ role.includes|yaml }}
+{%- if php_fpm.managed %}
+include:
+  - .global
+  - .versions
+{%- endif %}

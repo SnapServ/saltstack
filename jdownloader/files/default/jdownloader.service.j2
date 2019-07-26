@@ -1,0 +1,14 @@
+[Unit]
+Description=JDownloader2 Headless
+After=network-online.target
+
+[Service]
+Type=simple
+User={{ jdownloader.service_user }}
+ExecStart={{ jdownloader.java_bin }} -Djava.awt.headless=true -jar "{{ jdownloader.service_dir }}/JDownloader.jar"
+Restart=on-failure
+RemainAfterExit=yes
+Environment=JD_HOME={{ jdownloader.service_dir }}
+
+[Install]
+WantedBy=multi-user.target

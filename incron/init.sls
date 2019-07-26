@@ -1,3 +1,9 @@
-{% set role = salt['ss.role']('incron') %}
+{%- set incron = {} %}
 
-include: {{ role.includes|yaml }}
+{%- import 'stdlib.jinja' as stdlib %}
+{{- stdlib.formula_config(tpldir, incron) }}
+
+{%- if incron.managed %}
+include:
+  - .main
+{%- endif %}

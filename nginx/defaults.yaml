@@ -1,0 +1,37 @@
+managed: False
+
+worker_processes: 'auto'
+worker_connections: 1024
+global_config_includes: []
+http_config_includes: []
+
+custom_configs: {}
+upstreams: {}
+vhosts: {}
+
+vhost_defaults:
+  default: False
+  http_port: 80
+  https_port: 443
+
+  ssl_enabled: False
+  ssl_forced: True
+  ssl_default_mapping: null
+  ssl_mappings: {}
+  server_names: []
+  alias_redirect_target: null
+
+  app_user: null
+  app_group: null
+  document_root: null
+  index_files: []
+  custom_configs: {}
+
+  headers: {}
+  redirect_headers: []
+  security:
+    enforce_http_only_cookies: False
+    enforce_secure_cookies: False
+
+  php_fpm_version: null
+  php_fpm_pool: null

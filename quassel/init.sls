@@ -1,4 +1,9 @@
-{% set role = salt['ss.role']('quassel') %}
-{% do role.add_include('core') %}
+{%- set quassel = {} %}
 
-include: {{ role.includes|yaml }}
+{%- import 'stdlib.jinja' as stdlib %}
+{{- stdlib.formula_config(tpldir, quassel) }}
+
+{%- if quassel.managed %}
+include:
+  - .core
+{%- endif %}

@@ -1,0 +1,12 @@
+- os_family:
+    Debian:
+      packages:
+        - 'docker-ce'
+        - 'docker-compose'
+      service: 'docker'
+
+      daemon_config_path: '/etc/docker/daemon.json'
+
+      repository_sources:
+        - 'deb [arch={osarch}] https://download.docker.com/linux/debian {oscodename} stable'
+      repository_gpg_key_url: 'https://download.docker.com/linux/debian/gpg'

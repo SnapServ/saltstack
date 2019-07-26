@@ -1,8 +1,17 @@
-{% from slspath ~ '/init.sls' import role %}
+{%- import 'stdlib.jinja' as stdlib %}
+{%- from stdlib.formula_sls(tpldir) import mariadb %}
 
-{% for _database_name, _database in role.vars.databases|dictsort %}
-{% set _database = salt['ss.merge_recursive'](role.vars.database_defaults, _database) %}
+include:
+  - .server
 
+{%- for _database_name, _database in mariadb.databases|dictsort %}
+
+{#- Merge user settings with default settings #}
+{%- set _database = salt['defaults.merge'](
+  mariadb.database_defaults, _database, in_place=False
+) %}
+
+{#- Declare database #}
 mariadb/database/{{ _database_name }}:
   mysql_database.present:
     - name: {{ _database_name|yaml_dquote }}
@@ -13,4 +22,5 @@ mariadb/database/{{ _database_name }}:
     - connection_charset: 'utf8'
     - require:
       - service: mariadb/server/service
-{% endfor %}
+
+{%- endfor %}

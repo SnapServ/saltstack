@@ -1,3 +1,9 @@
-{% set role = salt['ss.role']('resolvconf') %}
+{%- set resolvconf = {} %}
 
-include: {{ role.includes|yaml }}
+{%- import 'stdlib.jinja' as stdlib %}
+{{- stdlib.formula_config(tpldir, resolvconf) }}
+
+{%- if resolvconf.managed %}
+include:
+  - .main
+{%- endif %}

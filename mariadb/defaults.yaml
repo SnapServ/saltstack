@@ -1,0 +1,21 @@
+managed: False
+
+databases: {}
+users: {}
+
+database_defaults:
+  character_set: 'utf8mb4'
+  collate: 'utf8mb4_unicode_ci'
+
+user_defaults:
+  hosts: []
+  password_hash: null
+  password: null
+  grants: []
+
+user_grant_defaults:
+  database: null
+  table: null
+  privileges: []
+  grant_option: False
+  escape: True

@@ -1,46 +1,50 @@
-{% from slspath ~ '/init.sls' import role %}
+{%- import 'stdlib.jinja' as stdlib %}
+{%- from stdlib.formula_sls(tpldir) import icinga %}
 
-{% if not role.vars.master_cert %}
+{%- if not icinga.master_cert %}
   {{ salt['test.exception']('icinga.master_cert must be configured') }}
-{% endif %}
+{%- endif %}
 
 include:
   - .common
 
 icinga/client/wipe-local-config:
   file.directory:
-    - name: {{ role.vars.config_dir|yaml_dquote }}
-    - clean: true
+    - name: {{ icinga.config_dir|yaml_dquote }}
+    - clean: True
     - watch_in:
       - service: icinga/service
 
 icinga/client/zones-config: &zones-config
   file.managed:
-    - name: {{ role.vars.zones_config|yaml_dquote }}
-    - source: {{ role.tpl_path('client/zones.conf.j2')|yaml_dquote }}
+    - name: {{ icinga.zones_config|yaml_dquote }}
+    - source: {{ stdlib.formula_tofs(tpldir,
+        source_files=['client/zones.conf.j2'],
+        lookup='client-zones-config'
+      ) }}
     - template: 'jinja'
     - user: 'root'
     - group: 'root'
     - mode: '0644'
     - context:
-        vars: {{ role.vars|yaml }}
+        icinga: {{ icinga|yaml }}
     - require:
       - file: icinga/client/wipe-local-config
     - watch_in:
       - service: icinga/service
 
-{% set _node_cert_path = role.vars.certs_dir ~ '/' ~ grains['fqdn'] ~ '.crt' %}
-{% if not salt['file.file_exists'](_node_cert_path) %}
+{%- set _node_cert_path = icinga.certs_dir ~ '/' ~ grains['fqdn'] ~ '.crt' %}
+{%- if not salt['file.file_exists'](_node_cert_path) %}
 
 icinga/client/cleanup:
   file.directory:
-    - name: {{ role.vars.certs_dir|yaml_dquote }}
-    - clean: true
+    - name: {{ icinga.certs_dir|yaml_dquote }}
+    - clean: True
 
 icinga/client/deploy-master-cert:
   file.managed:
-    - name: {{ role.vars.master_cert_path|yaml_dquote }}
-    - contents: {{ role.vars.master_cert|yaml_dquote }}
+    - name: {{ icinga.master_cert_path|yaml_dquote }}
+    - contents: {{ icinga.master_cert|yaml_dquote }}
     - user: 'root'
     - group: 'root'
     - mode: '0644'
@@ -50,12 +54,12 @@ icinga/client/deploy-master-cert:
 icinga/client/join:
   cmd.run:
     - name: >-
-        {{ role.vars.icinga_bin|quote }} node setup
+        {{ icinga.icinga_bin|quote }} node setup
         --cn {{ grains['fqdn']|quote }}
         --zone {{ grains['fqdn']|quote }}
-        --parent_host {{ role.vars.master_fqdn|quote }}
-        --endpoint {{ role.vars.master_fqdn|quote }}
-        --trustedcert {{ role.vars.master_cert_path|quote }}
+        --parent_host {{ icinga.master_fqdn|quote }}
+        --endpoint {{ icinga.master_fqdn|quote }}
+        --trustedcert {{ icinga.master_cert_path|quote }}
         --accept-commands
     - require:
       - file: icinga/client/deploy-master-cert
@@ -64,4 +68,4 @@ icinga/client/join:
     - watch_in:
       - service: icinga/service
 
-{% endif %}
+{%- endif %}

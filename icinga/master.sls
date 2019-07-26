@@ -1,17 +1,21 @@
-{% from slspath ~ '/init.sls' import role %}
+{%- import 'stdlib.jinja' as stdlib %}
+{%- from stdlib.formula_sls(tpldir) import icinga %}
 
 include:
   - .common
 
 icinga/master/zones-config:
   file.managed:
-    - name: {{ role.vars.zones_config|yaml_dquote }}
-    - source: {{ role.tpl_path('master/zones.conf.j2')|yaml_dquote }}
+    - name: {{ icinga.zones_config|yaml_dquote }}
+    - source: {{ stdlib.formula_tofs(tpldir,
+        source_files=['master/zones.conf.j2'],
+        lookup='master-zones-config'
+      ) }}
     - template: 'jinja'
     - user: 'root'
     - group: 'root'
     - mode: '0644'
     - context:
-        vars: {{ role.vars|yaml }}
+        icinga: {{ icinga|yaml }}
     - watch_in:
       - service: icinga/service

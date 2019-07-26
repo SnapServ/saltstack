@@ -1,0 +1,22 @@
+managed: False
+
+users: {}
+groups: {}
+
+user_defaults:
+  enabled: True
+  fullname: 'Managed by SaltStack'
+  password: ''
+  shell: '/bin/false'
+  groups: []
+  uid: null
+  group: null
+  system: False
+  create_home: True
+  remove_groups: False
+  ssh_keys: []
+
+group_defaults:
+  enabled: True
+  gid: null
+  system: False

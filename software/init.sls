@@ -1,5 +1,10 @@
-{% set role = salt['ss.role']('software') %}
-{% do role.add_include('repositories') %}
-{% do role.add_include('packages') %}
+{%- set software = {} %}
 
-include: {{ role.includes|yaml }}
+{%- import 'stdlib.jinja' as stdlib %}
+{{- stdlib.formula_config(tpldir, software) }}
+
+{%- if software.managed %}
+include:
+  - .repositories
+  - .packages
+{%- endif %}

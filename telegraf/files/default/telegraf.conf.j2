@@ -1,0 +1,17 @@
+{%- set _config = salt['defaults.merge'](telegraf, {
+  'agent_config': {
+    'hostname': telegraf['agent_config']['hostname'] or grains['fqdn'],
+  },
+}) %}
+
+{%- macro render(value) -%}
+  {{- salt['slsutil.serialize']('toml', value) -}}
+{%- endmacro -%}
+
+# Managed by SaltStack
+{{ render({'global_tags': _config.global_tags}) }}
+{{ render({'agent': _config.agent_config}) }}
+{{ render({'processors': _config.processors}) }}
+{{ render({'aggregators': _config.aggregators}) }}
+{{ render({'inputs': _config.inputs}) }}
+{{ render({'outputs': _config.outputs}) }}

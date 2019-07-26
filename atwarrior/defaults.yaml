@@ -1,0 +1,8 @@
+managed: false
+
+warrior_port: 8001
+warrior_name: ''
+warrior_project: ''
+warrior_concurrency: 2
+
+docker_image: 'archiveteam/warrior-dockerfile:latest'

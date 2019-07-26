@@ -1,0 +1,8 @@
+- os_family:
+    Debian:
+      packages: ['unattended-upgrades']
+      service: 'unattended-upgrades'
+      config_path: '/etc/apt/apt.conf.d/50unattended-upgrades'
+
+      origins_pattern:
+        - 'origin=Debian,codename=${distro_codename},label=Debian-Security'

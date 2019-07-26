@@ -1,4 +1,9 @@
-{% set role = salt['ss.role']('grafana') %}
-{% import role.dependency('software') as software %}{% set software = software %}
+{%- set grafana = {} %}
 
-include: {{ role.includes|yaml }}
+{%- import 'stdlib.jinja' as stdlib %}
+{{- stdlib.formula_config(tpldir, grafana) }}
+
+{%- if grafana.managed %}
+include:
+  - .main
+{%- endif %}

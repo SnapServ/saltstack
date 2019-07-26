@@ -1,0 +1,32 @@
+{%- macro samba_bool(_value) -%}
+  {%- if _value %}Yes{%- else -%}No{%- endif -%}
+{%- endmacro -%}
+
+{%- macro samba_option(_key, _value) -%}
+  {%- set _option = _key.replace('_', ' ') -%}
+
+  {%- if _value is iterable and _value is not string -%}
+    {{ _option }} = {{ _value|join(', ') }}
+  {%- elif _value == true or _value == false -%}
+    {{ _option }} = {{ samba_bool(_value) }}
+  {%- else -%}
+    {{ _option }} = {{ _value }}
+  {%- endif -%}
+{%- endmacro -%}
+
+# Managed by SaltStack
+[global]
+  server string = {{ samba.server_string or grains['fqdn'] }}
+  workgroup = {{ samba.workgroup }}
+{%- for _key, _value in samba.options|dictsort %}
+  {{ samba_option(_key, _value) }}
+{%- endfor %}
+
+{%- for _share_name, _share in samba.shares|dictsort %}
+{%- set _share = salt['ss.merge_recursive'](samba.share_defaults, _share) %}
+
+[{{ _share_name }}]
+{%- for _key, _value in _share|dictsort %}
+  {{ samba_option(_key, _value) }}
+{%- endfor %}
+{%- endfor %}

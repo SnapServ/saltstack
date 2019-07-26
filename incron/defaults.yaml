@@ -1,0 +1,10 @@
+managed: False
+
+crons: {}
+allowed_users:
+  - 'root'
+denied_users: []
+
+cron_defaults:
+  enabled: True
+  user: root

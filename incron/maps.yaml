@@ -1,0 +1,8 @@
+- os_family:
+    Debian:
+      packages: ['incron']
+
+      config_group: 'incron'
+      scripts_dir: '/etc/incron.scripts'
+      allowed_users_config: '/etc/incron.allow'
+      denied_users_config: '/etc/incron.deny'

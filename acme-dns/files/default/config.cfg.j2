@@ -1,0 +1,35 @@
+# Managed by SaltStack
+[general]
+listen = "{{ acme_dns.listen_address }}"
+protocol = "{{ acme_dns.listen_protocol }}"
+domain = "{{ acme_dns.dns_domain }}"
+nsname = "{{ acme_dns.dns_nsname }}"
+nsadmin = "{{ acme_dns.dns_nsadmin|replace('@', '.') }}"
+records = [
+{%- for _record in acme_dns.dns_records %}
+  "{{ _record }}",
+{%- endfor %}
+]
+debug = false
+
+[database]
+engine = "sqlite3"
+connection = "{{ acme_dns.service_dir }}/acme-dns.db"
+
+[api]
+ip = "{{ acme_dns.api_host }}"
+port = "{{ acme_dns.api_port }}"
+autocert_port = "{{ acme_dns.api_letsencrypt_port }}"
+api_domain = "{{ acme_dns.api_domain }}"
+
+tls = "{{ 'letsencrypt' if acme_dns.api_letsencrypt_enabled else 'none' }}"
+acme_cache_dir = "{{ acme_dns.service_dir }}/api-certs"
+corsorigins = ["{{ acme_dns.api_cors_origins|join('", "') }}"]
+disable_registration = {{ 'false' if acme_dns.api_registration_enabled else 'true' }}
+use_header = {{ 'true' if acme_dns.api_xff_enabled else 'false' }}
+header_name = "{{ acme_dns.api_xff_header }}"
+
+[logconfig]
+loglevel = "{{ acme_dns.logging_level }}"
+logtype = "stdout"
+logformat = "text"

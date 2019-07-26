@@ -1,0 +1,12 @@
+managed: False
+
+resolver_timeout: 1
+resolver_attempts: 1
+resolver_round_robin: True
+
+search_paths: []
+nameservers:
+  - '1.1.1.1'
+  - '1.0.0.1'
+  - '2606:4700:4700::1111'
+  - '2606:4700:4700::1001'

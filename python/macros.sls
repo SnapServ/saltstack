@@ -1,18 +1,31 @@
-{% set role = salt['ss.role']('python') %}
+{%- import 'stdlib.jinja' as stdlib %}
+{%- from stdlib.formula_sls(tpldir) import python %}
 
-{% macro virtualenv(path) %}
-{% set _state_id = kwargs.get('state_id', 'python/virtualenv/{0}'.format(path)) %}
+{##############################################################################
+ ## python_virtualenv
+ ##############################################################################}
+{%- macro python_virtualenv(name, path) %}
 
-{{ _state_id }}:
+{#- Generate state ID and declare formula resource #}
+{%- set _venv_sid = 'python/virtualenv/' ~ name %}
+{{- stdlib.formula_resource(tpldir, 'python-virtualenv', name) }}
+
+{#- Declare virtual environment #}
+{{ _venv_sid|yaml_dquote }}:
   virtualenv.managed:
     - name: {{ path|yaml_dquote }}
-    - python: {{ role.vars.python_bin|yaml_dquote }}
+    - python: {{ python.python_bin|yaml_dquote }}
     - user: {{ kwargs.get('user', none)|yaml_encode }}
     - requirements: {{ kwargs.get('requirements', none)|yaml_encode }}
     - pip_pkgs: {{ kwargs.get('pip_pkgs', none)|yaml }}
     - pip_upgrade: {{ kwargs.get('pip_upgrade', false)|yaml_encode }}
-    - venv_bin: {{ role.vars.venv_wrapper_bin|yaml_dquote }}
+    - venv_bin: {{ python.venv_wrapper_bin|yaml_dquote }}
+    - onchanges_in:
+      - {{ stdlib.resource_dep('python-virtualenv', name) }}
     - require:
       - pkg: python/packages
       - file: python/venv-wrapper
-{% endmacro %}
+      {%- for _requirement in kwargs.get('require', []) %}
+      - {{ _requirement|yaml }}
+      {%- endfor %}
+{%- endmacro %}

@@ -1,0 +1,21 @@
+- os_family:
+    Debian:
+      packages:
+        - 'mercurial'
+        - 'prosody'
+        - 'lua-dbi-mysql'
+        - 'lua-event'
+        - 'lua-sec'
+
+      service: 'prosody'
+      service_user: 'prosody'
+      service_group: 'prosody'
+
+      logfile_dir: '/var/log/prosody'
+      pidfile_path: '/run/prosody/prosody.pid'
+      config_path: '/etc/prosody/prosody.cfg.lua'
+      community_modules_dir: '/usr/local/lib/prosody-modules'
+
+      repository_sources:
+        - 'deb https://packages.prosody.im/debian {oscodename} main'
+      repository_gpg_key_url: 'https://prosody.im/files/prosody-debian-packages.key'

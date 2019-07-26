@@ -1,0 +1,14 @@
+- os_family:
+    Debian:
+      server:
+        packages: ['openssh-server']
+        service: 'ssh'
+
+        config_dir: '/etc/ssh'
+        sshd_config_path: '/etc/ssh/sshd_config'
+        sshd_config_check_cmd: '/usr/sbin/sshd -t -f'
+        sftp_subsystem_cmd: '/usr/lib/openssh/sftp-server -f AUTHPRIV -l INFO'
+
+        custom_configs:
+          disable_debian_banner: |
+            DebianBanner no

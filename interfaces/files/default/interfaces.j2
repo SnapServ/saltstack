@@ -1,0 +1,11 @@
+{%- import 'interfaces/files/interface.j2' as interface_tpl -%}
+
+# Managed by SaltStack
+{% if not interfaces.single_config -%}
+source {{ interfaces.interfaces_dir }}/*
+{%- else -%}
+{%- for _interface_name, _interface in interfaces.configs|dictsort -%}
+    {{- interface_tpl.render_interface(_interface_name, _interface) -}}
+    {{- '\n\n' if not loop.last else '' -}}
+{%- endfor -%}
+{%- endif -%}

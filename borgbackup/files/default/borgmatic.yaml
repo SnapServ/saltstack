@@ -1,0 +1,35 @@
+location:
+  source_directories: {{ borgbackup.location.source_directories|yaml }}
+  repositories: {{ borgbackup.location.repositories|yaml }}
+  exclude_patterns: {{ borgbackup.location.exclude_patterns|yaml }}
+  exclude_caches: {{ borgbackup.location.exclude_caches|yaml_encode }}
+  local_path: {{ borg_bin|yaml_dquote }}
+
+storage:
+  encryption_passcommand: {{ ['cat', passphrase_path]|map('quote')|join(' ')|yaml_dquote }}
+  compression: {{ borgbackup.storage.compression|yaml_dquote }}
+  ssh_command: {{ [
+      'ssh',
+      '-i', ssh_keyfile_path,
+      '-o', 'StrictHostKeyChecking=yes',
+      '-o', 'UserKnownHostsFile=' ~ ssh_hosts_path,
+    ]|map('quote')|join(' ')|yaml_dquote }}
+  archive_name_format: {{ borgbackup.storage.archive_name_format|yaml_dquote }}
+
+retention:
+  keep_daily: {{ borgbackup.retention.keep_daily|yaml_encode }}
+  keep_weekly: {{ borgbackup.retention.keep_weekly|yaml_encode }}
+  keep_monthly: {{ borgbackup.retention.keep_monthly|yaml_encode }}
+  prefix: {{ borgbackup.retention.prefix|yaml_dquote }}
+
+consistency:
+  checks: {{ borgbackup.consistency.checks|yaml }}
+  check_last: {{ borgbackup.consistency.check_last|yaml_encode }}
+  prefix: {{ borgbackup.consistency.prefix|yaml_dquote }}
+
+hooks:
+  before_backup: {{ (borgbackup.hooks.before_backup + [
+    'salt-call state.apply borgbackup.tasks.retention_schedules',
+  ])|yaml }}
+  after_backup: {{ borgbackup.hooks.after_backup|yaml }}
+  on_error: {{ borgbackup.hooks.on_error|yaml }}

@@ -1,0 +1,18 @@
+- os_family:
+    Debian:
+      packages:
+        - 'frr'
+        - 'frr-pythontools'
+
+      service: 'frr'
+      service_user: 'frr'
+      service_group: 'frr'
+
+      vtysh_bin: '/usr/bin/vtysh'
+      config_path: '/etc/frr/frr.conf'
+      config_check_cmd: '/usr/bin/vtysh -C -f'
+      daemons_config_path: '/etc/frr/daemons'
+
+      repository_sources:
+        - 'deb https://deb.frrouting.org/frr {oscodename} frr-stable'
+      repository_gpg_key_url: 'https://deb.frrouting.org/frr/keys.asc'

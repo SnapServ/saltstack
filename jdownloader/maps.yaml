@@ -1,0 +1,7 @@
+- os_family:
+    Debian:
+      dependencies:
+        - 'openjdk-8-jre-headless'
+        - 'p7zip-full'
+        - 'unrar'
+      java_bin: '/usr/bin/java'

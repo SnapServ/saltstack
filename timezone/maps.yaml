@@ -1,0 +1,3 @@
+- os_family:
+    Debian:
+      timezone_path: '/etc/timezone'

@@ -1,3 +1,9 @@
-{% set role = salt['ss.role']('unattended-upgrades') %}
+{%- set unattended_upgrades = {} %}
 
-include: {{ role.includes|yaml }}
+{%- import 'stdlib.jinja' as stdlib %}
+{{- stdlib.formula_config(tpldir, unattended_upgrades) }}
+
+{%- if unattended_upgrades.managed %}
+include:
+  - .main
+{%- endif %}

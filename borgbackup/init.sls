@@ -1,4 +1,9 @@
-{% set role = salt['ss.role']('borgbackup') %}
-{% import role.dependency('python') as python %}{% set python = python %}
+{%- set borgbackup = {} %}
 
-include: {{ role.includes|yaml }}
+{%- import 'stdlib.jinja' as stdlib %}
+{{- stdlib.formula_config(tpldir, borgbackup) }}
+
+{%- if borgbackup.managed %}
+include:
+  - .main
+{%- endif %}

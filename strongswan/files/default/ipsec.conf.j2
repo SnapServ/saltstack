@@ -1,0 +1,15 @@
+# Managed by SaltStack
+config setup
+    uniqueids=yes
+
+conn %default
+    {%- for _key, _value in strongswan.default_peer|dictsort %}
+    {{ _key }}={{ _value }}
+    {%- endfor %}
+
+{%- for _peer_name, _peer in strongswan.peers|dictsort %}{{ '\n' }}
+conn {{ _peer_name }}
+    {%- for _key, _value in _peer|dictsort %}
+    {{ _key }}={{ _value }}
+    {%- endfor %}
+{%- endfor %}

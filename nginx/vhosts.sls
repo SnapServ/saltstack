@@ -1,12 +1,13 @@
-{% from slspath ~ '/init.sls' import role %}
-{% import slspath ~ '/macros.sls' as nginx %}
+{%- import 'stdlib.jinja' as stdlib %}
+{%- from stdlib.formula_sls(tpldir) import nginx %}
+{%- from stdlib.formula_macros(tpldir) import nginx_virtualhost %}
 
 include:
   - .global
 
 nginx/vhosts-dir:
   file.directory:
-    - name: {{ role.vars.vhosts_dir|yaml_dquote }}
+    - name: {{ nginx.vhosts_dir|yaml_dquote }}
     - user: 'root'
     - group: 'root'
     - mode: '0755'
@@ -14,7 +15,6 @@ nginx/vhosts-dir:
     - require:
       - pkg: nginx/packages
 
-{% for _vhost_name, _vhost in role.vars.vhosts|dictsort %}
-  {%- set _vhost = salt['ss.merge_recursive'](role.vars.vhost_defaults, _vhost) -%}
-  {{- nginx.virtualhost(_vhost_name, **_vhost) -}}
+{% for _vhost_name, _vhost in nginx.vhosts|dictsort %}
+  {{- nginx_virtualhost(_vhost_name, **_vhost) -}}
 {% endfor %}

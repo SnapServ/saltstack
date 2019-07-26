@@ -1,5 +1,10 @@
-{% from slspath ~ '/init.sls' import role, software %}
+{%- import 'stdlib.jinja' as stdlib %}
+{%- from stdlib.formula_sls(tpldir) import php_fpm %}
+{%- from stdlib.formula_macros('software') import software_repository %}
 
-{% for _repository_name, _repository in role.vars.repositories|dictsort %}
-  {{- software.repository(_repository_name, **_repository) -}}
-{% endfor %}
+include:
+  - software
+
+{%- for _repository_name, _repository in php_fpm.repositories|dictsort %}
+  {{- software_repository(_repository_name, **_repository) -}}
+{%- endfor %}

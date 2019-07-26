@@ -1,0 +1,4 @@
+# Managed by SaltStack
+{%- for _ssh_key in user.ssh_keys %}
+{{ _ssh_key }}
+{%- endfor %}

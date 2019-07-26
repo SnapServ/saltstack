@@ -1,0 +1,23 @@
+managed: False
+
+use_sandbox: True
+
+client:
+  socks_ports: ['127.0.0.1:9050']
+
+server:
+  address: null
+  dir_ports: []
+  or_ports: []
+  extor_ports: []
+
+  nickname: 'Unnamed'
+  contact_info: null
+
+relay:  
+  bandwidth_rate_kbytes: 0
+  bandwidth_burst_kbytes: 0
+  exit_policies:
+    - action: 'reject'
+      network: '*'
+      ports: '*'

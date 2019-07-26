@@ -1,5 +1,10 @@
-{% set role = salt['ss.role']('nginx') %}
-{% do role.add_include('global') %}
-{% do role.add_include('vhosts') %}
+{%- set nginx = {} %}
 
-include: {{ role.includes|yaml }}
+{%- import 'stdlib.jinja' as stdlib %}
+{{- stdlib.formula_config(tpldir, nginx) }}
+
+{%- if nginx.managed %}
+include:
+  - .global
+  - .vhosts
+{%- endif %}

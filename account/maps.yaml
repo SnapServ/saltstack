@@ -1,0 +1,4 @@
+- os_family:
+    Debian:
+      user_defaults:
+        shell: '/usr/sbin/nologin'

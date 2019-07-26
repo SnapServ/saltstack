@@ -1,0 +1,29 @@
+# Managed by SaltStack
+http_address = "{{ oauth2_proxy.listen_address }}"
+upstreams = ["file://{{ oauth2_proxy.static_files_dir }}#/"]
+authenticated_emails_file = "{{ oauth2_proxy.service_dir }}/authenticated-emails"
+email_domains = [
+{%- for _record in oauth2_proxy.email_domains %}
+  "{{ _record }}",
+{%- endfor %}
+]
+whitelist_domains = [
+{%- for _record in oauth2_proxy.whitelist_domains %}
+  "{{ _record }}",
+{%- endfor %}
+]
+set_xauthrequest = {{ 'true' if oauth2_proxy.set_xauthrequest else 'false' }}
+
+{%- if oauth2_proxy.cookie_domain %}
+cookie_domain = "{{ oauth2_proxy.cookie_domain }}"
+{%- endif %}
+cookie_secret = "{{ oauth2_proxy.cookie_secret }}"
+cookie_refresh = "{{ oauth2_proxy.cookie_refresh }}"
+cookie_expire = "{{ oauth2_proxy.cookie_expire }}"
+
+provider = "{{ oauth2_proxy.provider }}"
+client_id = "{{ oauth2_proxy.client_id }}"
+client_secret = "{{ oauth2_proxy.client_secret }}"
+{%- if oauth2_proxy.redirect_url %}
+redirect_url = "{{ oauth2_proxy.redirect_url }}"
+{%- endif %}

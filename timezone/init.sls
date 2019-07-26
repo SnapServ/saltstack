@@ -1,3 +1,9 @@
-{% set role = salt['ss.role']('timezone') %}
+{%- set timezone = {} %}
 
-include: {{ role.includes|yaml }}
+{%- import 'stdlib.jinja' as stdlib %}
+{{- stdlib.formula_config(tpldir, timezone) }}
+
+{%- if timezone.managed %}
+include:
+  - .main
+{%- endif %}

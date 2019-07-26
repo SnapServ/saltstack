@@ -1,9 +1,0 @@
-lldpd:
-  managed: false
-  flags: '-k'
-
-  <os_family>:
-    Debian:
-      packages: ['lldpd']
-      service: 'lldpd'
-      daemon_config_path: '/etc/default/lldpd'

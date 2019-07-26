@@ -1,0 +1,8 @@
+- os_family:
+    Debian:
+      packages: ['influxdb']
+      service: 'influxdb'
+
+      repository_sources:
+        - 'deb https://repos.influxdata.com/debian {oscodename} stable'
+      repository_gpg_key_url: 'https://repos.influxdata.com/influxdb.key'

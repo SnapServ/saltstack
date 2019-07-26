@@ -1,0 +1,8 @@
+- os_family:
+    Debian:
+      packages: ['plexmediaserver']
+      service: 'plexmediaserver'
+
+      repository_sources:
+        - 'deb https://downloads.plex.tv/repo/deb public main'
+      repository_gpg_key_url: 'https://downloads.plex.tv/plex-keys/PlexSign.key'

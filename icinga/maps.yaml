@@ -1,0 +1,18 @@
+- os_family:
+    Debian:
+      packages:
+        - 'icinga2'
+        - 'nagios-plugins'
+      service: 'icinga2'
+
+      zones_config: '/etc/icinga2/zones.conf'
+      icinga_bin: '/usr/sbin/icinga2'
+      master_cert_path: '/etc/icinga2/pki/master.crt'
+
+      config_dir: '/etc/icinga2/conf.d'
+      certs_dir: '/var/lib/icinga2/certs'
+      global_zone_dir: '/etc/icinga2/zones.d/global'
+
+      <oscodename>:
+        stretch:
+          packages_fromrepo: 'stretch-backports'

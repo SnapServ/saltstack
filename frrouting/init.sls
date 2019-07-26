@@ -1,4 +1,9 @@
-{% set role = salt['ss.role']('frrouting') %}
-{% import role.dependency('software') as software %}{% set software = software %}
+{%- set frrouting = {} %}
 
-include: {{ role.includes|yaml }}
+{%- import 'stdlib.jinja' as stdlib %}
+{{- stdlib.formula_config(tpldir, frrouting) }}
+
+{%- if frrouting.managed %}
+include:
+  - .main
+{%- endif %}

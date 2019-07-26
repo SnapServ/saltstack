@@ -1,0 +1,17 @@
+managed: False
+
+daemons:
+  bgpd: True
+  bfdd: True
+
+bgp_instances: {}
+
+routes4: []
+routes6: []
+routemaps: {}
+
+prefix_lists4: {}
+prefix_lists6: {}
+aspath_lists: {}
+community_lists: {}
+large_community_lists: {}

@@ -1,4 +1,9 @@
-{% set role = salt['ss.role']('samba') %}
-{% import role.dependency('account') as account %}{% set account = account %}
+{%- set samba = {} %}
 
-include: {{ role.includes|yaml }}
+{%- import 'stdlib.jinja' as stdlib %}
+{{- stdlib.formula_config(tpldir, samba) }}
+
+{%- if samba.managed %}
+include:
+  - .main
+{%- endif %}

@@ -1,0 +1,10 @@
+managed: False
+
+service_dir: '/opt/jdownloader'
+service_user: 'jdownloader'
+service_group: 'jdownloader'
+
+myjdownloader:
+  device_name: null
+  email_address: null
+  password: null

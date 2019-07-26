@@ -1,0 +1,14 @@
+managed: False
+
+workgroup: 'WORKGROUP'
+server_string: null
+
+passwords: {}
+options: {}
+shares: {}
+
+share_defaults:
+  comment: 'Managed by SaltStack'
+  public: False
+  browseable: True
+  writeable: True

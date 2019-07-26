@@ -1,4 +1,5 @@
-{%- set role = salt['ss.role']('ssl-cert') -%}
+{%- import 'stdlib.jinja' as stdlib %}
+{%- from stdlib.formula_sls(tpldir) import ssl_cert %}
 
 {%- macro snakeoil_certificate() -%}
   {{- role.vars.snakeoil_certificate_path -}}

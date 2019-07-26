@@ -1,34 +1,41 @@
-{% set role = salt['ss.role']('software') %}
+{%- import 'stdlib.jinja' as stdlib %}
+{%- from stdlib.formula_sls(tpldir) import software %}
 
-{% macro repository(name, sources) %}
-{% set _state_id = kwargs.get('state_id', 'software/repository/{0}'.format(name)) %}
-{% set _repo_file = role.vars.sources_dir ~ '/' ~ role.vars.sources_name_tpl.format(name) %}
+{##############################################################################
+ ## software_repository
+ ##############################################################################}
+{%- macro software_repository(name, sources) %}
 
-{% set _resource_sid = role.resource('repository', name) %}
-{% if _resource_sid not in opts.get('ss.resources', []) %}
-{{ _resource_sid }}:
-  ss.resource: []
+{#- Generate state ID and path to repository file #}
+{%- set _repo_sid = 'software/repository/' ~ name %}
+{%- set _repo_file = software.sources_dir ~ '/'
+      ~ software.sources_name_tpl.format(name) %}
 
-{% do opts.update({
-  'ss.resources': opts.get('ss.resources', []) + [_resource_sid]
-}) %}
-{% endif %}
+{#- Declare formula resource for software repository #}
+{{- stdlib.formula_resource(tpldir, 'software-repository', name) }}
 
-{{ _state_id }}:
+{#- Apply format strings in repository sources #}
+{%- set _sources = [] %}
+{%- for _source in sources %}
+  {%- do _sources.append(_source.format(**grains)) %}
+{%- endfor %}
+
+{#- Declare software repository, use file.exists to avoid cleaning #}
+{{ _repo_sid|yaml_dquote }}:
   pkgrepo.managed:
-    - names: {{ sources|yaml }}
+    - names: {{ _sources|yaml }}
     - comments: ['Managed by SaltStack']
-    {% if kwargs.gpg_key_url is defined %}
-    - key_url: {{ kwargs.get('gpg_key_url', none)|yaml_encode }}
-    {% elif kwargs.gpg_key_server is defined and kwargs.gpg_key_id is defined %}
-    - keyserver: {{ kwargs.get('gpg_key_server', none)|yaml_encode }}
-    - keyid: {{ kwargs.get('gpg_key_id', none)|yaml_encode }}
-    {% endif %}
+    {%- if kwargs.gpg_key_url is defined %}
+    - key_url: {{ kwargs.get('gpg_key_url', none)|yaml_dquote }}
+    {%- elif kwargs.gpg_key_server is defined and kwargs.gpg_key_id is defined %}
+    - keyserver: {{ kwargs.get('gpg_key_server', none)|yaml_dquote }}
+    - keyid: {{ kwargs.get('gpg_key_id', none)|yaml_dquote }}
+    {%- endif %}
     - file: {{ _repo_file|yaml_dquote }}
     - onchanges_in:
-      - {{ role.resource('repository', name) }}
+      - {{ stdlib.resource_dep('software-repository', name) }}
     - require:
-      - file: software/repository/default
+      - file: software/default-repository
     - require_in:
       - pkg: software/packages/installed
       - pkg: software/packages/latest
@@ -36,9 +43,10 @@
   file.exists:
     - name: {{ _repo_file|yaml_dquote }}
     - onchanges_in:
-      - {{ role.resource('repository', name) }}
+      - {{ stdlib.resource_dep('software-repository', name) }}
     - require:
-      - pkgrepo: {{ _state_id }}
+      - pkgrepo: {{ _repo_sid|yaml_dquote }}
     - require_in:
       - file: software/repository-dir
+
 {% endmacro %}

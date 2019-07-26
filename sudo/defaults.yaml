@@ -1,0 +1,22 @@
+managed: False
+
+user_aliases: {}
+runas_aliases: {}
+host_aliases: {}
+command_aliases: {}
+
+defaults:
+  'visiblepw': False
+  'always_set_home': True
+  'env_reset': True
+  'ignore_dot': True
+  'mail_badpass': True
+  'mail_no_perms': True
+  'requiretty': True
+  'use_pty': True
+
+  'editor': []
+  'secure_path': []
+
+rules:
+  - 'root ALL=(ALL) ALL'

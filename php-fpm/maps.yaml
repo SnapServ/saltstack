@@ -1,0 +1,27 @@
+- os_family:
+    Debian:
+      repositories:
+        sury-php:
+          sources:
+            - 'deb https://packages.sury.org/php {oscodename} main'
+          gpg_key_url: 'https://packages.sury.org/php/apt.gpg'
+
+      version_defaults:
+        packages:
+          - 'php{version:s}-fpm'
+          - 'php{version:s}-cli'
+        service: 'php{version:s}-fpm'
+
+        base_config_dir: '/etc/php/{version:s}'
+        cli_config_dir: '/etc/php/{version:s}/cli/conf.d'
+        fpm_config_dir: '/etc/php/{version:s}/fpm/conf.d'
+        fpm_pool_dir: '/etc/php/{version:s}/fpm/pool.d'
+        fpm_socket_prefix: '/run/php/php{version:s}-fpm-'
+
+      pool_defaults:
+        user: 'www-data'
+        group: 'www-data'
+
+        listen.owner: 'www-data'
+        listen.group: 'www-data'
+        listen.mode: '0660'

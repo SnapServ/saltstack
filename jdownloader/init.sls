@@ -1,4 +1,9 @@
-{% set role = salt['ss.role']('jdownloader') %}
-{% import role.dependency('account') as account %}{% set account = account %}
+{%- set jdownloader = {} %}
 
-include: {{ role.includes|yaml }}
+{%- import 'stdlib.jinja' as stdlib %}
+{{- stdlib.formula_config(tpldir, jdownloader) }}
+
+{%- if jdownloader.managed %}
+include:
+  - .main
+{%- endif %}

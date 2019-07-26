@@ -1,0 +1,9 @@
+managed: False
+single_config: False
+
+configs:
+  lo:
+    - family: 'inet'
+    - method: 'loopback'
+
+device_mappings: {}

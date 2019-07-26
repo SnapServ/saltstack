@@ -1,0 +1,31 @@
+# Managed by SaltStack
+Log notice stdout
+Sandbox {{ 1 if tor.use_sandbox else 0 }}
+
+# Client
+{%- for _port in tor.client.socks_ports or [0] %}
+SocksPort {{ _port }}
+{%- endfor %}
+
+# Server
+Address {{ tor.server.address or grains['ip4_gw'] }}
+{%- for _port in tor.server.dir_ports or [0] %}
+DirPort {{ _port }}
+{%- endfor %}
+{%- for _port in tor.server.or_ports or [0] %}
+ORPort {{ _port }}
+{%- endfor %}
+{%- for _port in tor.server.extor_ports or [0] %}
+ExtORPort {{ _port }}
+{%- endfor %}
+Nickname {{ tor.server.nickname }}
+{%- if tor.server.contact_info %}
+ContactInfo {{ tor.server.contact_info }}
+{%- endif %}
+
+# Relay
+RelayBandwidthRate {{ tor.relay.bandwidth_rate_kbytes }} KBytes
+RelayBandwidthBurst {{ tor.relay.bandwidth_burst_kbytes }} KBytes
+{%- for _policy in tor.relay.exit_policies %}
+ExitPolicy {{ _policy['action'] }} {{ _policy['network'] }}:{{ _policy['ports'] }}
+{%- endfor %}

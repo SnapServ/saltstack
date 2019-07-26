@@ -1,3 +1,9 @@
-{% set role = salt['ss.role']('knot') %}
+{%- set knot = {} %}
 
-include: {{ role.includes|yaml }}
+{%- import 'stdlib.jinja' as stdlib %}
+{{- stdlib.formula_config(tpldir, knot) }}
+
+{%- if knot.managed %}
+include:
+  - .main
+{%- endif %}

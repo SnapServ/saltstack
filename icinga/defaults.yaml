@@ -1,0 +1,6 @@
+managed: false
+
+master_fqdn: null
+master_host: null
+client_nodes: []
+global_zone_files: {}

@@ -1,0 +1,42 @@
+# Managed by SaltStack
+Port {{ openssh.server.port }}
+HostKey {{ openssh.server.config_dir }}/ssh_host_ed25519_key
+HostKey {{ openssh.server.config_dir }}/ssh_host_rsa_key
+
+KexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256
+Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr
+MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-512,hmac-sha2-256,umac-128@openssh.com
+
+StrictModes {{ 'yes' if openssh.server.strict_modes else 'no' }}
+PermitRootLogin {{ 'yes' if openssh.server.permit_root_login else 'no' }}
+UsePrivilegeSeparation {{ openssh.server.use_privilege_separation }}
+AuthenticationMethods {{ openssh.server.authentication_methods|join(' ') }}
+
+AllowAgentForwarding {{ 'yes' if openssh.server.permit_agent_forwarding else 'no' }}
+AllowTcpForwarding {{ 'yes' if openssh.server.permit_tcp_forwarding else 'no' }}
+X11Forwarding {{ 'yes' if openssh.server.permit_x11_forwarding else 'no' }}
+PermitTunnel {{ 'yes' if openssh.server.permit_tunneling else 'no' }}
+StreamLocalBindUnlink yes
+
+UsePAM {{ 'yes' if openssh.server.use_pam else 'no' }}
+UseDNS {{ 'yes' if openssh.server.use_dns else 'no' }}
+LogLevel {{ openssh.server.log_level|upper }}
+Subsystem sftp {{ openssh.server.sftp_subsystem_cmd }}
+{% if openssh.server.authorized_keys_command -%}
+AuthorizedKeysCommand {{ openssh.server.authorized_keys_command }}
+{% endif -%}
+{% if openssh.server.authorized_keys_command_user -%}
+AuthorizedKeysCommandUser {{ openssh.server.authorized_keys_command_user }}
+{% endif -%}
+
+AcceptEnv {{ openssh.server.accept_env|join(' ') }}
+AllowUsers {{ openssh.server.allow_users|join(' ') }}
+AllowGroups {{ openssh.server.allow_groups|join(' ') }}
+DenyUsers {{ openssh.server.deny_users|join(' ') }}
+DenyGroups {{ openssh.server.deny_groups|join(' ') }}
+
+{%- for _name, _config in openssh.server.custom_configs|dictsort %}
+
+# Custom Configuration: {{ _name }}
+{{ _config.strip('\n') }}
+{%- endfor %}

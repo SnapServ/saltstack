@@ -1,4 +1,9 @@
-{% set role = salt['ss.role']('openssh') %}
-{% do role.add_include('server') %}
+{%- set openssh = {} %}
 
-include: {{ role.includes|yaml }}
+{%- import 'stdlib.jinja' as stdlib %}
+{{- stdlib.formula_config(tpldir, openssh) }}
+
+{%- if openssh.managed %}
+include:
+  - .server
+{%- endif %}

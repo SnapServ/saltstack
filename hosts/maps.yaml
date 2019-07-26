@@ -1,0 +1,5 @@
+- os_family:
+    Debian:
+      hosts_path: '/etc/hosts'
+      hostname_path: '/etc/hostname'
+      hostname_cmd_fmt: 'hostnamectl set-hostname {:s}'

@@ -1,6 +1,11 @@
-{% set role = salt['ss.role']('mariadb') %}
-{% do role.add_include('server') %}
-{% do role.add_include('databases') %}
-{% do role.add_include('users') %}
+{%- set mariadb = {} %}
 
-include: {{ role.includes|yaml }}
+{%- import 'stdlib.jinja' as stdlib %}
+{{- stdlib.formula_config(tpldir, mariadb) }}
+
+{%- if mariadb.managed %}
+include:
+  - .server
+  - .databases
+  - .users
+{%- endif %}

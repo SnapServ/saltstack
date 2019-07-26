@@ -1,0 +1,16 @@
+- os_family:
+    Debian:
+      packages: ['sudo']
+      sudoers_path: '/etc/sudoers'
+      sudoers_check_cmd: '/usr/sbin/visudo -c -f'
+
+      defaults:
+        'editor':
+          - '/bin/nano'
+          - '/usr/bin/vi'
+          - '/usr/bin/vim'
+        'secure_path':
+          - '/sbin'
+          - '/bin'
+          - '/usr/sbin'
+          - '/usr/bin'

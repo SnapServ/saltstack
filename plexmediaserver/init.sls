@@ -1,4 +1,9 @@
-{% set role = salt['ss.role']('plexmediaserver') %}
-{% import role.dependency('software') as software %}{% set software = software %}
+{%- set plexmediaserver = {} %}
 
-include: {{ role.includes|yaml }}
+{%- import 'stdlib.jinja' as stdlib %}
+{{- stdlib.formula_config(tpldir, plexmediaserver) }}
+
+{%- if plexmediaserver.managed %}
+include:
+  - .main
+{%- endif %}

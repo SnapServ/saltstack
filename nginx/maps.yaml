@@ -1,0 +1,24 @@
+- os_family:
+    Debian:
+      packages: ['nginx-full']
+      service: 'nginx'
+      service_user: 'www-data'
+      service_group: 'www-data'
+
+      config_path: '/etc/nginx/nginx.conf'
+      config_check_cmd: '/usr/sbin/nginx -t -c'
+      fastcgi_config_path: '/etc/nginx/fastcgi.conf'
+      pidfile_path: '/run/nginx.pid'
+
+      global_config_includes:
+        - '/etc/nginx/modules-enabled/*.conf'
+      http_config_includes:
+        - '/etc/nginx/conf.d/*.conf'
+        - '/etc/nginx/sites-enabled/*'
+      
+      certs_dir: '/etc/nginx/certs'
+      vhosts_dir: '/etc/nginx/sites-saltstack'
+      vhost_data_dir: '/srv/www'
+      global_access_log_path: '/var/log/nginx/access.log'
+      global_error_log_path: '/var/log/nginx/error.log'
+      php_fpm_socket_path_fmt: '/run/php/php{version:s}-fpm-{pool:s}.sock'

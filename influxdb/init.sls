@@ -1,4 +1,9 @@
-{% set role = salt['ss.role']('influxdb') %}
-{% import role.dependency('software') as software %}{% set software = software %}
+{%- set influxdb = {} %}
 
-include: {{ role.includes|yaml }}
+{%- import 'stdlib.jinja' as stdlib %}
+{{- stdlib.formula_config(tpldir, influxdb) }}
+
+{%- if influxdb.managed %}
+include:
+  - .main
+{%- endif %}

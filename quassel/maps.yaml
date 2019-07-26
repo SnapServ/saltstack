@@ -1,0 +1,11 @@
+- os_family:
+    Debian:
+      core:
+        packages: ['quassel-core']
+        service: 'quasselcore'
+
+        data_dir: '/var/lib/quassel'
+
+- osfinger:
+    Debian-9:
+      packages_fromrepo: 'stretch-backports'

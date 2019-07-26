@@ -1,3 +1,9 @@
-{% set role = salt['ss.role']('interfaces') %}
+{%- set interfaces = {} %}
 
-include: {{ role.includes|yaml }}
+{%- import 'stdlib.jinja' as stdlib %}
+{{- stdlib.formula_config(tpldir, interfaces) }}
+
+{%- if interfaces.managed %}
+include:
+  - .main
+{%- endif %}

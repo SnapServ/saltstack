@@ -1,3 +1,9 @@
-{% set role = salt['ss.role']('strongswan') %}
+{%- set strongswan = {} %}
 
-include: {{ role.includes|yaml }}
+{%- import 'stdlib.jinja' as stdlib %}
+{{- stdlib.formula_config(tpldir, strongswan) }}
+
+{%- if strongswan.managed %}
+include:
+  - .main
+{%- endif %}

@@ -1,0 +1,7 @@
+managed: False
+
+origins_pattern: []
+package_blacklist: []
+
+mail_address: 'root'
+mail_only_errors: True

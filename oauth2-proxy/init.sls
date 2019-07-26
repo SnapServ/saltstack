@@ -1,4 +1,9 @@
-{% set role = salt['ss.role']('oauth2-proxy') %}
-{% import role.dependency('account') as account %}{% set account = account %}
+{%- set oauth2_proxy = {} %}
 
-include: {{ role.includes|yaml }}
+{%- import 'stdlib.jinja' as stdlib %}
+{{- stdlib.formula_config(tpldir, oauth2_proxy) }}
+
+{%- if oauth2_proxy.managed %}
+include:
+  - .main
+{%- endif %}

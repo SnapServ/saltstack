@@ -1,0 +1,13 @@
+- os_family:
+    Debian:
+      server:
+        packages: ['mariadb-server', 'python-mysqldb']
+        service: 'mariadb'
+
+      system_databases:
+        - mysql
+        - performance_schema
+        - information_schema
+
+      system_users:
+        - {'Host': 'localhost', 'User': 'root'}

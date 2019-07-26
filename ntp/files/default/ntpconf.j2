@@ -1,0 +1,16 @@
+# Managed by SaltStack
+{%- for _server in ntp.servers %}
+server {{ _server }} iburst
+{%- endfor %}
+
+driftfile {{ ntp.driftfile_path }}
+statsdir {{ ntp.stats_dir }}
+statistics loopstats peerstats clockstats
+filegen loopstats file loopstats type day enable
+filegen peerstats file peerstats type day enable
+filegen clockstats file clockstats type day enable
+
+restrict -4 default kod notrap nomodify nopeer noquery
+restrict -6 default kod notrap nomodify nopeer noquery
+restrict 127.0.0.1
+restrict ::1

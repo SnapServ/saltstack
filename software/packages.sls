@@ -1,19 +1,20 @@
-{% from slspath ~ '/init.sls' import role %}
+{%- import 'stdlib.jinja' as stdlib %}
+{%- from stdlib.formula_sls(tpldir) import software %}
 
 software/dependencies:
   pkg.installed:
-    - pkgs: {{ role.vars.dependencies|yaml }}
+    - pkgs: {{ software.dependencies|yaml }}
 
 {% for _state in ['installed', 'latest', 'removed', 'purged'] %}
 software/packages/{{ _state }}:
   pkg.{{ _state }}:
-    - pkgs: {{ role.vars.packages[_state]|yaml }}
+    - pkgs: {{ software.packages[_state]|yaml }}
     - require:
       - pkg: software/dependencies
 {% endfor %}
 
 software/remote-packages:
   pkg.installed:
-    - sources: {{ role.vars.remote_packages|yaml }}
+    - sources: {{ software.remote_packages|yaml }}
     - require:
       - pkg: software/dependencies

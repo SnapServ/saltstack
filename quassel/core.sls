@@ -1,22 +1,26 @@
-{% from slspath ~ '/init.sls' import role %}
+{%- import 'stdlib.jinja' as stdlib %}
+{%- from stdlib.formula_sls(tpldir) import quassel %}
 
 quassel/core/packages:
   pkg.installed:
-    - pkgs: {{ role.vars.core.packages|yaml }}
-    {% if 'packages_fromrepo' in role.vars %}
-    - fromrepo: {{ role.vars.packages_fromrepo }}
+    - pkgs: {{ quassel.core.packages|yaml }}
+    {% if 'packages_fromrepo' in quassel %}
+    - fromrepo: {{ quassel.packages_fromrepo }}
     {% endif %}
 
 quassel/core/deploy-cert-script:
   file.managed:
-    - name: {{ (role.vars.core.data_dir ~ '/deploy-cert.sh')|yaml_dquote }}
-    - source: {{ role.tpl_path('deploy-cert.sh.j2')|yaml_dquote }}
+    - name: {{ (quassel.core.data_dir ~ '/deploy-cert.sh')|yaml_dquote }}
+    - source: {{ stdlib.formula_tofs(tpldir,
+        source_files=['deploy-cert.sh.j2'],
+        lookup='deploy-cert-script'
+      ) }}
     - template: 'jinja'
     - user: 'root'
     - group: 'root'
     - mode: '0755'
     - context:
-        vars: {{ role.vars|yaml }}
+        quassel: {{ quassel|yaml }}
     - require:
       - pkg: quassel/core/packages
 
@@ -45,7 +49,7 @@ quassel/core/support-service-reload:
 
 quassel/core/service:
   service.running:
-    - name: {{ role.vars.core.service|yaml_dquote }}
+    - name: {{ quassel.core.service|yaml_dquote }}
     - enable: true
     - reload: true
     - require:

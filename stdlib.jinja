@@ -1,0 +1,197 @@
+{##############################################################################
+ ## resource_dep
+ ##############################################################################}
+{%- macro resource_dep(type, name) %}
+  {{- {'test': ('@' ~ type ~ '/' ~ name)}|yaml }}
+{%- endmacro %}
+
+
+{##############################################################################
+ ## ensure_var
+ ##############################################################################}
+{%- macro ensure_var(name, var) %}
+  {%- if name is none %}
+    {{- salt['test.exception'](
+      'Required variable [{:s}] has not been set'.format(name)
+    ) }}
+  {%- endif %}
+{%- endmacro %}
+
+
+{##############################################################################
+ ## formula_name
+ ##############################################################################}
+{%- macro formula_name(tpldir) %}
+
+{{- tpldir.split('/')[0] }}
+
+{%- endmacro %}
+
+
+{##############################################################################
+ ## formula_sls
+ ##############################################################################}
+{%- macro formula_sls(tpldir) %}
+
+{{- formula_name(tpldir) ~ '/init.sls' }}
+
+{%- endmacro %}
+
+
+{##############################################################################
+ ## formula_macros
+ ##############################################################################}
+{%- macro formula_macros(tpldir) %}
+
+{{- formula_name(tpldir) ~ '/macros.sls' }}
+
+{%- endmacro %}
+
+
+{##############################################################################
+ ## formula_config
+ ##############################################################################}
+{%- macro formula_config(tpldir, ns) %}
+
+{#- Retrieve formula name #}
+{%- set _formula_name = formula_name(tpldir) %}
+
+{#- Load formula defaults and maps #}
+{%- import_yaml _formula_name ~ '/defaults.yaml' as _defaults %}
+{%- import_yaml _formula_name ~ '/maps.yaml' as _maps %}
+
+{#- Retrieve config dict for formula #}
+{%- set _config = salt['config.get'](_formula_name, default={}) %}
+
+{#- Generate map results by processing all maps #}
+{%- set _map_results = {} %}
+{%- for _map in (_maps or [])|reverse %}
+  {#- Ensure each entry represents a single dict key #}
+  {%- set _map_keys = _map.keys()|list %}
+  {%- if _map_keys|length != 1 %}
+    {{ salt['test.exception']('Expected single dict key in maps.yaml'
+        ~ 'entry, got ' ~ _map_keys|length ~ ': ' ~ _map_keys) }}
+  {%- endif %}
+
+  {#- Use dict key as grain and value as map data #}
+  {%- set _map_grain = _map_keys[0] %}
+  {%- set _map_data = _map[_map_grain] %}
+
+  {#- Update defaults with given map using grains.filter_by #}
+  {%- do _map_results.update(salt['grains.filter_by'](
+    _map_data,
+    grain=_map_grain,
+    merge=_map_results
+  ) or {}) %}
+{%- endfor %}
+
+{#- Merge map results over formula defaults #}
+{%- set defaults = salt['defaults.merge'](
+  _defaults, _map_results
+) %}
+
+{#- Generate actual config by merging with processed defaults #}
+{%- set config = salt['grains.filter_by'](
+  {'defaults': defaults},
+  default='defaults',
+  merge=_config,
+) %}
+
+{#- Update formula namespace #}
+{%- do ns.update(config) %}
+
+{%- endmacro %}
+
+
+{##############################################################################
+ ## formula_resource
+ ##############################################################################}
+{%- macro formula_resource(tpldir, type, name) %}
+
+{#- Retrieve formula name and generate state ID #}
+{%- set _formula_name = formula_name(tpldir) %}
+{%- set _resource_id = '@' ~ type ~ '/' ~ name %}
+
+{#- Create dummy test state as resource declaration #}
+{{ _resource_id|yaml_dquote }}:
+  test.configurable_test_state:
+    - result: true
+    - changes: true
+    - comment: {{ ('Resource: type=[' ~ type ~ '] name=[' ~ name ~ '] formula='
+                  ~ _formula_name ~ ']')|yaml_dquote }}
+
+{%- endmacro %}
+
+
+{##############################################################################
+ ## formula_tofs
+ ##############################################################################}
+{%- macro formula_tofs(tpldir,
+                       source_files,
+                       lookup=None,
+                       default_files_switch=['id', 'os_family']) %}
+
+{#- Retrieve TOFS configuration based on formula name #}
+{%- set _tplroot = formula_name(tpldir) %}
+{%- set _path_prefix = salt['config.get'](
+  _tplroot ~ ':tofs:path_prefix',
+  _tplroot
+) %}
+{%- set _files_dir = salt['config.get'](
+  _tplroot ~ ':tofs:dirs:files',
+  'files'
+) %}
+{%- set _files_switch_list = salt['config.get'](
+  _tplroot ~ ':tofs:files_switch',
+  default_files_switch
+) %}
+
+{#- Lookup source files or fallback to an empty list #}
+{%- set _custom_source_files = salt['config.get'](
+  _tplroot ~ ':tofs:source_files:' ~ lookup,
+  []
+) %}
+
+{#- Append default source_files to custom source files #}
+{%- set _source_files = _custom_source_files + source_files %}
+
+{#- Append None to the FSL, evaluated as 'default' below #}
+{%- if '' not in _files_switch_list%}
+  {%- do _files_switch_list.append(none) %}
+{%- endif %}
+
+{#- Loop through files switch list to generate URLs #}
+{%- set _file_urls = [] %}
+{%- for _file_switch in _files_switch_list %}
+  {%- for _source_file in _source_files %}
+    {#- Evaluate file switch based on config #}
+    {%- if _file_switch is none %}
+      {%- set _file_dirs = salt['config.get'](
+        _tplroot ~ ':tofs:dirs:default', 'default'
+      ) %}
+    {%- else %}
+      {%- set _file_dirs = salt['config.get'](_file_switch, _file_switch) %}
+    {%- endif %}
+
+    {#- Ensure _file_dirs is a list to support list-grains too #}
+    {%- if _file_dirs is string %}
+      {%- set _file_dirs = [_file_dirs] %}
+    {%- endif %}
+
+    {#- Generate and print source URL for each file dir #}
+    {%- for _file_dir in _file_dirs %}
+      {%- do _file_urls.append([
+        'salt:/',
+        _path_prefix.strip('/'),
+        _files_dir.strip('/'), 
+        _file_dir.strip('/'),
+        _source_file.strip('/')
+      ]|select|join('/')) %}
+    {%- endfor %}
+  {%- endfor %}
+{%- endfor %}
+
+{#- Output source URLs as YAML-formatted list #}
+{{- _file_urls|yaml }}
+
+{%- endmacro %}

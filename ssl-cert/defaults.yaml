@@ -1,0 +1,8 @@
+managed: False
+
+acmesh_repository: 'https://github.com/Neilpang/acme.sh.git'
+acmesh_revision: '2.8.0'
+
+acmedns_update_url: 'https://auth.example.com/update'
+
+certificates: {}

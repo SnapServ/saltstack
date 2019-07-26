@@ -1,0 +1,11 @@
+# Managed by SaltStack
+{%- if resolvconf.search_paths %}
+search {{ resolvconf.search_paths|join(' ') }}
+{%- endif %}
+{%- for _nameserver in resolvconf.nameservers %}
+nameserver {{ _nameserver }}
+{%- endfor %}
+options
+    {{- ' timeout:' ~ resolvconf.resolver_timeout }}
+    {{- ' attempts:' ~ resolvconf.resolver_attempts }}
+    {{- ' rotate' if resolvconf.resolver_round_robin else '' }}

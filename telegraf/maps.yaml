@@ -1,0 +1,14 @@
+- os_family:
+    Debian:
+      packages: ['telegraf']
+
+      service: 'telegraf'
+      service_user: 'telegraf'
+      service_group: 'telegraf'
+
+      config_path: '/etc/telegraf/telegraf.conf'
+      config_check_cmd: '/usr/bin/telegraf -test -config'
+
+      repository_sources:
+        - 'deb https://repos.influxdata.com/debian {oscodename} stable'
+      repository_gpg_key_url: 'https://repos.influxdata.com/influxdb.key'

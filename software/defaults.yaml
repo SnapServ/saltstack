@@ -1,0 +1,10 @@
+managed: False
+
+packages:
+  installed: []
+  latest: []
+  removed: []
+  purged: []
+
+remote_packages: {}
+repositories: {}

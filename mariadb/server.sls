@@ -1,13 +1,14 @@
-{% from slspath ~ '/init.sls' import role %}
+{%- import 'stdlib.jinja' as stdlib %}
+{%- from stdlib.formula_sls(tpldir) import mariadb %}
 
 mariadb/server/packages:
   pkg.installed:
-    - pkgs: {{ role.vars.server.packages|yaml }}
+    - pkgs: {{ mariadb.server.packages|yaml }}
     - reload_modules: True
 
 mariadb/server/service:
   service.running:
-    - name: {{ role.vars.server.service|yaml_dquote }}
+    - name: {{ mariadb.server.service|yaml_dquote }}
     - enable: True
     - reload: True
     - require:

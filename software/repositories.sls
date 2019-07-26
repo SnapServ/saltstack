@@ -1,29 +1,33 @@
-{% from slspath ~ '/init.sls' import role %}
-{% import slspath ~ '/macros.sls' as software %}
+{%- import 'stdlib.jinja' as stdlib %}
+{%- from stdlib.formula_sls(tpldir) import software %}
+{%- from stdlib.formula_macros(tpldir) import software_repository %}
+
+include:
+  - .packages
 
 software/repository-dir:
   file.directory:
-    - name: {{ role.vars.sources_dir|yaml_dquote }}
+    - name: {{ software.sources_dir|yaml_dquote }}
     - user: 'root'
     - group: 'root'
     - mode: '0755'
-    - clean: True
+    - clean: {{ False if opts['arg'] else True }}
 
-software/repository/default:
+software/default-repository:
   file.managed:
-    - name: {{ role.vars.sources_path|yaml_dquote }}
+    - name: {{ software.sources_path|yaml_dquote }}
     - contents: '# Managed by SaltStack in /etc/apt/sources.list.d'
     - user: 'root'
     - group: 'root'
     - mode: '0444'
     - require:
-        - pkg: software/dependencies
-        - pkg: software/packages/removed
-        - pkg: software/packages/purged
+      - pkg: software/dependencies
+      - pkg: software/packages/removed
+      - pkg: software/packages/purged
     - require_in:
-        - pkg: software/packages/installed
-        - pkg: software/packages/latest
+      - pkg: software/packages/installed
+      - pkg: software/packages/latest
 
-{% for _repo_name, _repo in role.vars.repositories|dictsort %}
-  {{- software.repository(_repo_name, **_repo) -}}
-{% endfor %}
+{%- for _repo_name, _repo in software.repositories|dictsort %}
+  {{- software_repository(_repo_name, **_repo) }}
+{%- endfor %}

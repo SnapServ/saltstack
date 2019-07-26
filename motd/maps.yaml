@@ -1,0 +1,5 @@
+- os_family:
+    Debian:
+      packages: ['lsb-release']
+      static_motd_path: '/etc/motd'
+      dynamic_motd_dir: '/etc/update-motd.d'

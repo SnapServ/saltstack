@@ -1,4 +1,9 @@
-{% set role = salt['ss.role']('telegraf') %}
-{% import role.dependency('software') as software %}{% set software = software %}
+{%- set telegraf = {} %}
 
-include: {{ role.includes|yaml }}
+{%- import 'stdlib.jinja' as stdlib %}
+{{- stdlib.formula_config(tpldir, telegraf) }}
+
+{%- if telegraf.managed %}
+include:
+  - .main
+{%- endif %}

@@ -1,0 +1,12 @@
+- os_family:
+    Debian:
+      packages:
+        - 'strongswan'
+        - 'strongswan-pki'
+        - 'libstrongswan-standard-plugins'
+      service: 'strongswan'
+
+      daemon_config_path: '/etc/ipsec.conf'
+      secrets_config_path: '/etc/ipsec.secrets'
+      pubkey_public_path: '/etc/ipsec.d/public'
+      pubkey_private_path: '/etc/ipsec.d/private'

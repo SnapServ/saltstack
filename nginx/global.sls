@@ -1,19 +1,23 @@
-{% from slspath ~ '/init.sls' import role %}
+{%- import 'stdlib.jinja' as stdlib %}
+{%- from stdlib.formula_sls(tpldir) import nginx %}
 
 nginx/packages:
   pkg.installed:
-    - pkgs: {{ role.vars.packages|yaml }}
+    - pkgs: {{ nginx.packages|yaml }}
 
 nginx/config:
   file.managed:
-    - name: {{ role.vars.config_path|yaml_dquote }}
-    - source: {{ role.tpl_path('nginx.conf.j2')|yaml_dquote }}
+    - name: {{ nginx.config_path|yaml_dquote }}
+    - source: {{ stdlib.formula_tofs(tpldir,
+        source_files=['nginx.conf.j2'],
+        lookup='nginx-config'
+      ) }}
     - template: 'jinja'
     - user: 'root'
     - group: 'root'
     - mode: '0644'
     - context:
-        vars: {{ role.vars|yaml }}
+        nginx: {{ nginx|yaml }}
     - require:
       - pkg: nginx/packages
     - watch_in:
@@ -21,14 +25,17 @@ nginx/config:
 
 nginx/fastcgi-config:
   file.managed:
-    - name: {{ role.vars.fastcgi_config_path|yaml_dquote }}
-    - source: {{ role.tpl_path('fastcgi.conf.j2')|yaml_dquote }}
+    - name: {{ nginx.fastcgi_config_path|yaml_dquote }}
+    - source: {{ stdlib.formula_tofs(tpldir,
+        source_files=['fastcgi.conf.j2'],
+        lookup='fastcgi-config'
+      ) }}
     - template: 'jinja'
     - user: 'root'
     - group: 'root'
     - mode: '0644'
     - context:
-        vars: {{ role.vars|yaml }}
+        nginx: {{ nginx|yaml }}
     - require:
       - pkg: nginx/packages
     - watch_in:
@@ -36,14 +43,14 @@ nginx/fastcgi-config:
 
 nginx/service:
   service.running:
-    - name: {{ role.vars.service|yaml_dquote }}
+    - name: {{ nginx.service|yaml_dquote }}
     - enable: True
     - require:
       - pkg: nginx/packages
 
 nginx/service-reload:
   service.running:
-    - name: {{ role.vars.service|yaml_dquote }}
+    - name: {{ nginx.service|yaml_dquote }}
     - reload: True
     - require:
       - service: nginx/service
