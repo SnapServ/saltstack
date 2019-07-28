@@ -1,8 +1,7 @@
 # pylint: disable=missing-docstring,undefined-variable
 from __future__ import absolute_import, print_function, generators, unicode_literals
 import itertools
-from salt.ext import ipaddress, six
-from ss import merge_recursive
+from salt.ext import six
 
 
 def parse_pillar_zones(zones_pillar):
@@ -51,10 +50,12 @@ def _parse_pillar_zone(zones, zone_name):
     # Merge mixin records in given order
     for mixin in zone.get('mixins', []):
         records = zones[mixin].get('records', {})
-        zone_records = merge_recursive(zone_records, records)
+        zone_records = __salt__['defaults.merge'](
+            zone_records, records, merge_lists=True, in_place=False)
 
     # Merge declared records into mixin records
-    zone = merge_recursive(dict(records=zone_records), zone)
+    zone = __salt__['defaults.merge'](
+        dict(records=zone_records), zone, merge_lists=True, in_place=False)
 
     # Return zone with merged records
     return zone
