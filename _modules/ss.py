@@ -55,6 +55,11 @@ class LuaSerializer(object):
                 return delim_open, delim_close
 
 
+def dict_strip_none(obj):
+    return dict((k, v) for k, v in six.iteritems(obj)
+                if k is not None and v is not None)
+
+
 def format_recursive(obj, **kwargs):
     if isinstance(obj, six.string_types):
         return obj.format(**kwargs)
