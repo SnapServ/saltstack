@@ -108,17 +108,39 @@
  ##############################################################################}
 {%- macro formula_resource(tpldir, type, name) %}
 
-{#- Retrieve formula name and generate state ID #}
+{#- Retrieve formula name and generate resource ID #}
 {%- set _formula_name = formula_name(tpldir) %}
-{%- set _resource_id = '@' ~ type ~ '/' ~ name %}
+{%- set _formula_rid = '@' ~ type ~ '/' ~ name %}
+
+{#- Persist resource declaration to support duplicate checks #}
+{%- do opts.update({
+  '__resources__': opts.get('__resources__', []) + [_formula_rid]
+}) %}
 
 {#- Create dummy test state as resource declaration #}
-{{ _resource_id|yaml_dquote }}:
+{{ _formula_rid|yaml_dquote }}:
   test.configurable_test_state:
     - result: true
     - changes: true
     - comment: {{ ('Resource: type=[' ~ type ~ '] name=[' ~ name ~ '] formula='
                   ~ _formula_name ~ ']')|yaml_dquote }}
+
+{%- endmacro %}
+
+
+{##############################################################################
+ ## formula_resource_block
+ ##############################################################################}
+{%- macro formula_resource_block(tpldir, type, name) %}
+
+{#- Generate resource ID #}
+{%- set _formula_rid = '@' ~ type ~ '/' ~ name %}
+
+{#- Skip block if resource is already defined #}
+{%- if _formula_rid not in opts.get('__resources__', []) %}
+{{ formula_resource(tpldir, type, name) }}
+{{ caller() }}
+{%- endif %}
 
 {%- endmacro %}
 
