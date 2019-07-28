@@ -11,7 +11,7 @@ software/repository-dir:
     - user: 'root'
     - group: 'root'
     - mode: '0755'
-    - clean: {{ False if opts['arg'] else True }}
+    - clean: {{ False if opts['arg']|default([]) else True }}
 
 software/default-repository:
   file.managed:

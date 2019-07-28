@@ -18,7 +18,7 @@ $TTL {{ zonefile.default_ttl }}
 )
 {##}
 {%- for _record_name, _records in zonefile.records|dictsort %}
-{%- for _record in salt['ss.parse_properties'](_records)|sort(attribute='key') %}
+{%- for _record in salt['ss.parse_properties_list'](_records)|sort(attribute='key') %}
 {%- set _record_type, _record_data = _record.key, _record.value %}
 
 {%- if _record_type.upper() == 'TXT' %}

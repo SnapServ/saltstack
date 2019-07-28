@@ -5,14 +5,12 @@
  ## software_repository
  ##############################################################################}
 {%- macro software_repository(name, sources) %}
+{%- call stdlib.formula_resource_block(tpldir, 'software-repository', name) %}
 
 {#- Generate state ID and path to repository file #}
 {%- set _repo_sid = 'software/repository/' ~ name %}
 {%- set _repo_file = software.sources_dir ~ '/'
       ~ software.sources_name_tpl.format(name) %}
-
-{#- Declare formula resource for software repository #}
-{{- stdlib.formula_resource(tpldir, 'software-repository', name) }}
 
 {#- Apply format strings in repository sources #}
 {%- set _sources = [] %}
@@ -49,4 +47,5 @@
     - require_in:
       - file: software/repository-dir
 
+{%- endcall %}
 {% endmacro %}

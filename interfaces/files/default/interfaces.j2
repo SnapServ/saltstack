@@ -1,4 +1,5 @@
-{%- import 'interfaces/files/interface.j2' as interface_tpl -%}
+{#- TODO: Figure out a portable way of doing this #}
+{%- import 'interfaces/files/default/interface.j2' as interface_tpl -%}
 
 # Managed by SaltStack
 {% if not interfaces.single_config -%}

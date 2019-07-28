@@ -3,7 +3,7 @@
 {%- from stdlib.formula_macros('software') import software_repository %}
 
 include:
-  - software/
+  - software
 
 {{ software_repository(
   name='influxdata',

@@ -40,7 +40,13 @@ knot/zonefiles-dir:
 
 {%- set _zonefiles = salt['ss_knot.parse_pillar_zones'](knot.zonefiles) %}
 {%- for _zonefile_name, _zonefile in _zonefiles|dictsort %}
-{%- set _zonefile = salt['ss.merge_recursive'](knot.zonefile_defaults, _zonefile) %}
+
+{#- Merge zonefile settings with defaults #}
+{%- set _zonefile = salt['defaults.merge'](
+  knot.zonefile_defaults,
+  _zonefile,
+  in_place=False
+) %}
 
 {#- Do not configure zonefiles starting with a dot - they're YAML snippets #}
 {%- if not _zonefile_name.startswith('.') %}

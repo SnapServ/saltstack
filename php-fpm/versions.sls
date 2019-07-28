@@ -75,11 +75,20 @@
 {%- endfor %}
 
 {%- for _pool_name, _pool in _version.pools|dictsort %}
-{%- set _pool = salt['ss.merge_recursive'](php_fpm.pool_defaults, _pool) %}
-{%- set _pool = salt['ss.merge_recursive']({
-  'listen': _version.fpm_socket_prefix ~ _pool_name ~ '.sock',
-}, _pool) %}
 
+{#- Merge pool settings with defaults #}
+{%- set _pool = salt['defaults.merge'](
+  php_fpm.pool_defaults,
+  _pool,
+  in_place=False
+) %}
+
+{#- Build path to listen socket if missing #}
+{%- set _pool = salt['defaults.merge']({
+  'listen': _version.fpm_socket_prefix ~ _pool_name ~ '.sock',
+}, _pool, in_place=False) %}
+
+{#- Declare pool #}
 {{ _version_sid }}/pool/{{ _pool_name }}:
   file.managed:
     - name: {{ (_version.fpm_pool_dir ~ '/' ~ _pool_name ~ '.conf')|yaml_dquote }}
@@ -103,6 +112,7 @@
       - file: {{ _version_sid }}/pool-dir
     - watch_in:
       - service: {{ _version_sid }}/service
+
 {%- endfor %}
 
 {{ _version_sid }}/service:

@@ -23,8 +23,15 @@
 {%- endfor %}
 
 {%- for _share_name, _share in samba.shares|dictsort %}
-{%- set _share = salt['ss.merge_recursive'](samba.share_defaults, _share) %}
 
+{#- Merge share settings with defaults #}
+{%- set _share = salt['defaults.merge'](
+  samba.share_defaults,
+  _share,
+  in_place=False
+) %}
+
+{#- Generate share config #}
 [{{ _share_name }}]
 {%- for _key, _value in _share|dictsort %}
   {{ samba_option(_key, _value) }}

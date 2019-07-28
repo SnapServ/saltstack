@@ -49,7 +49,7 @@ log:
 {%- if knot.get('keys').keys()|length %}{{ '\n' }}
 key:
 {%- for _key_id, _key in knot.get('keys')|dictsort %}
-{%- set _key = salt['ss.merge_recursive'](knot.key_defaults, _key) %}
+{%- set _key = salt['defaults.merge'](knot.key_defaults, _key, in_place=False) %}
 {%- do _key.update({'id': _key_id}) %}
 
 {#-#}
@@ -65,7 +65,7 @@ key:
 {%- if knot.policies.keys()|length %}{{ '\n' }}
 policy:
 {%- for _policy_id, _policy in knot.policies|dictsort %}
-{%- set _policy = salt['ss.merge_recursive'](knot.policy_defaults, _policy) %}
+{%- set _policy = salt['defaults.merge'](knot.policy_defaults, _policy, in_place=False) %}
 {%- do _policy.update({'id': _policy_id}) %}
 
 {#-#}
@@ -98,7 +98,7 @@ policy:
 {%- if knot.remotes.keys()|length %}{{ '\n' }}
 remote:
 {%- for _remote_id, _remote in knot.remotes|dictsort %}
-{%- set _remote = salt['ss.merge_recursive'](knot.remote_defaults, _remote) %}
+{%- set _remote = salt['defaults.merge'](knot.remote_defaults, _remote, in_place=False) %}
 {%- do _remote.update({'id': _remote_id}) %}
 
 {#-#}
@@ -115,7 +115,7 @@ remote:
 {%- if knot.acls.keys()|length %}{{ '\n' }}
 acl:
 {%- for _acl_id, _acl in knot.acls|dictsort %}
-{%- set _acl = salt['ss.merge_recursive'](knot.acl_defaults, _acl) %}
+{%- set _acl = salt['defaults.merge'](knot.acl_defaults, _acl, in_place=False) %}
 {%- do _acl.update({'id': _acl_id}) %}
 
 {#-#}
@@ -133,7 +133,7 @@ acl:
 {%- if knot.zones.keys()|length %}{{ '\n' }}
 zone:
 {%- for _zone_domain, _zone in knot.zones|dictsort %}
-{%- set _zone = salt['ss.merge_recursive'](knot.zone_defaults, _zone) %}
+{%- set _zone = salt['defaults.merge'](knot.zone_defaults, _zone, in_place=False) %}
 {%- do _zone.update({'domain': _zone_domain}) %}
 
 {#-#}
