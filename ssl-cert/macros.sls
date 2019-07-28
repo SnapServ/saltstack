@@ -2,11 +2,11 @@
 {%- from stdlib.formula_sls(tpldir) import ssl_cert %}
 
 {%- macro snakeoil_certificate() -%}
-  {{- role.vars.snakeoil_certificate_path -}}
+  {{- ssl_cert.snakeoil_certificate_path -}}
 {%- endmacro -%}
 
 {%- macro snakeoil_keyfile() -%}
-  {{- role.vars.snakeoil_keyfile_path -}}
+  {{- ssl_cert.snakeoil_keyfile_path -}}
 {%- endmacro -%}
 
 {%- macro safe_certificate(_path) -%}
