@@ -17,7 +17,7 @@ base:
     - ntp
 
   'I.@acme-dns.managed': [acme-dns]
-  'I.@archiveteam-warrior.managed': [archiveteam-warrior]
+  'I.@atwarrior.managed': [atwarrior]
   'I.@backupninja.managed': [backupninja]
   'I.@borgbackup.managed': [borgbackup]
   'I.@docker.managed': [docker]
