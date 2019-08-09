@@ -4,7 +4,8 @@
 {##############################################################################
  ## software_repository
  ##############################################################################}
-{%- macro software_repository(name, sources) %}
+{%- macro software_repository(name, sources, gpg_key_url=none,
+                              gpg_key_server=none, gpg_key_id=none) %}
 {%- call stdlib.formula_resource_block(tpldir, 'software-repository', name) %}
 
 {#- Generate state ID and path to repository file #}
@@ -23,11 +24,11 @@
   pkgrepo.managed:
     - names: {{ _sources|yaml }}
     - comments: ['Managed by SaltStack']
-    {%- if kwargs.gpg_key_url is defined %}
-    - key_url: {{ kwargs.get('gpg_key_url', none)|yaml_dquote }}
-    {%- elif kwargs.gpg_key_server is defined and kwargs.gpg_key_id is defined %}
-    - keyserver: {{ kwargs.get('gpg_key_server', none)|yaml_dquote }}
-    - keyid: {{ kwargs.get('gpg_key_id', none)|yaml_dquote }}
+    {%- if gpg_key_url %}
+    - key_url: {{ gpg_key_url|yaml_dquote }}
+    {%- elif gpg_key_server and gpg_key_id %}
+    - keyserver: {{ gpg_key_server|yaml_dquote }}
+    - keyid: {{ gpg_key_id|yaml_dquote }}
     {%- endif %}
     - file: {{ _repo_file|yaml_dquote }}
     - onchanges_in:
