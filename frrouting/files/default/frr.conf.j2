@@ -255,21 +255,29 @@ ipv6 route {{ _route.prefix }} {{ _route.target }}
 
 {%- for _name, _entries in frrouting.prefix_lists4|dictsort %}
 {%- for _entry in _entries %}
+{%- if _entry|mapping %}
 ip prefix-list {{ _name }} seq {{ loop.index * 10 }}
   {{- ' ' ~ (_entry.action|default('permit')) }}
   {{- ' ' ~ (_entry.prefix|default('any')) }}
   {{- (' ge ' ~ _entry.ge) if 'ge' in _entry else '' }}
   {{- (' le ' ~ _entry.le) if 'le' in _entry else '' }}
+{%- else %}
+ip prefix-list {{ _name }} seq {{ loop.index * 10 }} permit {{ _entry }}
+{%- endif %}
 {%- endfor %}
 {%- endfor %}
 
 {%- for _name, _entries in frrouting.prefix_lists6|dictsort %}
 {%- for _entry in _entries %}
+{%- if _entry|mapping %}
 ipv6 prefix-list {{ _name }} seq {{ loop.index * 10 }}
   {{- ' ' ~ (_entry.action|default('permit')) }}
   {{- ' ' ~ (_entry.prefix|default('any')) }}
   {{- (' ge ' ~ _entry.ge) if 'ge' in _entry else '' }}
   {{- (' le ' ~ _entry.le) if 'le' in _entry else '' }}
+{%- else %}
+ipv6 prefix-list {{ _name }} seq {{ loop.index * 10 }} permit {{ _entry }}
+{%- endif %}
 {%- endfor %}
 {%- endfor %}
 
