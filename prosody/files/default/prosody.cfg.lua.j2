@@ -4,6 +4,7 @@
 
 -- Managed by SaltStack
 use_libevent = true
+daemonize = false
 pidfile = {{ lua(prosody.pidfile_path) }}
 plugin_paths = {{ lua([prosody.community_modules_dir]) }}
 
