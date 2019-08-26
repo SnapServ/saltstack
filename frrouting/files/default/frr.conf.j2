@@ -255,7 +255,7 @@ ipv6 route {{ _route.prefix }} {{ _route.target }}
 
 {%- for _name, _entries in frrouting.prefix_lists4|dictsort %}
 {%- for _entry in _entries %}
-{%- if _entry|mapping %}
+{%- if _entry is mapping %}
 ip prefix-list {{ _name }} seq {{ loop.index * 10 }}
   {{- ' ' ~ (_entry.action|default('permit')) }}
   {{- ' ' ~ (_entry.prefix|default('any')) }}
@@ -269,7 +269,7 @@ ip prefix-list {{ _name }} seq {{ loop.index * 10 }} permit {{ _entry }}
 
 {%- for _name, _entries in frrouting.prefix_lists6|dictsort %}
 {%- for _entry in _entries %}
-{%- if _entry|mapping %}
+{%- if _entry is mapping %}
 ipv6 prefix-list {{ _name }} seq {{ loop.index * 10 }}
   {{- ' ' ~ (_entry.action|default('permit')) }}
   {{- ' ' ~ (_entry.prefix|default('any')) }}
