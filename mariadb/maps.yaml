@@ -1,7 +1,10 @@
 - os_family:
     Debian:
       server:
-        packages: ['mariadb-server', 'python-mysqldb']
+        packages:
+          - 'mariadb-server'
+          - 'mariadb-backup'
+          - 'python-mysqldb'
         service: 'mariadb'
 
       system_databases:
