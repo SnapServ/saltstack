@@ -2,7 +2,6 @@
     Debian:
       packages:
         - 'docker-ce'
-        - 'docker-compose'
       service: 'docker'
 
       daemon_config_path: '/etc/docker/daemon.json'
