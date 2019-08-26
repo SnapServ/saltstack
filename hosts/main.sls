@@ -3,8 +3,8 @@
 
 {%- set _hostname = hosts.hostname or grains['host'] %}
 {%- set _domain = hosts.domain or grains['domain'] %}
-{%- set _primary_address4 = hosts.primary_address4 or grains['ip4_gw'] %}
-{%- set _primary_address6 = hosts.primary_address6 or grains['ip6_gw'] %}
+{%- set _primary_address4 = hosts.primary_address4 or salt['network.ip_addrs'](type='public')|first|default(none) %}
+{%- set _primary_address6 = hosts.primary_address6 or salt['network.ip_addrs6'](cidr='2000::/3')|first|default(none) %}
 
 {{- stdlib.ensure_var('hostname', _hostname) }}
 {{- stdlib.ensure_var('domain', _domain) }}
