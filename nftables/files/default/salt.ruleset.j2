@@ -67,7 +67,7 @@ set {{ _name }} {
   {%- endif %}
 {%- endfor %}
 
-{%- set _parsed_rules = _parsed_rules.values() %}
+{%- set _parsed_rules = _parsed_rules.values()|list %}
 {%- if _parsed_rules|length > 1 %}
   {%- for _parsed_rule in _parsed_rules %}
     {{- _block_wrap(_generate_rule(_parsed_rule), '\n') }}
