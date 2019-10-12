@@ -1,7 +1,7 @@
 managed: False
 
 acmesh_repository: 'https://github.com/Neilpang/acme.sh.git'
-acmesh_revision: '2.8.0'
+acmesh_revision: '2.8.3'
 
 acmedns_update_url: 'https://auth.example.com/update'
 
