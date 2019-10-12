@@ -320,14 +320,14 @@ route-map {{ _name }} {{ _entry.action|default('permit') }} {{ loop.index * 10 }
   {%- endif %}
 
   {%- for _matcher in _entry.match|default([]) %}
-    {%- set _matcher_type = _matcher.keys()[0] %}
+    {%- set _matcher_type = (_matcher.keys()|list)[0] %}
     {%- set _matcher_value = _matcher[_matcher_type] %}
 
     {{- '\n  ' ~ routemap_matcher(_matcher_type, _matcher_value)|indent(2) }}
   {%- endfor %}
 
   {%- for _setter in _entry.set|default([]) %}
-    {%- set _setter_type = _setter.keys()[0] %}
+    {%- set _setter_type = (_setter.keys()|list)[0] %}
     {%- set _setter_value = _setter[_setter_type] %}
 
     {{- '\n  ' ~ routemap_setter(_setter_type, _setter_value)|indent(2) }}
